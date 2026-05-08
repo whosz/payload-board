@@ -1,0 +1,49 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Build and publish release
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: Payload Board ${{ github.ref_name }}
+          releaseBody: |
+            ## Installation
+
+            1. Download `Payload-Board_x.x.x_x64-setup.exe` below
+            2. Run the installer — Windows may show a SmartScreen warning, click "More info → Run anyway"
+            3. That's it. Rust, Node.js and other tools are **not required**.
+
+            **Requirements:** Windows 10 or 11 (64-bit)
+          releaseDraft: true
+          prerelease: false
