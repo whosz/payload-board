@@ -6,8 +6,19 @@ use super::PlatformAdapter;
 pub struct WindowsAdapter;
 
 impl PlatformAdapter for WindowsAdapter {
-    fn extract_icon(&self, _exe_path: &PathBuf) -> Option<PathBuf> {
-        // Phase 2: SHGetFileInfoW + HICON → PNG via `image` crate
+    fn extract_icon(&self, exe_path: &PathBuf) -> Option<PathBuf> {
+        let parent = exe_path.parent()?;
+        let name = exe_path.file_stem()?.to_str()?.to_lowercase();
+        for filename in &[
+            format!("{}.png", name),
+            format!("{}.ico", name),
+            "icon.png".to_string(),
+            "icon.ico".to_string(),
+            "app.png".to_string(),
+        ] {
+            let p = parent.join(filename);
+            if p.exists() { return Some(p); }
+        }
         None
     }
 

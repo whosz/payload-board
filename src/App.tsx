@@ -48,6 +48,7 @@ export default function App() {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [sortOrder, setSortOrder] = useState<'manual' | 'az' | 'za'>('manual');
 
   const [theme, setTheme] = useState<'dark' | 'light'>(() =>
     (localStorage.getItem('theme') as 'dark' | 'light') ?? 'dark'
@@ -96,7 +97,11 @@ export default function App() {
   const profileToDelete = profiles.find(p => p.id === confirmDeleteId);
 
   const sortedApps = activeProfile
-    ? [...activeProfile.apps].sort((a, b) => a.order - b.order)
+    ? [...activeProfile.apps].sort((a, b) => {
+        if (sortOrder === 'az') return a.name.localeCompare(b.name);
+        if (sortOrder === 'za') return b.name.localeCompare(a.name);
+        return a.order - b.order;
+      })
     : [];
 
   const runningCount = activeProfile
@@ -248,6 +253,25 @@ export default function App() {
                   </Button>
                 </div>
               ) : (
+                <>
+                  {/* Sort bar */}
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="font-mono uppercase tracking-widest" style={{ color: 'var(--color-text-muted)', fontSize: 10 }}>
+                      Sort
+                    </span>
+                    <button
+                      className={`sort-btn${sortOrder === 'az' ? ' sort-btn-active' : ''}`}
+                      onClick={() => setSortOrder(s => s === 'az' ? 'manual' : 'az')}
+                    >
+                      A→Z
+                    </button>
+                    <button
+                      className={`sort-btn${sortOrder === 'za' ? ' sort-btn-active' : ''}`}
+                      onClick={() => setSortOrder(s => s === 'za' ? 'manual' : 'za')}
+                    >
+                      Z→A
+                    </button>
+                  </div>
                 <div className="flex flex-wrap gap-4" style={{ alignContent: 'flex-start' }}>
                   {sortedApps.map(app => (
                     <AppTile
@@ -281,6 +305,7 @@ export default function App() {
                     />
                   ))}
                 </div>
+                </>
               )}
             </div>
 

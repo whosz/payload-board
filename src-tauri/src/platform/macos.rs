@@ -6,8 +6,18 @@ use super::PlatformAdapter;
 pub struct MacOsAdapter;
 
 impl PlatformAdapter for MacOsAdapter {
-    fn extract_icon(&self, _exe_path: &PathBuf) -> Option<PathBuf> {
-        // Phase 2: NSWorkspace iconForFile → PNG via cocoa/objc
+    fn extract_icon(&self, exe_path: &PathBuf) -> Option<PathBuf> {
+        let parent = exe_path.parent()?;
+        let name = exe_path.file_stem()?.to_str()?.to_lowercase();
+        for filename in &[
+            format!("{}.png", name),
+            format!("{}.icns", name),
+            "icon.png".to_string(),
+            "AppIcon.png".to_string(),
+        ] {
+            let p = parent.join(filename);
+            if p.exists() { return Some(p); }
+        }
         None
     }
 

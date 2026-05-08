@@ -6,8 +6,46 @@ use super::PlatformAdapter;
 pub struct LinuxAdapter;
 
 impl PlatformAdapter for LinuxAdapter {
-    fn extract_icon(&self, _exe_path: &PathBuf) -> Option<PathBuf> {
-        // Phase 2: parse .desktop Icon= field, resolve from XDG theme paths
+    fn extract_icon(&self, exe_path: &PathBuf) -> Option<PathBuf> {
+        // 1. Image file adjacent to the executable (same stem, image extension)
+        for ext in &["png", "svg", "jpg"] {
+            let c = exe_path.with_extension(ext);
+            if c.exists() { return Some(c); }
+        }
+
+        let name = exe_path.file_stem()?.to_str()?.to_lowercase();
+        let home = std::env::var("HOME").unwrap_or_default();
+
+        // 2. XDG pixmaps directories
+        let pixmap_dirs = [
+            format!("{}/.local/share/pixmaps", home),
+            "/usr/local/share/pixmaps".to_string(),
+            "/usr/share/pixmaps".to_string(),
+        ];
+        for dir in &pixmap_dirs {
+            for ext in &["png", "svg", "xpm"] {
+                let p = PathBuf::from(dir).join(format!("{}.{}", name, ext));
+                if p.exists() { return Some(p); }
+            }
+        }
+
+        // 3. Hicolor icon theme — largest size first
+        let icon_bases = [
+            format!("{}/.local/share/icons/hicolor", home),
+            "/usr/local/share/icons/hicolor".to_string(),
+            "/usr/share/icons/hicolor".to_string(),
+        ];
+        for base in &icon_bases {
+            for size in &["256x256", "128x128", "64x64", "48x48", "32x32"] {
+                for ext in &["png", "svg"] {
+                    let p = PathBuf::from(base)
+                        .join(size).join("apps")
+                        .join(format!("{}.{}", name, ext));
+                    if p.exists() { return Some(p); }
+                }
+            }
+        }
+
         None
     }
 

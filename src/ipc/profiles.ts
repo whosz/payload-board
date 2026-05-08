@@ -22,3 +22,11 @@ export function deleteProfile(id: string): Promise<void> {
 export function pickExecutable(): Promise<PickedExecutable> {
   return invoke<PickedExecutable>('pick_executable');
 }
+
+export function pickIconFile(): Promise<string> {
+  return invoke<string>('pick_icon_file');
+}
+
+export function extractAppIcon(exePath: string): Promise<string | null> {
+  return invoke<string | null>('extract_app_icon', { exePath });
+}

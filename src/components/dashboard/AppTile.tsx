@@ -1,3 +1,4 @@
+import { convertFileSrc } from '@tauri-apps/api/core';
 import { Icon } from '../icons/Icon';
 import {
   faPlay,
@@ -106,9 +107,17 @@ export function AppTile({
         padding: '14px 16px',
       }}
     >
-      {/* Row 1: LED + name + delay badge */}
+      {/* Row 1: LED + icon + name + delay badge */}
       <div className="flex items-center gap-2">
         <StatusLed status={status.status} />
+        {app.icon_cache_path && (
+          <img
+            src={convertFileSrc(app.icon_cache_path)}
+            alt=""
+            style={{ width: 20, height: 20, objectFit: 'contain', flexShrink: 0 }}
+            onError={e => { e.currentTarget.style.display = 'none'; }}
+          />
+        )}
         <span
           className="font-medium truncate flex-1"
           style={{ color: 'var(--color-text-primary)', fontSize: 15 }}

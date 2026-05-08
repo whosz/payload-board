@@ -223,10 +223,7 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset }: 
                 Payload Board v{version}
               </span>
               <span style={{ color: 'var(--color-text-muted)' }}>
-                Made by Matt · hello@whosz.pl
-              </span>
-              <span style={{ color: 'var(--color-text-muted)' }}>
-                github.com/whosz/payload-board
+                Made by Matt · github.com/whosz/payload-board
               </span>
             </div>
           </section>

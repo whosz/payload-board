@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { convertFileSrc } from '@tauri-apps/api/core';
 import {
   Dialog,
   DialogContent,
@@ -8,7 +9,7 @@ import {
 } from '../ui/dialog';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
-import { pickExecutable } from '../../ipc/profiles';
+import { pickExecutable, pickIconFile, extractAppIcon } from '../../ipc/profiles';
 import type { AppEntry } from '../../types';
 
 interface AppEntryEditorProps {
@@ -45,6 +46,7 @@ const inputStyle: React.CSSProperties = {
 export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEditorProps) {
   const [form, setForm] = useState<Omit<AppEntry, 'id' | 'order'>>({ ...defaults, ...initial });
   const [picking, setPicking] = useState(false);
+  const [iconLoading, setIconLoading] = useState(false);
 
   const handleBrowse = async () => {
     setPicking(true);
@@ -54,12 +56,37 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
         ...f,
         executable_path: result.path,
         name: f.name || result.suggested_name,
-        icon_cache_path: result.icon_path ?? undefined,
+        icon_cache_path: result.icon_path ?? f.icon_cache_path,
       }));
     } catch {
-      // user cancelled — no action needed
+      // user cancelled
     } finally {
       setPicking(false);
+    }
+  };
+
+  const handleAutoIcon = async () => {
+    if (!form.executable_path) return;
+    setIconLoading(true);
+    try {
+      const icon = await extractAppIcon(form.executable_path);
+      setForm(f => ({ ...f, icon_cache_path: icon ?? undefined }));
+    } catch {
+      // ignore
+    } finally {
+      setIconLoading(false);
+    }
+  };
+
+  const handleCustomIcon = async () => {
+    setIconLoading(true);
+    try {
+      const path = await pickIconFile();
+      setForm(f => ({ ...f, icon_cache_path: path }));
+    } catch {
+      // user cancelled
+    } finally {
+      setIconLoading(false);
     }
   };
 
@@ -70,6 +97,8 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
       onClose();
     }
   };
+
+  const iconUrl = form.icon_cache_path ? convertFileSrc(form.icon_cache_path) : null;
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
@@ -119,6 +148,69 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
               >
                 Browse
               </Button>
+            </div>
+          </div>
+
+          {/* Icon */}
+          <div>
+            <div style={labelStyle}>Icon</div>
+            <div className="flex items-center gap-3">
+              {/* Preview */}
+              <div
+                style={{
+                  width: 40,
+                  height: 40,
+                  border: '1px solid var(--color-border-default)',
+                  background: 'var(--color-bg-surface)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                }}
+              >
+                {iconUrl ? (
+                  <img
+                    src={iconUrl}
+                    alt=""
+                    style={{ width: 32, height: 32, objectFit: 'contain' }}
+                    onError={e => { e.currentTarget.style.display = 'none'; }}
+                  />
+                ) : (
+                  <span style={{ color: 'var(--color-text-disabled)', fontSize: 10, fontFamily: 'monospace' }}>
+                    NONE
+                  </span>
+                )}
+              </div>
+              <div className="flex gap-2 flex-wrap">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleAutoIcon}
+                  disabled={iconLoading || !form.executable_path}
+                  style={{ borderColor: 'var(--color-border-default)', color: 'var(--color-text-secondary)', fontSize: 12 }}
+                >
+                  Auto-detect
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCustomIcon}
+                  disabled={iconLoading}
+                  style={{ borderColor: 'var(--color-border-default)', color: 'var(--color-text-secondary)', fontSize: 12 }}
+                >
+                  Custom...
+                </Button>
+                {form.icon_cache_path && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setForm(f => ({ ...f, icon_cache_path: undefined }))}
+                    style={{ color: 'var(--color-text-muted)', fontSize: 12 }}
+                  >
+                    Clear
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
 

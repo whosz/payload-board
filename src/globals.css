@@ -163,6 +163,28 @@ body.light {
   background: var(--color-bg-hover) !important;
 }
 
+/* ── Sort toggle buttons ── */
+.sort-btn {
+  font-family: monospace;
+  font-size: 11px;
+  padding: 2px 8px;
+  border: 1px solid var(--color-border-default);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: color 0.1s, border-color 0.1s, background 0.1s;
+}
+.sort-btn:hover {
+  color: var(--color-text-primary);
+  border-color: var(--color-border-strong);
+  background: var(--color-bg-hover);
+}
+.sort-btn-active {
+  color: var(--color-accent-laser) !important;
+  border-color: var(--color-accent-laser) !important;
+  background: var(--color-bg-hover) !important;
+}
+
 /* ── Tile action buttons ── */
 .tile-btn {
   opacity: 0.6;

@@ -3,7 +3,7 @@ mod platform;
 mod process_manager;
 mod store;
 
-use commands::apps::pick_executable;
+use commands::apps::{extract_app_icon, pick_executable, pick_icon_file};
 use commands::processes::{open_path, restart_app, start_app, stop_all, stop_app};
 use commands::profiles::{delete_profile, list_profiles, save_profile};
 use commands::settings::{
@@ -38,6 +38,8 @@ pub fn run() {
             save_profile,
             delete_profile,
             pick_executable,
+            pick_icon_file,
+            extract_app_icon,
             start_app,
             stop_app,
             restart_app,
