@@ -33,4 +33,12 @@ impl PlatformAdapter for MacOsAdapter {
             .output();
         true
     }
+
+    fn open_path(&self, exe_path: &std::path::Path) -> Result<(), String> {
+        std::process::Command::new("open")
+            .args(["-R", &exe_path.to_string_lossy()])
+            .spawn()
+            .map_err(|e| e.to_string())?;
+        Ok(())
+    }
 }

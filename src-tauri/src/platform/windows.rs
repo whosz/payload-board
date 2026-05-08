@@ -19,9 +19,13 @@ impl PlatformAdapter for WindowsAdapter {
             .unwrap_or_else(|| "Unknown".to_string())
     }
 
-    fn graceful_close(&self, _pid: u32) -> bool {
-        // Phase 2: EnumWindows + GetWindowThreadProcessId → WM_CLOSE
-        false
+    fn graceful_close(&self, pid: u32) -> bool {
+        // taskkill without /F sends WM_CLOSE to windowed processes
+        std::process::Command::new("taskkill")
+            .args(["/PID", &pid.to_string()])
+            .output()
+            .map(|o| o.status.success())
+            .unwrap_or(false)
     }
 
     fn kill_tree(&self, pid: u32) -> bool {
@@ -29,6 +33,15 @@ impl PlatformAdapter for WindowsAdapter {
             .args(["/F", "/T", "/PID", &pid.to_string()])
             .output();
         true
+    }
+
+    fn open_path(&self, exe_path: &std::path::Path) -> Result<(), String> {
+        let path_str = exe_path.to_string_lossy();
+        std::process::Command::new("explorer")
+            .arg(format!("/select,{}", path_str))
+            .spawn()
+            .map_err(|e| e.to_string())?;
+        Ok(())
     }
 }
 

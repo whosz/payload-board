@@ -13,6 +13,8 @@ import { AppEntryEditor } from './components/editor/AppEntryEditor';
 import { Icon } from './components/icons/Icon';
 import { faPlay, faPowerOff, faPlus } from './components/icons';
 import { useProfiles } from './hooks/useProfiles';
+import { useProcessStatus } from './hooks/useProcessStatus';
+import { startApp, stopApp, restartApp, openPath, stopAll } from './ipc/processes';
 import type { AppEntry } from './types';
 
 export default function App() {
@@ -27,6 +29,8 @@ export default function App() {
     removeApp,
   } = useProfiles();
 
+  const { getStatus, statuses } = useProcessStatus();
+
   const [profileEditorOpen, setProfileEditorOpen] = useState(false);
   const [appEditorOpen, setAppEditorOpen] = useState(false);
   const [editingApp, setEditingApp] = useState<AppEntry | undefined>();
@@ -40,6 +44,10 @@ export default function App() {
   const sortedApps = activeProfile
     ? [...activeProfile.apps].sort((a, b) => a.order - b.order)
     : [];
+
+  const runningCount = activeProfile
+    ? activeProfile.apps.filter(a => getStatus(a.id).status === 'running').length
+    : 0;
 
   if (loading) {
     return (
@@ -110,8 +118,9 @@ export default function App() {
                 <Button
                   variant="destructive"
                   size="sm"
-                  disabled={!activeProfile}
+                  disabled={!activeProfile || runningCount === 0}
                   className="font-mono uppercase tracking-wider text-xs"
+                  onClick={() => activeProfileId && stopAll(activeProfileId)}
                 >
                   <Icon icon={faPowerOff} size={10} className="text-current" />
                   End Session
@@ -161,6 +170,11 @@ export default function App() {
                     <AppTile
                       key={app.id}
                       app={app}
+                      status={getStatus(app.id)}
+                      onStart={() => activeProfileId && startApp(activeProfileId, app.id)}
+                      onStop={() => stopApp(app.id)}
+                      onRestart={() => activeProfileId && restartApp(activeProfileId, app.id)}
+                      onOpenPath={() => activeProfileId && openPath(activeProfileId, app.id)}
                       onEdit={a => { setEditingApp(a); setAppEditorOpen(true); }}
                       onRemove={id => removeApp(activeProfileId!, id)}
                     />
@@ -169,7 +183,7 @@ export default function App() {
               )}
             </div>
 
-            <StatusBar profile={activeProfile} />
+            <StatusBar profile={activeProfile} statuses={statuses} />
           </div>
         </ResizablePanel>
       </ResizablePanelGroup>

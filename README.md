@@ -86,9 +86,9 @@ Yes. Gaming-specific profiles (iRacing, Fanatec, SimHub) are Windows-only becaus
 
 **Can I import / export profiles?**
 Planned in Phase 6. Profiles are stored as plain JSON in your app data directory:
-- Windows: `%APPDATA%\com.matt.payload-board\`
-- macOS: `~/Library/Application Support/com.matt.payload-board/`
-- Linux: `~/.config/com.matt.payload-board/`
+- Windows: `%APPDATA%\com.payload-board\`
+- macOS: `~/Library/Application Support/com.payload-board/`
+- Linux: `~/.config/com.payload-board/`
 
 **Steam launches a helper that exits immediately — how does Payload Board track the real process?**
 After `start_app`, Payload Board scans the process list for 10 seconds looking for a process matching the executable's filename. The first match is assigned as the tracked PID. This works on all platforms via the `sysinfo` crate (Phase 4).

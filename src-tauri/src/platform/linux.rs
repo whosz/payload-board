@@ -37,6 +37,15 @@ impl PlatformAdapter for LinuxAdapter {
             .output();
         true
     }
+
+    fn open_path(&self, exe_path: &std::path::Path) -> Result<(), String> {
+        let dir = exe_path.parent().unwrap_or(exe_path);
+        std::process::Command::new("xdg-open")
+            .arg(dir)
+            .spawn()
+            .map_err(|e| e.to_string())?;
+        Ok(())
+    }
 }
 
 fn titlecase(s: &str) -> String {

@@ -15,6 +15,8 @@ pub trait PlatformAdapter: Send + Sync {
     fn suggested_name(&self, exe_path: &PathBuf) -> String;
     fn graceful_close(&self, pid: u32) -> bool;
     fn kill_tree(&self, pid: u32) -> bool;
+    /// Reveal the executable's location in the platform file manager.
+    fn open_path(&self, exe_path: &std::path::Path) -> Result<(), String>;
 }
 
 /// Returns the correct adapter for the current OS.

@@ -1,14 +1,103 @@
 import { Icon } from '../icons/Icon';
-import { faSliders, faXmark, faCircleRegular } from '../icons';
+import {
+  faPlay,
+  faStop,
+  faRotateRight,
+  faFolderOpen,
+  faSliders,
+  faXmark,
+  faCircleSolid,
+  faCircleRegular,
+  faTriangleExclamation,
+} from '../icons';
 import type { AppEntry } from '../../types';
+import type { ProcessInfo } from '../../hooks/useProcessStatus';
 
 interface AppTileProps {
   app: AppEntry;
+  status: ProcessInfo;
+  onStart: () => void;
+  onStop: () => void;
+  onRestart: () => void;
+  onOpenPath: () => void;
   onEdit: (app: AppEntry) => void;
   onRemove: (id: string) => void;
 }
 
-export function AppTile({ app, onEdit, onRemove }: AppTileProps) {
+function StatusLed({ status }: { status: ProcessInfo['status'] }) {
+  if (status === 'running') {
+    return (
+      <span
+        style={{
+          display: 'inline-block',
+          width: 6,
+          height: 6,
+          borderRadius: '50%',
+          background: '#00E5FF',
+          boxShadow: '0 0 8px #00E5FF',
+          flexShrink: 0,
+        }}
+      />
+    );
+  }
+  if (status === 'crashed') {
+    return (
+      <Icon
+        icon={faTriangleExclamation}
+        size={8}
+        crit
+        className="fa-icon-crit"
+        style={{ animation: 'pulse 1s infinite' } as React.CSSProperties}
+      />
+    );
+  }
+  // stopped / stopping
+  return <Icon icon={faCircleRegular} size={6} />;
+}
+
+function TileButton({
+  onClick,
+  title,
+  children,
+  disabled,
+}: {
+  onClick: () => void;
+  title: string;
+  children: React.ReactNode;
+  disabled?: boolean;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      title={title}
+      disabled={disabled}
+      style={{
+        background: 'none',
+        border: 'none',
+        padding: 0,
+        cursor: disabled ? 'default' : 'pointer',
+        opacity: disabled ? 0.3 : 1,
+        lineHeight: 0,
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
+export function AppTile({
+  app,
+  status,
+  onStart,
+  onStop,
+  onRestart,
+  onOpenPath,
+  onEdit,
+  onRemove,
+}: AppTileProps) {
+  const isRunning = status.status === 'running';
+  const isStopped = status.status === 'stopped';
+
   return (
     <div
       className="flex flex-col justify-between p-3"
@@ -16,13 +105,13 @@ export function AppTile({ app, onEdit, onRemove }: AppTileProps) {
         width: 260,
         height: 120,
         background: '#161618',
-        border: '1px solid #2A2A2F',
+        border: `1px solid ${status.status === 'crashed' ? '#FF2D55' : '#2A2A2F'}`,
         flexShrink: 0,
       }}
     >
-      {/* Status dot + name */}
+      {/* Row 1: status LED + name */}
       <div className="flex items-center gap-2">
-        <Icon icon={faCircleRegular} size={6} />
+        <StatusLed status={status.status} />
         <span
           className="text-sm font-medium truncate flex-1"
           style={{ color: '#E8E8EA' }}
@@ -30,9 +119,14 @@ export function AppTile({ app, onEdit, onRemove }: AppTileProps) {
         >
           {app.name}
         </span>
+        {app.launch_delay_ms > 0 && (
+          <span className="text-xs font-mono" style={{ color: '#54545A', flexShrink: 0 }}>
+            +{app.launch_delay_ms}ms
+          </span>
+        )}
       </div>
 
-      {/* Executable path */}
+      {/* Row 2: path */}
       <div
         className="text-xs font-mono truncate"
         style={{ color: '#54545A' }}
@@ -41,31 +135,31 @@ export function AppTile({ app, onEdit, onRemove }: AppTileProps) {
         {app.executable_path}
       </div>
 
-      {/* Actions */}
-      <div className="flex items-center gap-3 justify-end">
-        {app.launch_delay_ms > 0 && (
-          <span className="text-xs font-mono" style={{ color: '#54545A' }}>
-            +{app.launch_delay_ms}ms
-          </span>
-        )}
-        <button
-          onClick={() => onEdit(app)}
-          className="transition-colors cursor-pointer"
-          title="Edit"
-          style={{ background: 'none', border: 'none', padding: 0 }}
-          onMouseEnter={e => e.currentTarget.querySelector('svg')?.setAttribute('style', 'width:12px;height:12px;color:#E8E8EA;flex-shrink:0')}
-          onMouseLeave={e => e.currentTarget.querySelector('svg')?.setAttribute('style', 'width:12px;height:12px;color:#54545A;flex-shrink:0')}
-        >
-          <Icon icon={faSliders} size={12} />
-        </button>
-        <button
-          onClick={() => onRemove(app.id)}
-          className="transition-colors cursor-pointer"
-          title="Remove"
-          style={{ background: 'none', border: 'none', padding: 0 }}
-        >
-          <Icon icon={faXmark} size={12} crit />
-        </button>
+      {/* Row 3: process controls + edit/remove */}
+      <div className="flex items-center gap-2">
+        {/* Process controls */}
+        <TileButton onClick={onStart} title="Start" disabled={isRunning}>
+          <Icon icon={faPlay} size={11} active={!isRunning} />
+        </TileButton>
+        <TileButton onClick={onStop} title="Stop" disabled={isStopped}>
+          <Icon icon={faStop} size={11} crit={isRunning} />
+        </TileButton>
+        <TileButton onClick={onRestart} title="Restart">
+          <Icon icon={faRotateRight} size={11} />
+        </TileButton>
+        <TileButton onClick={onOpenPath} title="Open folder">
+          <Icon icon={faFolderOpen} size={11} />
+        </TileButton>
+
+        <div style={{ flex: 1 }} />
+
+        {/* Edit / remove */}
+        <TileButton onClick={() => onEdit(app)} title="Edit">
+          <Icon icon={faSliders} size={11} />
+        </TileButton>
+        <TileButton onClick={() => onRemove(app.id)} title="Remove">
+          <Icon icon={faXmark} size={11} crit />
+        </TileButton>
       </div>
     </div>
   );
