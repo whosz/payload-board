@@ -1,21 +1,21 @@
 import { invoke } from '@tauri-apps/api/core';
 
-export function startApp(profile_id: string, entry_id: string): Promise<void> {
-  return invoke('start_app', { profile_id, entry_id });
+export function startApp(profileId: string, entryId: string): Promise<void> {
+  return invoke('start_app', { profileId, entryId });
 }
 
-export function stopApp(entry_id: string, force = false): Promise<void> {
-  return invoke('stop_app', { entry_id, force });
+export function stopApp(entryId: string, force = false): Promise<void> {
+  return invoke('stop_app', { entryId, force });
 }
 
-export function restartApp(profile_id: string, entry_id: string): Promise<void> {
-  return invoke('restart_app', { profile_id, entry_id });
+export function restartApp(profileId: string, entryId: string): Promise<void> {
+  return invoke('restart_app', { profileId, entryId });
 }
 
-export function openPath(profile_id: string, entry_id: string): Promise<void> {
-  return invoke('open_path', { profile_id, entry_id });
+export function openPath(profileId: string, entryId: string): Promise<void> {
+  return invoke('open_path', { profileId, entryId });
 }
 
-export function stopAll(profile_id: string): Promise<void> {
-  return invoke('stop_all', { profile_id });
+export function stopAll(profileId: string): Promise<void> {
+  return invoke('stop_all', { profileId });
 }
