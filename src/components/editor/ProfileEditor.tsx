@@ -31,15 +31,15 @@ export function ProfileEditor({ open, onClose, onSave, initialName = '' }: Profi
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
       <DialogContent
         style={{
-          background: '#161618',
-          border: '1px solid #2A2A2F',
+          background: 'var(--color-bg-elevated)',
+          border: '1px solid var(--color-border-default)',
           boxShadow: 'none',
         }}
       >
         <DialogHeader>
           <DialogTitle
             className="font-mono uppercase tracking-wider text-sm"
-            style={{ color: '#E8E8EA' }}
+            style={{ color: 'var(--color-text-primary)' }}
           >
             {initialName ? 'Edit Profile' : 'New Profile'}
           </DialogTitle>
@@ -53,9 +53,9 @@ export function ProfileEditor({ open, onClose, onSave, initialName = '' }: Profi
             onKeyDown={e => e.key === 'Enter' && handleSave()}
             autoFocus
             style={{
-              background: '#111113',
-              borderColor: '#2A2A2F',
-              color: '#E8E8EA',
+              background: 'var(--color-bg-surface)',
+              borderColor: 'var(--color-border-default)',
+              color: 'var(--color-text-primary)',
             }}
           />
         </div>
@@ -64,7 +64,7 @@ export function ProfileEditor({ open, onClose, onSave, initialName = '' }: Profi
           <Button
             variant="ghost"
             onClick={onClose}
-            style={{ color: '#54545A' }}
+            style={{ color: 'var(--color-text-muted)' }}
           >
             Cancel
           </Button>

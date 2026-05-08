@@ -32,8 +32,8 @@ function StatusLed({ status }: { status: ProcessInfo['status'] }) {
           width: 8,
           height: 8,
           borderRadius: '50%',
-          background: '#00E5FF',
-          boxShadow: '0 0 8px #00E5FF',
+          background: 'var(--color-status-live)',
+          boxShadow: '0 0 8px var(--color-status-live)',
           flexShrink: 0,
         }}
       />
@@ -100,8 +100,8 @@ export function AppTile({
       style={{
         width: 340,
         height: 170,
-        background: '#161618',
-        border: `1px solid ${status.status === 'crashed' ? '#FF2D55' : '#2A2A2F'}`,
+        background: 'var(--color-bg-elevated)',
+        border: `1px solid ${status.status === 'crashed' ? 'var(--color-status-crit)' : 'var(--color-border-default)'}`,
         flexShrink: 0,
         padding: '14px 16px',
       }}
@@ -111,13 +111,13 @@ export function AppTile({
         <StatusLed status={status.status} />
         <span
           className="font-medium truncate flex-1"
-          style={{ color: '#E8E8EA', fontSize: 15 }}
+          style={{ color: 'var(--color-text-primary)', fontSize: 15 }}
           title={app.name}
         >
           {app.name}
         </span>
         {app.launch_delay_ms > 0 && (
-          <span className="font-mono" style={{ color: '#54545A', fontSize: 11, flexShrink: 0 }}>
+          <span className="font-mono" style={{ color: 'var(--color-text-muted)', fontSize: 11, flexShrink: 0 }}>
             +{app.launch_delay_ms}ms
           </span>
         )}
@@ -126,7 +126,7 @@ export function AppTile({
       {/* Row 2: path */}
       <div
         className="font-mono truncate"
-        style={{ color: '#54545A', fontSize: 11 }}
+        style={{ color: 'var(--color-text-muted)', fontSize: 11 }}
         title={app.executable_path}
       >
         {app.executable_path}

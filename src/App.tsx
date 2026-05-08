@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Group as PanelGroup, Panel, Separator as PanelHandle } from 'react-resizable-panels';
 import { Button } from './components/ui/button';
 import { ProfileList } from './components/sidebar/ProfileList';
@@ -6,8 +6,16 @@ import { AppTile } from './components/dashboard/AppTile';
 import { StatusBar } from './components/dashboard/StatusBar';
 import { ProfileEditor } from './components/editor/ProfileEditor';
 import { AppEntryEditor } from './components/editor/AppEntryEditor';
+import { SettingsPanel } from './components/settings/SettingsPanel';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from './components/ui/dialog';
 import { Icon } from './components/icons/Icon';
-import { faPlay, faPowerOff, faPlus, faXmark } from './components/icons';
+import { faPlay, faPowerOff, faPlus, faXmark, faGear } from './components/icons';
 import { useProfiles } from './hooks/useProfiles';
 import { useProcessStatus } from './hooks/useProcessStatus';
 import { startApp, stopApp, restartApp, openPath, stopAll } from './ipc/processes';
@@ -29,6 +37,7 @@ export default function App() {
     removeProfile,
     addApp,
     removeApp,
+    reload,
   } = useProfiles();
 
   const { getStatus, statuses } = useProcessStatus();
@@ -37,6 +46,17 @@ export default function App() {
   const [appEditorOpen, setAppEditorOpen] = useState(false);
   const [editingApp, setEditingApp] = useState<AppEntry | undefined>();
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+
+  const [theme, setTheme] = useState<'dark' | 'light'>(() =>
+    (localStorage.getItem('theme') as 'dark' | 'light') ?? 'dark'
+  );
+
+  useEffect(() => {
+    document.body.classList.toggle('light', theme === 'light');
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
   const pushError = useCallback((msg: string) => {
     const id = Date.now();
@@ -57,6 +77,8 @@ export default function App() {
     setAppEditorOpen(false);
   };
 
+  const profileToDelete = profiles.find(p => p.id === confirmDeleteId);
+
   const sortedApps = activeProfile
     ? [...activeProfile.apps].sort((a, b) => a.order - b.order)
     : [];
@@ -69,7 +91,7 @@ export default function App() {
     return (
       <div
         className="flex items-center justify-center h-full font-mono text-sm"
-        style={{ color: '#54545A', background: '#0A0A0B' }}
+        style={{ color: 'var(--color-text-disabled)', background: 'var(--color-bg-base)' }}
       >
         LOADING...
       </div>
@@ -77,7 +99,7 @@ export default function App() {
   }
 
   return (
-    <div className="flex flex-col h-full" style={{ background: '#0A0A0B', position: 'relative' }}>
+    <div className="flex flex-col h-full" style={{ background: 'var(--color-bg-base)', position: 'relative' }}>
       <PanelGroup
         orientation="horizontal"
         style={{ flex: 1, display: 'flex', overflow: 'hidden' }}
@@ -89,23 +111,20 @@ export default function App() {
             activeProfileId={activeProfileId}
             onSelect={setActiveProfileId}
             onNew={() => setProfileEditorOpen(true)}
-            onDelete={async id => {
-              try { await removeProfile(id); }
-              catch (e) { pushError(`Failed to delete profile: ${e}`); }
-            }}
+            onDelete={id => setConfirmDeleteId(id)}
           />
         </Panel>
 
         <PanelHandle
           style={{
             width: 4,
-            background: '#2A2A2F',
+            background: 'var(--color-border-default)',
             cursor: 'col-resize',
             flexShrink: 0,
             transition: 'background 0.15s',
           }}
-          onMouseEnter={e => (e.currentTarget.style.background = '#FFE600')}
-          onMouseLeave={e => (e.currentTarget.style.background = '#2A2A2F')}
+          onMouseEnter={e => (e.currentTarget.style.background = 'var(--color-accent-laser)')}
+          onMouseLeave={e => (e.currentTarget.style.background = 'var(--color-border-default)')}
         />
 
         {/* Main */}
@@ -115,14 +134,14 @@ export default function App() {
             <div
               className="flex items-center justify-between px-5"
               style={{
-                background: '#111113',
-                borderBottom: '1px solid #1F1F22',
+                background: 'var(--color-bg-surface)',
+                borderBottom: '1px solid var(--color-border-subtle)',
                 minHeight: 56,
               }}
             >
               <span
                 className="font-mono uppercase tracking-widest text-sm"
-                style={{ color: '#8A8A90' }}
+                style={{ color: 'var(--color-text-secondary)' }}
               >
                 {activeProfile?.name ?? 'No Profile'}
               </span>
@@ -133,7 +152,7 @@ export default function App() {
                     variant="outline"
                     size="default"
                     onClick={() => { setEditingApp(undefined); setAppEditorOpen(true); }}
-                    style={{ borderColor: '#2A2A2F', color: '#8A8A90' }}
+                    style={{ borderColor: 'var(--color-border-default)', color: 'var(--color-text-secondary)' }}
                   >
                     <Icon icon={faPlus} size={12} />
                     Add App
@@ -143,7 +162,7 @@ export default function App() {
                   variant="outline"
                   size="default"
                   disabled={!activeProfile || sortedApps.length === 0}
-                  style={{ borderColor: '#2A2A2F', color: '#8A8A90' }}
+                  style={{ borderColor: 'var(--color-border-default)', color: 'var(--color-text-secondary)' }}
                 >
                   <Icon icon={faPlay} size={12} />
                   Run Sequence
@@ -162,6 +181,15 @@ export default function App() {
                   <Icon icon={faPowerOff} size={12} className="text-current" />
                   End Session
                 </Button>
+                <Button
+                  variant="ghost"
+                  size="default"
+                  onClick={() => setSettingsOpen(true)}
+                  style={{ color: 'var(--color-text-muted)', padding: '0 10px' }}
+                  title="Settings"
+                >
+                  <Icon icon={faGear} size={14} />
+                </Button>
               </div>
             </div>
 
@@ -170,7 +198,7 @@ export default function App() {
               {!activeProfile ? (
                 <div
                   className="flex flex-col items-center justify-center h-full gap-4"
-                  style={{ color: '#54545A' }}
+                  style={{ color: 'var(--color-text-muted)' }}
                 >
                   <span className="font-mono text-sm uppercase tracking-wider">
                     No profile selected
@@ -186,7 +214,7 @@ export default function App() {
               ) : sortedApps.length === 0 ? (
                 <div
                   className="flex flex-col items-center justify-center h-full gap-4"
-                  style={{ color: '#54545A' }}
+                  style={{ color: 'var(--color-text-muted)' }}
                 >
                   <span className="font-mono text-sm uppercase tracking-wider">
                     No apps in this profile
@@ -259,8 +287,8 @@ export default function App() {
             <div
               key={t.id}
               style={{
-                background: '#161618',
-                border: '1px solid #FF2D55',
+                background: 'var(--color-bg-elevated)',
+                border: '1px solid var(--color-status-crit)',
                 padding: '10px 14px',
                 display: 'flex',
                 alignItems: 'flex-start',
@@ -269,7 +297,7 @@ export default function App() {
             >
               <span
                 style={{
-                  color: '#E8E8EA',
+                  color: 'var(--color-text-primary)',
                   fontSize: 13,
                   fontFamily: 'monospace',
                   lineHeight: 1.4,
@@ -290,6 +318,52 @@ export default function App() {
         </div>
       )}
 
+      {/* Confirm delete profile dialog */}
+      <Dialog open={confirmDeleteId !== null} onOpenChange={v => { if (!v) setConfirmDeleteId(null); }}>
+        <DialogContent
+          style={{
+            background: 'var(--color-bg-elevated)',
+            border: '1px solid var(--color-border-default)',
+            boxShadow: 'none',
+            maxWidth: 400,
+          }}
+        >
+          <DialogHeader>
+            <DialogTitle
+              className="font-mono uppercase tracking-wider text-sm"
+              style={{ color: 'var(--color-text-primary)' }}
+            >
+              Delete Profile
+            </DialogTitle>
+          </DialogHeader>
+          <p style={{ color: 'var(--color-text-secondary)', fontSize: 14 }}>
+            Delete <strong style={{ color: 'var(--color-text-primary)' }}>{profileToDelete?.name}</strong>?
+            This will permanently remove the profile and all its apps.
+          </p>
+          <DialogFooter className="gap-2">
+            <Button
+              variant="ghost"
+              onClick={() => setConfirmDeleteId(null)}
+              style={{ color: 'var(--color-text-muted)' }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              className="font-mono uppercase tracking-wider"
+              onClick={async () => {
+                if (!confirmDeleteId) return;
+                try { await removeProfile(confirmDeleteId); }
+                catch (e) { pushError(`Failed to delete profile: ${e}`); }
+                setConfirmDeleteId(null);
+              }}
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <ProfileEditor
         open={profileEditorOpen}
         onClose={() => setProfileEditorOpen(false)}
@@ -304,6 +378,13 @@ export default function App() {
         onClose={() => { setAppEditorOpen(false); setEditingApp(undefined); }}
         onSave={handleAddApp}
         initial={editingApp}
+      />
+      <SettingsPanel
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        theme={theme}
+        onThemeChange={setTheme}
+        onReset={() => reload()}
       />
     </div>
   );

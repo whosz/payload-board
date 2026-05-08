@@ -82,5 +82,6 @@ export function useProfiles() {
     removeProfile,
     addApp,
     removeApp,
+    reload,
   };
 }

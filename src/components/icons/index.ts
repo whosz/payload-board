@@ -12,6 +12,10 @@ export {
   faPowerOff,
   faEllipsisVertical,
   faTriangleExclamation,
+  faGear,
+  faTrash,
+  faSun,
+  faMoon,
   faCircle as faCircleSolid,
 } from '@fortawesome/free-solid-svg-icons';
 

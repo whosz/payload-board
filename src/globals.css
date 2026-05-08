@@ -94,20 +94,60 @@
     padding: 0;
   }
   body {
-    background-color: #0A0A0B;
-    color: #E8E8EA;
+    background-color: var(--color-bg-base);
+    color: var(--color-text-primary);
     font-family: Inter, "Geist Variable", system-ui, sans-serif;
     font-size: 16px;
     -webkit-font-smoothing: antialiased;
   }
 }
 
+/* ── Light mode overrides ── */
+body.light {
+  /* Background layers */
+  --color-bg-base:      #EAEAED;
+  --color-bg-surface:   #F2F2F5;
+  --color-bg-elevated:  #F8F8FB;
+  --color-bg-hover:     #E4E4E8;
+
+  /* Borders */
+  --color-border-subtle:  #DDDDE2;
+  --color-border-default: #C8C8CE;
+  --color-border-strong:  #ADADB5;
+
+  /* Text */
+  --color-text-primary:   #1A1A1E;
+  --color-text-secondary: #4E4E58;
+  --color-text-muted:     #7E7E8A;
+  --color-text-disabled:  #B0B0BC;
+
+  /* shadcn tokens */
+  --background:              oklch(0.92 0.002 240);
+  --foreground:              oklch(0.12 0.005 240);
+  --card:                    oklch(0.95 0.002 240);
+  --card-foreground:         oklch(0.12 0.005 240);
+  --popover:                 oklch(0.95 0.002 240);
+  --popover-foreground:      oklch(0.12 0.005 240);
+  --primary:                 oklch(0.72 0.18 90);
+  --primary-foreground:      oklch(0.07 0 0);
+  --secondary:               oklch(0.88 0.002 240);
+  --secondary-foreground:    oklch(0.12 0.005 240);
+  --muted:                   oklch(0.88 0.002 240);
+  --muted-foreground:        oklch(0.44 0.005 240);
+  --accent:                  oklch(0.88 0.002 240);
+  --accent-foreground:       oklch(0.12 0.005 240);
+  --destructive:             oklch(0.55 0.22 10);
+  --border:                  oklch(0.80 0.004 240);
+  --input:                   oklch(0.80 0.004 240);
+  --ring:                    oklch(0.72 0.18 90);
+}
+
 /* ── FontAwesome icon defaults ── */
-.fa-icon        { color: #54545A; width: 14px; height: 14px; }
-.fa-icon-action:hover { color: #E8E8EA; }
-.fa-icon-active { color: #FFE600; }
-.fa-icon-crit   { color: #FF2D55; }
-.fa-icon-live   { color: #00E5FF; }
+.fa-icon        { color: var(--color-text-muted); width: 14px; height: 14px; }
+.fa-icon-action:hover { color: var(--color-text-primary); }
+.fa-icon-active { color: var(--color-accent-laser); }
+.fa-icon-crit   { color: var(--color-status-crit); }
+.fa-icon-live   { color: var(--color-status-live); }
 
 /* ── Tile action buttons ── */
 .tile-btn {
@@ -134,12 +174,12 @@
 
 /* ── Resizable panel handle ── */
 .resizable-handle {
-  background: #2A2A2F !important;
+  background: var(--color-border-default) !important;
   width: 4px !important;
   cursor: col-resize !important;
   transition: background 0.15s;
   flex-shrink: 0;
 }
 .resizable-handle:hover {
-  background: #FFE600 !important;
+  background: var(--color-accent-laser) !important;
 }

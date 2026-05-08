@@ -6,6 +6,10 @@ mod store;
 use commands::apps::pick_executable;
 use commands::processes::{open_path, restart_app, start_app, stop_all, stop_app};
 use commands::profiles::{delete_profile, list_profiles, save_profile};
+use commands::settings::{
+    get_data_dir, get_profiles_dir, open_profiles_dir, pick_config_dir, reset_all_data,
+    set_profiles_dir,
+};
 use process_manager::{check_crashed_processes, new_process_map, ProcessMap};
 use tauri::Manager;
 
@@ -39,6 +43,12 @@ pub fn run() {
             restart_app,
             open_path,
             stop_all,
+            get_data_dir,
+            get_profiles_dir,
+            pick_config_dir,
+            set_profiles_dir,
+            reset_all_data,
+            open_profiles_dir,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

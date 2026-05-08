@@ -15,24 +15,24 @@ export function StatusBar({ profile, statuses }: StatusBarProps) {
     <div
       className="flex items-center gap-6 px-5 font-mono"
       style={{
-        background: '#111113',
-        borderTop: '1px solid #1F1F22',
-        color: '#54545A',
+        background: 'var(--color-bg-surface)',
+        borderTop: '1px solid var(--color-border-subtle)',
+        color: 'var(--color-text-muted)',
         minHeight: 44,
         fontSize: 12,
         letterSpacing: '0.04em',
       }}
     >
       <span>
-        TOTAL <span style={{ color: '#8A8A90' }}>{total}</span>
+        TOTAL <span style={{ color: 'var(--color-text-secondary)' }}>{total}</span>
       </span>
       <span>
         ALIVE{' '}
-        <span style={{ color: running > 0 ? '#00E5FF' : '#54545A' }}>{running}</span>
+        <span style={{ color: running > 0 ? 'var(--color-status-live)' : 'var(--color-text-muted)' }}>{running}</span>
       </span>
       {crashed > 0 && (
         <span>
-          CRASHED <span style={{ color: '#FF2D55' }}>{crashed}</span>
+          CRASHED <span style={{ color: 'var(--color-status-crit)' }}>{crashed}</span>
         </span>
       )}
     </div>

@@ -18,13 +18,13 @@ export function ProfileList({ profiles, activeProfileId, onSelect, onNew, onDele
     <aside
       className="flex flex-col h-full"
       style={{
-        background: '#111113',
-        borderRight: '1px solid #1F1F22',
+        background: 'var(--color-bg-surface)',
+        borderRight: '1px solid var(--color-border-subtle)',
       }}
     >
       <div
         className="px-4 py-3 font-mono uppercase tracking-widest text-xs"
-        style={{ color: '#54545A', borderBottom: '1px solid #1F1F22' }}
+        style={{ color: 'var(--color-text-muted)', borderBottom: '1px solid var(--color-border-subtle)' }}
       >
         Profiles
       </div>
@@ -38,8 +38,8 @@ export function ProfileList({ profiles, activeProfileId, onSelect, onNew, onDele
               key={profile.id}
               className="flex items-center"
               style={{
-                background: isActive ? '#1C1C1F' : isHovered ? '#161618' : 'transparent',
-                borderLeft: isActive ? '3px solid #FFE600' : '3px solid transparent',
+                background: isActive ? 'var(--color-bg-hover)' : isHovered ? 'var(--color-bg-elevated)' : 'transparent',
+                borderLeft: isActive ? '3px solid var(--color-accent-laser)' : '3px solid transparent',
                 transition: 'background 0.1s',
               }}
               onMouseEnter={() => setHoveredId(profile.id)}
@@ -51,7 +51,7 @@ export function ProfileList({ profiles, activeProfileId, onSelect, onNew, onDele
                 style={{
                   background: 'none',
                   border: 'none',
-                  color: isActive ? '#E8E8EA' : '#8A8A90',
+                  color: isActive ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
                   fontSize: 14,
                   minWidth: 0,
                   overflow: 'hidden',
@@ -83,17 +83,23 @@ export function ProfileList({ profiles, activeProfileId, onSelect, onNew, onDele
         })}
       </div>
 
-      <div style={{ borderTop: '1px solid #1F1F22' }}>
+      <div style={{ borderTop: '1px solid var(--color-border-subtle)' }}>
         <button
           onClick={onNew}
           className="w-full flex items-center gap-2 px-4 py-3 font-mono uppercase tracking-wider cursor-pointer"
-          style={{ color: '#54545A', background: 'transparent', border: 'none', fontSize: 12, transition: 'color 0.1s, background 0.1s' }}
+          style={{
+            color: 'var(--color-text-muted)',
+            background: 'transparent',
+            border: 'none',
+            fontSize: 12,
+            transition: 'color 0.1s, background 0.1s',
+          }}
           onMouseEnter={e => {
-            e.currentTarget.style.color = '#E8E8EA';
-            e.currentTarget.style.background = '#161618';
+            e.currentTarget.style.color = 'var(--color-text-primary)';
+            e.currentTarget.style.background = 'var(--color-bg-elevated)';
           }}
           onMouseLeave={e => {
-            e.currentTarget.style.color = '#54545A';
+            e.currentTarget.style.color = 'var(--color-text-muted)';
             e.currentTarget.style.background = 'transparent';
           }}
         >

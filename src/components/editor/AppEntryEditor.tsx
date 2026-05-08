@@ -28,7 +28,7 @@ const defaults: Omit<AppEntry, 'id' | 'order'> = {
 };
 
 const labelStyle: React.CSSProperties = {
-  color: '#8A8A90',
+  color: 'var(--color-text-secondary)',
   fontSize: 11,
   fontFamily: 'monospace',
   textTransform: 'uppercase',
@@ -37,9 +37,9 @@ const labelStyle: React.CSSProperties = {
 };
 
 const inputStyle: React.CSSProperties = {
-  background: '#111113',
-  borderColor: '#2A2A2F',
-  color: '#E8E8EA',
+  background: 'var(--color-bg-surface)',
+  borderColor: 'var(--color-border-default)',
+  color: 'var(--color-text-primary)',
 };
 
 export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEditorProps) {
@@ -75,8 +75,8 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
       <DialogContent
         style={{
-          background: '#161618',
-          border: '1px solid #2A2A2F',
+          background: 'var(--color-bg-elevated)',
+          border: '1px solid var(--color-border-default)',
           boxShadow: 'none',
           maxWidth: 480,
         }}
@@ -84,7 +84,7 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
         <DialogHeader>
           <DialogTitle
             className="font-mono uppercase tracking-wider text-sm"
-            style={{ color: '#E8E8EA' }}
+            style={{ color: 'var(--color-text-primary)' }}
           >
             Add Application
           </DialogTitle>
@@ -115,7 +115,7 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
                 variant="outline"
                 onClick={handleBrowse}
                 disabled={picking}
-                style={{ borderColor: '#2A2A2F', color: '#8A8A90' }}
+                style={{ borderColor: 'var(--color-border-default)', color: 'var(--color-text-secondary)' }}
               >
                 Browse
               </Button>
@@ -136,7 +136,7 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
         </div>
 
         <DialogFooter className="gap-2">
-          <Button variant="ghost" onClick={onClose} style={{ color: '#54545A' }}>
+          <Button variant="ghost" onClick={onClose} style={{ color: 'var(--color-text-muted)' }}>
             Cancel
           </Button>
           <Button
