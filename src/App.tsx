@@ -81,22 +81,20 @@ export default function App() {
 
   return (
     <div className="flex flex-col h-full" style={{ background: '#0A0A0B', position: 'relative' }}>
-      <ResizablePanelGroup direction="horizontal" className="flex-1">
+      <ResizablePanelGroup orientation="horizontal" className="flex-1">
         {/* Sidebar */}
-        <ResizablePanel defaultSize={20} minSize={14} maxSize={35}>
-          <ProfileList
-            profiles={profiles}
-            activeProfileId={activeProfileId}
-            onSelect={setActiveProfileId}
-            onNew={() => setProfileEditorOpen(true)}
-          />
+        <ResizablePanel defaultSize={20} minSize={12} maxSize={40}>
+          <div style={{ overflow: 'hidden', height: '100%' }}>
+            <ProfileList
+              profiles={profiles}
+              activeProfileId={activeProfileId}
+              onSelect={setActiveProfileId}
+              onNew={() => setProfileEditorOpen(true)}
+            />
+          </div>
         </ResizablePanel>
 
-        <ResizableHandle
-          style={{ background: '#2A2A2F', width: 4, cursor: 'col-resize', transition: 'background 0.15s' }}
-          onMouseEnter={e => (e.currentTarget.style.background = '#FFE600')}
-          onMouseLeave={e => (e.currentTarget.style.background = '#2A2A2F')}
-        />
+        <ResizableHandle className="resizable-handle" />
 
         {/* Main */}
         <ResizablePanel defaultSize={80}>

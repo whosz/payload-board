@@ -5,6 +5,14 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.2.2] — 2026-05-08
+
+### Fixed
+- Sidebar resize in both directions: reverted wrong `direction` prop → correct `orientation="horizontal"` (react-resizable-panels v4 TypeScript API)
+- Sidebar content wrapped in `overflow: hidden` container so it can shrink below content intrinsic width
+- ResizableHandle JS event handlers removed (were potentially blocking library's internal drag events); hover now handled via pure CSS `.resizable-handle:hover`
+- Sidebar `minSize` relaxed: 14% → 12%; `maxSize` raised: 35% → 40%
+
 ## [0.2.1] — 2026-05-08
 
 ### Fixed

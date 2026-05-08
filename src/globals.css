@@ -131,3 +131,15 @@
   0%, 100% { opacity: 1; }
   50% { opacity: 0.4; }
 }
+
+/* ── Resizable panel handle ── */
+.resizable-handle {
+  background: #2A2A2F !important;
+  width: 4px !important;
+  cursor: col-resize !important;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+.resizable-handle:hover {
+  background: #FFE600 !important;
+}
