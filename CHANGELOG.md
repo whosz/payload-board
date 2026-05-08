@@ -5,6 +5,13 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.2.3] — 2026-05-08
+
+### Fixed
+- Sidebar resize fully broken: replaced shadcn `ResizablePanelGroup/Panel/Handle` wrappers with direct `Group/Panel/Separator` imports from `react-resizable-panels` — Tailwind classes on the shadcn wrapper conflicted with the library's internal inline styles, causing wrong initial size (~37px instead of 20%)
+- Removed unused `faCircleSolid` import in AppTile (TS error)
+- Fixed TS error: `style` prop not supported on `<Icon>` — crashed icon animation wrapped in `<span>` instead
+
 ## [0.2.2] — 2026-05-08
 
 ### Fixed

@@ -6,7 +6,6 @@ import {
   faFolderOpen,
   faSliders,
   faXmark,
-  faCircleSolid,
   faCircleRegular,
   faTriangleExclamation,
 } from '../icons';
@@ -42,12 +41,9 @@ function StatusLed({ status }: { status: ProcessInfo['status'] }) {
   }
   if (status === 'crashed') {
     return (
-      <Icon
-        icon={faTriangleExclamation}
-        size={12}
-        crit
-        style={{ animation: 'pulse-crit 1s infinite' } as React.CSSProperties}
-      />
+      <span style={{ animation: 'pulse-crit 1s infinite', lineHeight: 0 }}>
+        <Icon icon={faTriangleExclamation} size={12} crit />
+      </span>
     );
   }
   return <Icon icon={faCircleRegular} size={8} />;

@@ -1,9 +1,5 @@
 import { useState, useCallback } from 'react';
-import {
-  ResizableHandle,
-  ResizablePanelGroup,
-  ResizablePanel,
-} from './components/ui/resizable';
+import { Group as PanelGroup, Panel, Separator as PanelHandle } from 'react-resizable-panels';
 import { Button } from './components/ui/button';
 import { ProfileList } from './components/sidebar/ProfileList';
 import { AppTile } from './components/dashboard/AppTile';
@@ -81,23 +77,34 @@ export default function App() {
 
   return (
     <div className="flex flex-col h-full" style={{ background: '#0A0A0B', position: 'relative' }}>
-      <ResizablePanelGroup orientation="horizontal" className="flex-1">
+      <PanelGroup
+        orientation="horizontal"
+        style={{ flex: 1, display: 'flex', overflow: 'hidden' }}
+      >
         {/* Sidebar */}
-        <ResizablePanel defaultSize={20} minSize={12} maxSize={40}>
-          <div style={{ overflow: 'hidden', height: '100%' }}>
-            <ProfileList
-              profiles={profiles}
-              activeProfileId={activeProfileId}
-              onSelect={setActiveProfileId}
-              onNew={() => setProfileEditorOpen(true)}
-            />
-          </div>
-        </ResizablePanel>
+        <Panel defaultSize={20} minSize={12} maxSize={40} style={{ overflow: 'hidden' }}>
+          <ProfileList
+            profiles={profiles}
+            activeProfileId={activeProfileId}
+            onSelect={setActiveProfileId}
+            onNew={() => setProfileEditorOpen(true)}
+          />
+        </Panel>
 
-        <ResizableHandle className="resizable-handle" />
+        <PanelHandle
+          style={{
+            width: 4,
+            background: '#2A2A2F',
+            cursor: 'col-resize',
+            flexShrink: 0,
+            transition: 'background 0.15s',
+          }}
+          onMouseEnter={e => (e.currentTarget.style.background = '#FFE600')}
+          onMouseLeave={e => (e.currentTarget.style.background = '#2A2A2F')}
+        />
 
         {/* Main */}
-        <ResizablePanel defaultSize={80}>
+        <Panel defaultSize={80} style={{ overflow: 'hidden' }}>
           <div className="flex flex-col h-full">
             {/* Top bar */}
             <div
@@ -226,8 +233,8 @@ export default function App() {
 
             <StatusBar profile={activeProfile} statuses={statuses} />
           </div>
-        </ResizablePanel>
-      </ResizablePanelGroup>
+        </Panel>
+      </PanelGroup>
 
       {/* Toast notifications */}
       {toasts.length > 0 && (
