@@ -5,6 +5,11 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.2.4] — 2026-05-08
+
+### Fixed
+- Sidebar still rendering at 20px: in react-resizable-panels v4, a bare number in `defaultSize`/`minSize`/`maxSize` is treated as **pixels** (not %). Changed to string format: `"20%"`, `"12%"`, `"40%"`, `"80%"`
+
 ## [0.2.3] — 2026-05-08
 
 ### Fixed

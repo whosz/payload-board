@@ -82,7 +82,7 @@ export default function App() {
         style={{ flex: 1, display: 'flex', overflow: 'hidden' }}
       >
         {/* Sidebar */}
-        <Panel defaultSize={20} minSize={12} maxSize={40} style={{ overflow: 'hidden' }}>
+        <Panel defaultSize="20%" minSize="12%" maxSize="40%" style={{ overflow: 'hidden' }}>
           <ProfileList
             profiles={profiles}
             activeProfileId={activeProfileId}
@@ -104,7 +104,7 @@ export default function App() {
         />
 
         {/* Main */}
-        <Panel defaultSize={80} style={{ overflow: 'hidden' }}>
+        <Panel defaultSize="80%" style={{ overflow: 'hidden' }}>
           <div className="flex flex-col h-full">
             {/* Top bar */}
             <div
