@@ -38,12 +38,26 @@ jobs:
           tagName: ${{ github.ref_name }}
           releaseName: Payload Board ${{ github.ref_name }}
           releaseBody: |
-            ## Installation
+            ## Download
 
-            1. Download `Payload-Board_x.x.x_x64-setup.exe` below
-            2. Run the installer — Windows may show a SmartScreen warning, click "More info → Run anyway"
-            3. That's it. Rust, Node.js and other tools are **not required**.
+            | File | Description |
+            |---|---|
+            | `Payload-Board_x.x.x_x64-setup.exe` | Installer (recommended) |
+            | `Payload-Board_x.x.x_x64_en-US.msi` | MSI installer |
+            | `Payload-Board_x.x.x-portable-x64.zip` | Portable — extract and run, no install needed |
 
             **Requirements:** Windows 10 or 11 (64-bit)
+            Windows may show a SmartScreen warning on first run — click "More info → Run anyway".
           releaseDraft: true
           prerelease: false
+
+      - name: Package and upload portable build
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $version = "${{ github.ref_name }}"
+          $zip = "Payload-Board-${version}-portable-x64.zip"
+          Compress-Archive -Path "src-tauri\target\release\payload-board.exe" -DestinationPath $zip
+          gh release upload $version $zip
