@@ -13,12 +13,14 @@ export function StatusBar({ profile, statuses }: StatusBarProps) {
 
   return (
     <div
-      className="flex items-center gap-4 px-4 py-2 text-xs font-mono"
+      className="flex items-center gap-6 px-5 font-mono"
       style={{
         background: '#111113',
         borderTop: '1px solid #1F1F22',
         color: '#54545A',
-        minHeight: 32,
+        minHeight: 44,
+        fontSize: 12,
+        letterSpacing: '0.04em',
       }}
     >
       <span>

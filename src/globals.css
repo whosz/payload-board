@@ -97,14 +97,37 @@
     background-color: #0A0A0B;
     color: #E8E8EA;
     font-family: Inter, "Geist Variable", system-ui, sans-serif;
-    font-size: 14px;
+    font-size: 16px;
     -webkit-font-smoothing: antialiased;
   }
 }
 
 /* ── FontAwesome icon defaults ── */
-.fa-icon        { color: #54545A; width: 12px; height: 12px; }
+.fa-icon        { color: #54545A; width: 14px; height: 14px; }
 .fa-icon-action:hover { color: #E8E8EA; }
 .fa-icon-active { color: #FFE600; }
 .fa-icon-crit   { color: #FF2D55; }
 .fa-icon-live   { color: #00E5FF; }
+
+/* ── Tile action buttons ── */
+.tile-btn {
+  opacity: 0.6;
+  transition: opacity 0.1s, transform 0.1s;
+}
+.tile-btn:hover:not(:disabled) {
+  opacity: 1;
+}
+.tile-btn:active:not(:disabled) {
+  transform: scale(0.88);
+  opacity: 1;
+}
+.tile-btn:disabled {
+  opacity: 0.2;
+  cursor: default;
+}
+
+/* ── Crashed pulse animation ── */
+@keyframes pulse-crit {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}

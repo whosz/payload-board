@@ -5,6 +5,44 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.2.1] — 2026-05-08
+
+### Fixed
+- Sidebar resize broken — `orientation` prop changed to `direction` (react-resizable-panels v4 API)
+- All IPC calls (start/stop/restart/open/remove) now wrapped in try/catch; errors surfaced as dismissible toast notifications in bottom-right corner
+- `End Session` button now catches and displays errors
+- `.claude/` directory added to `.gitignore` to prevent local settings (and tokens) from being committed
+
+### Changed
+- Base font size: 14 px → 16 px
+- App tile: 260×120 px → 340×170 px; padding 12 px → 14/16 px; icon size 11 px → 14 px
+- Sidebar: profile items padding increased; `+ New Profile` button has hover background state
+- Top bar: min-height 44 px → 56 px; buttons bumped to `size="default"` (from `sm`)
+- Status bar: min-height 32 px → 44 px; letter-spacing added
+- ResizableHandle: 1 px → 4 px, yellow glow on hover so it's discoverable
+- Profile list items: hover background state added; active border 2 px → 3 px
+- Tile buttons: `.tile-btn` CSS class — 60% opacity at rest, 100% on hover, scale(0.88) on press
+
+## [0.2.0] — 2026-05-08
+
+### Added
+
+**Phase 2 — Process Control**
+- `start_app` / `stop_app` / `restart_app` / `open_path` / `stop_all` IPC commands
+- `ProcessManager`: in-memory PID tracking with `Running / Stopping / Stopped / Crashed` states
+- 1 Hz background watcher — detects crashed processes and emits `process_status_changed` events
+- PID re-adoption: after `start_app`, scan process list for 10 s to handle launchers that re-exec (Steam-problem)
+- Graceful shutdown → force-kill after 5 s timeout on all platforms
+- `PlatformAdapter::open_path` — Explorer `/select` (Win), `open -R` (macOS), `xdg-open` (Linux)
+- Windows `graceful_close` via `taskkill` without `/F` (sends WM_CLOSE to windowed apps)
+- `AppTile`: ▶ ■ ↻ 📁 controls + status LED (cyan glow / outline / red pulse for Crashed)
+- `StatusBar`: live TOTAL / ALIVE / CRASHED counters
+- `End Session` button wired to `stop_all`
+- `sysinfo = "0.32"` + `tokio` added to Rust dependencies
+
+### Changed
+- Bundle ID: `com.matt.payload-board` → `com.payload-board`
+
 ## [0.1.0] — 2026-05-08
 
 ### Added

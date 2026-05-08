@@ -14,14 +14,12 @@ export function ProfileList({ profiles, activeProfileId, onSelect, onNew }: Prof
     <aside
       className="flex flex-col h-full"
       style={{
-        width: 220,
-        minWidth: 220,
         background: '#111113',
         borderRight: '1px solid #1F1F22',
       }}
     >
       <div
-        className="px-3 py-2 text-xs font-mono uppercase tracking-widest"
+        className="px-4 py-3 font-mono uppercase tracking-widest text-xs"
         style={{ color: '#54545A', borderBottom: '1px solid #1F1F22' }}
       >
         Profiles
@@ -32,14 +30,23 @@ export function ProfileList({ profiles, activeProfileId, onSelect, onNew }: Prof
           <button
             key={profile.id}
             onClick={() => onSelect(profile.id)}
-            className="w-full text-left px-3 py-2 text-sm transition-colors cursor-pointer"
+            className="w-full text-left px-4 py-3 transition-colors cursor-pointer"
             style={{
               background: activeProfileId === profile.id ? '#1C1C1F' : 'transparent',
               color: activeProfileId === profile.id ? '#E8E8EA' : '#8A8A90',
               border: 'none',
               borderLeft: activeProfileId === profile.id
-                ? '2px solid #FFE600'
-                : '2px solid transparent',
+                ? '3px solid #FFE600'
+                : '3px solid transparent',
+              fontSize: 14,
+            }}
+            onMouseEnter={e => {
+              if (profile.id !== activeProfileId)
+                e.currentTarget.style.background = '#161618';
+            }}
+            onMouseLeave={e => {
+              if (profile.id !== activeProfileId)
+                e.currentTarget.style.background = 'transparent';
             }}
           >
             {profile.name}
@@ -50,12 +57,18 @@ export function ProfileList({ profiles, activeProfileId, onSelect, onNew }: Prof
       <div style={{ borderTop: '1px solid #1F1F22' }}>
         <button
           onClick={onNew}
-          className="w-full flex items-center gap-2 px-3 py-2 text-xs font-mono uppercase tracking-wider transition-colors cursor-pointer"
-          style={{ color: '#54545A', background: 'transparent', border: 'none' }}
-          onMouseEnter={e => (e.currentTarget.style.color = '#E8E8EA')}
-          onMouseLeave={e => (e.currentTarget.style.color = '#54545A')}
+          className="w-full flex items-center gap-2 px-4 py-3 font-mono uppercase tracking-wider cursor-pointer"
+          style={{ color: '#54545A', background: 'transparent', border: 'none', fontSize: 12, transition: 'color 0.1s, background 0.1s' }}
+          onMouseEnter={e => {
+            e.currentTarget.style.color = '#E8E8EA';
+            e.currentTarget.style.background = '#161618';
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.color = '#54545A';
+            e.currentTarget.style.background = 'transparent';
+          }}
         >
-          <Icon icon={faPlus} size={11} />
+          <Icon icon={faPlus} size={13} />
           New Profile
         </button>
       </div>

@@ -30,8 +30,8 @@ function StatusLed({ status }: { status: ProcessInfo['status'] }) {
       <span
         style={{
           display: 'inline-block',
-          width: 6,
-          height: 6,
+          width: 8,
+          height: 8,
           borderRadius: '50%',
           background: '#00E5FF',
           boxShadow: '0 0 8px #00E5FF',
@@ -44,15 +44,13 @@ function StatusLed({ status }: { status: ProcessInfo['status'] }) {
     return (
       <Icon
         icon={faTriangleExclamation}
-        size={8}
+        size={12}
         crit
-        className="fa-icon-crit"
-        style={{ animation: 'pulse 1s infinite' } as React.CSSProperties}
+        style={{ animation: 'pulse-crit 1s infinite' } as React.CSSProperties}
       />
     );
   }
-  // stopped / stopping
-  return <Icon icon={faCircleRegular} size={6} />;
+  return <Icon icon={faCircleRegular} size={8} />;
 }
 
 function TileButton({
@@ -71,13 +69,15 @@ function TileButton({
       onClick={onClick}
       title={title}
       disabled={disabled}
+      className="tile-btn"
       style={{
         background: 'none',
         border: 'none',
-        padding: 0,
-        cursor: disabled ? 'default' : 'pointer',
-        opacity: disabled ? 0.3 : 1,
+        padding: '2px 4px',
+        cursor: 'pointer',
         lineHeight: 0,
+        display: 'flex',
+        alignItems: 'center',
       }}
     >
       {children}
@@ -100,27 +100,28 @@ export function AppTile({
 
   return (
     <div
-      className="flex flex-col justify-between p-3"
+      className="flex flex-col justify-between"
       style={{
-        width: 260,
-        height: 120,
+        width: 340,
+        height: 170,
         background: '#161618',
         border: `1px solid ${status.status === 'crashed' ? '#FF2D55' : '#2A2A2F'}`,
         flexShrink: 0,
+        padding: '14px 16px',
       }}
     >
-      {/* Row 1: status LED + name */}
+      {/* Row 1: LED + name + delay badge */}
       <div className="flex items-center gap-2">
         <StatusLed status={status.status} />
         <span
-          className="text-sm font-medium truncate flex-1"
-          style={{ color: '#E8E8EA' }}
+          className="font-medium truncate flex-1"
+          style={{ color: '#E8E8EA', fontSize: 15 }}
           title={app.name}
         >
           {app.name}
         </span>
         {app.launch_delay_ms > 0 && (
-          <span className="text-xs font-mono" style={{ color: '#54545A', flexShrink: 0 }}>
+          <span className="font-mono" style={{ color: '#54545A', fontSize: 11, flexShrink: 0 }}>
             +{app.launch_delay_ms}ms
           </span>
         )}
@@ -128,37 +129,35 @@ export function AppTile({
 
       {/* Row 2: path */}
       <div
-        className="text-xs font-mono truncate"
-        style={{ color: '#54545A' }}
+        className="font-mono truncate"
+        style={{ color: '#54545A', fontSize: 11 }}
         title={app.executable_path}
       >
         {app.executable_path}
       </div>
 
       {/* Row 3: process controls + edit/remove */}
-      <div className="flex items-center gap-2">
-        {/* Process controls */}
+      <div className="flex items-center gap-1">
         <TileButton onClick={onStart} title="Start" disabled={isRunning}>
-          <Icon icon={faPlay} size={11} active={!isRunning} />
+          <Icon icon={faPlay} size={14} active={!isRunning && !isStopped ? false : !isRunning} />
         </TileButton>
         <TileButton onClick={onStop} title="Stop" disabled={isStopped}>
-          <Icon icon={faStop} size={11} crit={isRunning} />
+          <Icon icon={faStop} size={14} crit={isRunning} />
         </TileButton>
         <TileButton onClick={onRestart} title="Restart">
-          <Icon icon={faRotateRight} size={11} />
+          <Icon icon={faRotateRight} size={14} />
         </TileButton>
         <TileButton onClick={onOpenPath} title="Open folder">
-          <Icon icon={faFolderOpen} size={11} />
+          <Icon icon={faFolderOpen} size={14} />
         </TileButton>
 
         <div style={{ flex: 1 }} />
 
-        {/* Edit / remove */}
-        <TileButton onClick={() => onEdit(app)} title="Edit">
-          <Icon icon={faSliders} size={11} />
+        <TileButton onClick={() => onEdit(app)} title="Edit settings">
+          <Icon icon={faSliders} size={14} />
         </TileButton>
         <TileButton onClick={() => onRemove(app.id)} title="Remove">
-          <Icon icon={faXmark} size={11} crit />
+          <Icon icon={faXmark} size={14} crit />
         </TileButton>
       </div>
     </div>
