@@ -5,6 +5,21 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.3.1] — 2026-05-08
+
+### Fixed
+- IPC args were snake_case (`profile_id`, `entry_id`) — Tauri 2 requires camelCase (`profileId`, `entryId`); all process commands now work correctly
+- "Run Sequence" button had no `onClick` handler — now iterates sorted apps, respects `launch_delay_ms`, skips already-running apps
+
+### Added
+- App icons: auto-detected from XDG icon theme (Linux), adjacent image files (Windows/macOS); custom image picker; 20×20 icon shown on tile
+- Sort bar above tile grid: A→Z / Z→A toggle (click active to reset to manual order)
+- Hover states on all header buttons (Add App, Run Sequence, End Session, Settings)
+
+### Changed
+- About section: removed email, kept GitHub link only
+- CI: portable `.zip` added to GitHub Release alongside installers; bundle targets narrowed to `["nsis", "msi"]`
+
 ## [0.3.0] — 2026-05-08
 
 ### Added
