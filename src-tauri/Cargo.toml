@@ -1,0 +1,38 @@
+[package]
+name = "payload-board"
+version = "0.1.0"
+description = "Payload Board — cross-platform app launcher and session manager"
+authors = ["matt"]
+edition = "2021"
+
+[lib]
+name = "payload_board_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri               = { version = "2", features = [] }
+tauri-plugin-store  = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-shell  = "2"
+serde               = { version = "1", features = ["derive"] }
+serde_json          = "1"
+uuid                = { version = "1", features = ["v4"] }
+
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.58", features = [
+  "Win32_UI_Shell",
+  "Win32_System_Registry",
+] }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+freedesktop_entry_parser = "2"
+
+[profile.release]
+codegen-units = 1
+lto           = true
+opt-level     = 3
+panic         = "abort"
+strip         = true
