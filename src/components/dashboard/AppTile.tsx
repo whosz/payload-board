@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { convertFileSrc } from '@tauri-apps/api/core';
 import { Icon } from '../icons/Icon';
 import {
@@ -6,7 +7,7 @@ import {
   faRotateRight,
   faFolderOpen,
   faSliders,
-  faXmark,
+  faTrash,
   faCircleRegular,
   faTriangleExclamation,
 } from '../icons';
@@ -82,6 +83,30 @@ function TileButton({
   );
 }
 
+function RemoveButton({ onClick }: { onClick: () => void }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <button
+      onClick={onClick}
+      title="Remove"
+      className="tile-btn"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        background: 'none',
+        border: 'none',
+        padding: '2px 4px',
+        cursor: 'pointer',
+        lineHeight: 0,
+        display: 'flex',
+        alignItems: 'center',
+      }}
+    >
+      <Icon icon={faTrash} size={14} crit={hovered} />
+    </button>
+  );
+}
+
 export function AppTile({
   app,
   status,
@@ -95,13 +120,21 @@ export function AppTile({
   const isRunning = status.status === 'running';
   const isStopped = status.status === 'stopped';
 
+  const bgStyle: React.CSSProperties = app.background_url
+    ? {
+        backgroundImage: `linear-gradient(rgba(10,10,11,0.78) 0%, rgba(10,10,11,0.72) 50%, rgba(10,10,11,0.84) 100%), url("${app.background_url}")`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }
+    : { background: 'var(--color-bg-elevated)' };
+
   return (
     <div
-      className="flex flex-col justify-between"
+      className="flex flex-col"
       style={{
         width: 340,
         height: 170,
-        background: 'var(--color-bg-elevated)',
+        ...bgStyle,
         border: `1px solid ${status.status === 'crashed' ? 'var(--color-status-crit)' : 'var(--color-border-default)'}`,
         flexShrink: 0,
         padding: '14px 16px',
@@ -132,14 +165,28 @@ export function AppTile({
         )}
       </div>
 
-      {/* Row 2: path */}
-      <div
-        className="font-mono truncate"
-        style={{ color: 'var(--color-text-muted)', fontSize: 11 }}
-        title={app.executable_path}
-      >
-        {app.executable_path}
+      {/* Row 2: path + optional error — immediately below name */}
+      <div className="flex flex-col gap-0.5" style={{ marginTop: 4 }}>
+        <div
+          className="font-mono truncate"
+          style={{ color: 'var(--color-text-muted)', fontSize: 11 }}
+          title={app.executable_path}
+        >
+          {app.executable_path}
+        </div>
+        {status.status === 'crashed' && status.error_message && (
+          <div
+            className="font-mono truncate"
+            style={{ color: 'var(--color-status-crit)', fontSize: 10 }}
+            title={status.error_message}
+          >
+            {status.error_message}
+          </div>
+        )}
       </div>
+
+      {/* Spacer */}
+      <div style={{ flex: 1 }} />
 
       {/* Row 3: process controls + edit/remove */}
       <div className="flex items-center gap-1">
@@ -161,9 +208,7 @@ export function AppTile({
         <TileButton onClick={() => onEdit(app)} title="Edit settings">
           <Icon icon={faSliders} size={14} />
         </TileButton>
-        <TileButton onClick={() => onRemove(app.id)} title="Remove">
-          <Icon icon={faXmark} size={14} crit />
-        </TileButton>
+        <RemoveButton onClick={() => onRemove(app.id)} />
       </div>
     </div>
   );

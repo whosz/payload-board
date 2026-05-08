@@ -29,11 +29,15 @@ export function useProfiles() {
 
   useEffect(() => { reload(); }, [reload]);
 
-  const createProfile = useCallback(async (name: string): Promise<Profile> => {
+  const createProfile = useCallback(async (
+    fields: { name: string; emoji?: string; description?: string },
+  ): Promise<Profile> => {
     const now = new Date().toISOString();
     const profile: Profile = {
       id: uuidv4(),
-      name,
+      name: fields.name,
+      emoji: fields.emoji,
+      description: fields.description,
       apps: [],
       created_at: now,
       updated_at: now,
@@ -64,6 +68,13 @@ export function useProfiles() {
     await updateProfile({ ...target, apps: [...target.apps, newApp] });
   }, [profiles, updateProfile]);
 
+  const updateApp = useCallback(async (profileId: string, app: AppEntry) => {
+    const target = profiles.find(p => p.id === profileId);
+    if (!target) return;
+    const apps = target.apps.map(a => a.id === app.id ? app : a);
+    await updateProfile({ ...target, apps });
+  }, [profiles, updateProfile]);
+
   const removeApp = useCallback(async (profileId: string, appId: string) => {
     const target = profiles.find(p => p.id === profileId);
     if (!target) return;
@@ -81,6 +92,7 @@ export function useProfiles() {
     updateProfile,
     removeProfile,
     addApp,
+    updateApp,
     removeApp,
     reload,
   };

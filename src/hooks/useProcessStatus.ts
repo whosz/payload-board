@@ -7,6 +7,7 @@ export interface ProcessInfo {
   entry_id: string;
   pid: number | null;
   status: ProcessStatus;
+  error_message?: string;
 }
 
 type StatusMap = Record<string, ProcessInfo>;
@@ -29,5 +30,12 @@ export function useProcessStatus() {
     return statuses[entry_id] ?? { entry_id, pid: null, status: 'stopped' };
   }
 
-  return { statuses, getStatus };
+  function setErrorStatus(entry_id: string, error_message: string) {
+    setStatuses(prev => ({
+      ...prev,
+      [entry_id]: { ...getStatus(entry_id), status: 'crashed', error_message },
+    }));
+  }
+
+  return { statuses, getStatus, setErrorStatus };
 }

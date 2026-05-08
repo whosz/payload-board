@@ -27,6 +27,12 @@ export function pickIconFile(): Promise<string> {
   return invoke<string>('pick_icon_file');
 }
 
-export function extractAppIcon(exePath: string): Promise<string | null> {
-  return invoke<string | null>('extract_app_icon', { exePath });
+export interface InstalledApp {
+  name: string;
+  exe_path: string | null;
 }
+
+export function listInstalledApps(): Promise<InstalledApp[]> {
+  return invoke<InstalledApp[]>('list_installed_apps');
+}
+

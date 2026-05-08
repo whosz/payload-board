@@ -1,7 +1,6 @@
-use std::path::PathBuf;
 use tauri::AppHandle;
 use tauri_plugin_dialog::DialogExt;
-use crate::platform::{self, PickedExecutable};
+use crate::platform::{self, InstalledApp, PickedExecutable};
 
 #[tauri::command]
 pub async fn pick_executable<R: tauri::Runtime>(
@@ -20,15 +19,18 @@ pub async fn pick_executable<R: tauri::Runtime>(
 
     let adapter = platform::create_adapter();
     let suggested_name = adapter.suggested_name(&path_buf);
-    let icon_path = adapter
-        .extract_icon(&path_buf)
-        .map(|p| p.to_string_lossy().to_string());
 
     Ok(PickedExecutable {
         path: path_buf.to_string_lossy().to_string(),
         suggested_name,
-        icon_path,
+        icon_path: None,
     })
+}
+
+#[tauri::command]
+pub fn list_installed_apps() -> Vec<InstalledApp> {
+    let adapter = platform::create_adapter();
+    adapter.list_installed_apps()
 }
 
 #[tauri::command]
@@ -45,11 +47,3 @@ pub async fn pick_icon_file<R: tauri::Runtime>(app: AppHandle<R>) -> Result<Stri
         .map(|p| p.to_string_lossy().to_string())
 }
 
-#[tauri::command]
-pub fn extract_app_icon(exe_path: String) -> Option<String> {
-    let path = PathBuf::from(&exe_path);
-    let adapter = platform::create_adapter();
-    adapter
-        .extract_icon(&path)
-        .map(|p| p.to_string_lossy().to_string())
-}

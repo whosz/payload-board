@@ -1,27 +1,11 @@
 #![cfg(windows)]
 
 use std::path::PathBuf;
-use super::PlatformAdapter;
+use super::{PlatformAdapter, InstalledApp};
 
 pub struct WindowsAdapter;
 
 impl PlatformAdapter for WindowsAdapter {
-    fn extract_icon(&self, exe_path: &PathBuf) -> Option<PathBuf> {
-        let parent = exe_path.parent()?;
-        let name = exe_path.file_stem()?.to_str()?.to_lowercase();
-        for filename in &[
-            format!("{}.png", name),
-            format!("{}.ico", name),
-            "icon.png".to_string(),
-            "icon.ico".to_string(),
-            "app.png".to_string(),
-        ] {
-            let p = parent.join(filename);
-            if p.exists() { return Some(p); }
-        }
-        None
-    }
-
     fn suggested_name(&self, exe_path: &PathBuf) -> String {
         exe_path
             .file_stem()
@@ -53,6 +37,76 @@ impl PlatformAdapter for WindowsAdapter {
             .spawn()
             .map_err(|e| e.to_string())?;
         Ok(())
+    }
+
+    fn list_installed_apps(&self) -> Vec<InstalledApp> {
+        use winreg::enums::*;
+        use winreg::RegKey;
+
+        const UNINSTALL_PATH: &str =
+            r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall";
+
+        let mut apps: Vec<InstalledApp> = Vec::new();
+
+        let roots = [
+            (HKEY_LOCAL_MACHINE, false),
+            (HKEY_CURRENT_USER, false),
+            // 32-bit apps on 64-bit Windows
+            (HKEY_LOCAL_MACHINE, true),
+        ];
+
+        for (hive, wow64) in roots {
+            let hive_key = RegKey::predef(hive);
+            let flags = if wow64 {
+                KEY_READ | 0x0200 // KEY_WOW64_32KEY
+            } else {
+                KEY_READ
+            };
+            let Ok(uninstall) = hive_key.open_subkey_with_flags(UNINSTALL_PATH, flags) else {
+                continue;
+            };
+
+            for subkey_name in uninstall.enum_keys().flatten() {
+                let Ok(subkey) = uninstall.open_subkey(&subkey_name) else {
+                    continue;
+                };
+
+                let name: String = match subkey.get_value("DisplayName") {
+                    Ok(v) => v,
+                    Err(_) => continue,
+                };
+
+                if name.trim().is_empty() { continue; }
+
+                // DisplayIcon often contains "path\to\app.exe,0"
+                let exe_path = subkey
+                    .get_value::<String, _>("DisplayIcon")
+                    .ok()
+                    .map(|icon| {
+                        let s = icon.trim().to_string();
+                        // Strip ",<index>" suffix
+                        if let Some(pos) = s.rfind(',') {
+                            let suffix = &s[pos + 1..];
+                            if suffix.chars().all(|c| c.is_ascii_digit() || c == '-') {
+                                return s[..pos].trim_matches('"').to_string();
+                            }
+                        }
+                        s.trim_matches('"').to_string()
+                    })
+                    .filter(|p| {
+                        let lower = p.to_lowercase();
+                        (lower.ends_with(".exe") || lower.ends_with(".bat"))
+                            && std::path::Path::new(p).exists()
+                    });
+
+                apps.push(InstalledApp { name, exe_path });
+            }
+        }
+
+        // Deduplicate by name (keep first occurrence)
+        apps.sort_by(|a, b| a.name.to_lowercase().cmp(&b.name.to_lowercase()));
+        apps.dedup_by(|a, b| a.name.to_lowercase() == b.name.to_lowercase());
+        apps
     }
 }
 

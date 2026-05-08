@@ -8,15 +8,23 @@ pub struct PickedExecutable {
     pub icon_path: Option<String>,
 }
 
+/// Returned by list_installed_apps IPC command.
+#[derive(Debug, serde::Serialize, serde::Deserialize, Clone)]
+pub struct InstalledApp {
+    pub name: String,
+    pub exe_path: Option<String>,
+}
+
 /// Platform-agnostic abstraction. All platform-specific logic lives here.
 /// The frontend and command layer never reference cfg-gated code directly.
 pub trait PlatformAdapter: Send + Sync {
-    fn extract_icon(&self, exe_path: &PathBuf) -> Option<PathBuf>;
     fn suggested_name(&self, exe_path: &PathBuf) -> String;
     fn graceful_close(&self, pid: u32) -> bool;
     fn kill_tree(&self, pid: u32) -> bool;
     /// Reveal the executable's location in the platform file manager.
     fn open_path(&self, exe_path: &std::path::Path) -> Result<(), String>;
+    /// List installed applications. Only meaningful on Windows; others return empty.
+    fn list_installed_apps(&self) -> Vec<InstalledApp> { vec![] }
 }
 
 /// Returns the correct adapter for the current OS.

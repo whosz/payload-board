@@ -5,6 +5,28 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.4.0] — 2026-05-08
+
+### Added
+- **SteamGridDB background art** — each app tile can display game artwork as a background (dark overlay preserves readability); pick art via the new SteamGridDB picker in the app editor (search game → pick grid image); API key configured in Settings
+- **Profile emoji & description** — emoji picker (75 icons) and optional description field in profile editor; emoji displayed in sidebar before profile name
+- **Browse installed apps** — "Installed..." button in app editor opens a searchable list of apps read from Windows registry (`HKLM/HKCU Uninstall`); Windows only, returns empty list on other platforms
+- **Edit profile** — pen icon appears on hover next to each profile in sidebar; opens profile editor pre-filled with name, emoji and description
+
+### Fixed
+- **App editing** — editing an existing app no longer creates a duplicate; dialog shows "Edit Application" / "Save" when editing, "Add Application" / "Add App" when creating
+- **Error message in crashed tile** — when `start_app` or `restart_app` fails, the error is shown in red inside the tile below the path (in addition to the toast)
+
+### Changed
+- Remove button on app tiles is now gray by default, turns red on hover
+- Trash icon replaces X in both app tile remove button and profile delete button
+- Confirm modal added before removing an app from a profile
+- Executable path now sits immediately below app name in the tile (no large gap)
+- Settings config path shown as a full readable block (click to open in file manager)
+- Removed "Icon" section from Add/Edit Application dialog (auto-detection was unreliable)
+- Removed auto icon detection entirely (`extract_icon` / `extract_app_icon`); custom icon files still supported
+- README: removed Platform notes table, restructured Installation into Windows (ready to download) vs macOS/Linux (build from source), added simracing inspiration note
+
 ## [0.3.1] — 2026-05-08
 
 ### Fixed

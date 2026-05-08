@@ -34,19 +34,23 @@ export default function App() {
     setActiveProfileId,
     loading,
     createProfile,
+    updateProfile,
     removeProfile,
     addApp,
+    updateApp,
     removeApp,
     reload,
   } = useProfiles();
 
-  const { getStatus, statuses } = useProcessStatus();
+  const { getStatus, statuses, setErrorStatus } = useProcessStatus();
 
   const [profileEditorOpen, setProfileEditorOpen] = useState(false);
+  const [editingProfile, setEditingProfile] = useState<typeof profiles[0] | undefined>();
   const [appEditorOpen, setAppEditorOpen] = useState(false);
   const [editingApp, setEditingApp] = useState<AppEntry | undefined>();
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [confirmRemoveApp, setConfirmRemoveApp] = useState<AppEntry | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [sortOrder, setSortOrder] = useState<'manual' | 'az' | 'za'>('manual');
 
@@ -76,7 +80,9 @@ export default function App() {
       try {
         await startApp(activeProfileId, app.id);
       } catch (e) {
-        pushError(`Start failed — ${app.name}: ${e}`);
+        const msg = String(e);
+        pushError(`Start failed — ${app.name}: ${msg}`);
+        setErrorStatus(app.id, msg);
       }
       if (app.launch_delay_ms > 0) {
         await new Promise(resolve => setTimeout(resolve, app.launch_delay_ms));
@@ -84,14 +90,19 @@ export default function App() {
     }
   };
 
-  const handleAddApp = async (entry: Omit<AppEntry, 'id' | 'order'>) => {
+  const handleSaveApp = async (entry: Omit<AppEntry, 'id' | 'order'>) => {
     if (!activeProfileId) return;
     try {
-      await addApp(activeProfileId, entry);
+      if (editingApp) {
+        await updateApp(activeProfileId, { ...entry, id: editingApp.id, order: editingApp.order });
+      } else {
+        await addApp(activeProfileId, entry);
+      }
     } catch (e) {
-      pushError(`Failed to add app: ${e}`);
+      pushError(`Failed to save app: ${e}`);
     }
     setAppEditorOpen(false);
+    setEditingApp(undefined);
   };
 
   const profileToDelete = profiles.find(p => p.id === confirmDeleteId);
@@ -132,6 +143,10 @@ export default function App() {
             activeProfileId={activeProfileId}
             onSelect={setActiveProfileId}
             onNew={() => setProfileEditorOpen(true)}
+            onEdit={id => {
+              const p = profiles.find(pr => pr.id === id);
+              if (p) { setEditingProfile(p); setProfileEditorOpen(true); }
+            }}
             onDelete={id => setConfirmDeleteId(id)}
           />
         </Panel>
@@ -281,7 +296,11 @@ export default function App() {
                       onStart={async () => {
                         if (!activeProfileId) return;
                         try { await startApp(activeProfileId, app.id); }
-                        catch (e) { pushError(`Start failed — ${app.name}: ${e}`); }
+                        catch (e) {
+                          const msg = String(e);
+                          pushError(`Start failed — ${app.name}: ${msg}`);
+                          setErrorStatus(app.id, msg);
+                        }
                       }}
                       onStop={async () => {
                         try { await stopApp(app.id); }
@@ -290,7 +309,11 @@ export default function App() {
                       onRestart={async () => {
                         if (!activeProfileId) return;
                         try { await restartApp(activeProfileId, app.id); }
-                        catch (e) { pushError(`Restart failed — ${app.name}: ${e}`); }
+                        catch (e) {
+                          const msg = String(e);
+                          pushError(`Restart failed — ${app.name}: ${msg}`);
+                          setErrorStatus(app.id, msg);
+                        }
                       }}
                       onOpenPath={async () => {
                         if (!activeProfileId) return;
@@ -298,9 +321,9 @@ export default function App() {
                         catch (e) { pushError(`Open folder failed — ${app.name}: ${e}`); }
                       }}
                       onEdit={a => { setEditingApp(a); setAppEditorOpen(true); }}
-                      onRemove={async id => {
-                        try { await removeApp(activeProfileId!, id); }
-                        catch (e) { pushError(`Remove failed: ${e}`); }
+                      onRemove={id => {
+                        const app = activeProfile?.apps.find(a => a.id === id);
+                        if (app) setConfirmRemoveApp(app);
                       }}
                     />
                   ))}
@@ -409,19 +432,74 @@ export default function App() {
         </DialogContent>
       </Dialog>
 
+      {/* Confirm remove app dialog */}
+      <Dialog open={confirmRemoveApp !== null} onOpenChange={v => { if (!v) setConfirmRemoveApp(null); }}>
+        <DialogContent
+          style={{
+            background: 'var(--color-bg-elevated)',
+            border: '1px solid var(--color-border-default)',
+            boxShadow: 'none',
+            maxWidth: 400,
+          }}
+        >
+          <DialogHeader>
+            <DialogTitle
+              className="font-mono uppercase tracking-wider text-sm"
+              style={{ color: 'var(--color-text-primary)' }}
+            >
+              Remove App
+            </DialogTitle>
+          </DialogHeader>
+          <p style={{ color: 'var(--color-text-secondary)', fontSize: 14 }}>
+            Remove <strong style={{ color: 'var(--color-text-primary)' }}>{confirmRemoveApp?.name}</strong>?
+            This will remove the app from the profile.
+          </p>
+          <DialogFooter className="gap-2">
+            <Button
+              variant="ghost"
+              onClick={() => setConfirmRemoveApp(null)}
+              style={{ color: 'var(--color-text-muted)' }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              className="font-mono uppercase tracking-wider"
+              onClick={async () => {
+                if (!confirmRemoveApp || !activeProfileId) return;
+                try { await removeApp(activeProfileId, confirmRemoveApp.id); }
+                catch (e) { pushError(`Remove failed: ${e}`); }
+                setConfirmRemoveApp(null);
+              }}
+            >
+              Remove
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <ProfileEditor
         open={profileEditorOpen}
-        onClose={() => setProfileEditorOpen(false)}
-        onSave={async name => {
-          try { await createProfile(name); }
-          catch (e) { pushError(`Failed to create profile: ${e}`); }
+        onClose={() => { setProfileEditorOpen(false); setEditingProfile(undefined); }}
+        initial={editingProfile}
+        onSave={async fields => {
+          try {
+            if (editingProfile) {
+              await updateProfile({ ...editingProfile, ...fields });
+            } else {
+              await createProfile(fields);
+            }
+          } catch (e) {
+            pushError(`Failed to save profile: ${e}`);
+          }
           setProfileEditorOpen(false);
+          setEditingProfile(undefined);
         }}
       />
       <AppEntryEditor
         open={appEditorOpen}
         onClose={() => { setAppEditorOpen(false); setEditingApp(undefined); }}
-        onSave={handleAddApp}
+        onSave={handleSaveApp}
         initial={editingApp}
       />
       <SettingsPanel

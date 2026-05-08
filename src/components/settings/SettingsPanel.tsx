@@ -8,12 +8,15 @@ import {
 } from '../ui/dialog';
 import { Button } from '../ui/button';
 import { Switch } from '../ui/switch';
+import { Input } from '../ui/input';
 import {
   getProfilesDir,
   pickConfigDir,
   setProfilesDir,
   resetAllData,
   openProfilesDir,
+  getSgdbKey,
+  setSgdbKey,
 } from '../../ipc/settings';
 
 interface SettingsPanelProps {
@@ -53,12 +56,24 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset }: 
   const [profilesDir, setProfilesDirState] = useState('');
   const [confirmReset, setConfirmReset] = useState(false);
   const [dirLoading, setDirLoading] = useState(false);
+  const [sgdbKey, setSgdbKeyState] = useState('');
+  const [sgdbSaving, setSgdbSaving] = useState(false);
 
   useEffect(() => {
     if (!open) return;
     getVersion().then(setVersion).catch(() => setVersion('?'));
     getProfilesDir().then(setProfilesDirState).catch(() => {});
+    getSgdbKey().then(k => setSgdbKeyState(k ?? '')).catch(() => {});
   }, [open]);
+
+  const handleSaveSgdbKey = async () => {
+    setSgdbSaving(true);
+    try {
+      await setSgdbKey(sgdbKey.trim() || null);
+    } catch { /* ignore */ } finally {
+      setSgdbSaving(false);
+    }
+  };
 
   const handleOpenDir = async () => {
     try { await openProfilesDir(); }
@@ -130,28 +145,60 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset }: 
             </SettingsRow>
           </section>
 
+          {/* STEAMGRIDDB */}
+          <section>
+            <SectionLabel>SteamGridDB</SectionLabel>
+            <div style={{ fontSize: 12, color: 'var(--color-text-muted)', marginBottom: 8 }}>
+              API key from{' '}
+              <span style={{ fontFamily: 'monospace' }}>steamgriddb.com/api</span>
+              {' '}— used to fetch game background artwork for tiles.
+            </div>
+            <div className="flex gap-2">
+              <Input
+                type="password"
+                placeholder="Paste API key..."
+                value={sgdbKey}
+                onChange={e => setSgdbKeyState(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleSaveSgdbKey()}
+                style={{
+                  background: 'var(--color-bg-surface)',
+                  borderColor: 'var(--color-border-default)',
+                  color: 'var(--color-text-primary)',
+                  fontFamily: 'monospace',
+                  fontSize: 12,
+                  flex: 1,
+                }}
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSaveSgdbKey}
+                disabled={sgdbSaving}
+                style={{ borderColor: 'var(--color-border-default)', color: 'var(--color-text-secondary)', fontSize: 12 }}
+              >
+                Save
+              </Button>
+            </div>
+          </section>
+
           {/* STORAGE */}
           <section>
             <SectionLabel>Storage</SectionLabel>
-            <SettingsRow label="Config directory">
-              <button
-                onClick={handleOpenDir}
-                className="font-mono text-xs truncate max-w-48 cursor-pointer"
-                style={{
-                  color: 'var(--color-text-muted)',
-                  background: 'none',
-                  border: 'none',
-                  padding: 0,
-                  textAlign: 'right',
-                  textDecoration: 'underline',
-                  textDecorationColor: 'var(--color-border-default)',
-                }}
-                title={profilesDir}
-              >
-                {profilesDir || '...'}
-              </button>
-            </SettingsRow>
-            <div className="flex gap-2 pt-1">
+            <div
+              className="font-mono text-xs break-all cursor-pointer mb-3"
+              style={{
+                color: 'var(--color-text-muted)',
+                background: 'var(--color-bg-surface)',
+                border: '1px solid var(--color-border-subtle)',
+                padding: '8px 10px',
+                lineHeight: 1.5,
+              }}
+              onClick={handleOpenDir}
+              title="Click to open in file manager"
+            >
+              {profilesDir || '...'}
+            </div>
+            <div className="flex gap-2">
               <Button
                 variant="outline"
                 size="sm"

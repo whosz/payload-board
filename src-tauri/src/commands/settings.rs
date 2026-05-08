@@ -1,6 +1,7 @@
 use tauri::{AppHandle, Manager};
 use tauri_plugin_dialog::DialogExt;
-use crate::store;
+use tauri_plugin_store::StoreExt;
+use crate::store::{self, SETTINGS_FILE};
 
 #[tauri::command]
 pub fn get_data_dir<R: tauri::Runtime>(app: AppHandle<R>) -> Result<String, String> {
@@ -43,6 +44,22 @@ pub fn open_profiles_dir<R: tauri::Runtime>(app: AppHandle<R>) -> Result<(), Str
     let dir_str = store::current_profiles_dir(&app);
     let dir = std::path::Path::new(&dir_str);
     open_in_file_manager(dir)
+}
+
+#[tauri::command]
+pub fn get_sgdb_key<R: tauri::Runtime>(app: AppHandle<R>) -> Option<String> {
+    let store = app.store(SETTINGS_FILE).ok()?;
+    store.get("sgdb_api_key").and_then(|v| v.as_str().map(|s| s.to_string()))
+}
+
+#[tauri::command]
+pub fn set_sgdb_key<R: tauri::Runtime>(app: AppHandle<R>, key: Option<String>) -> Result<(), String> {
+    let store = app.store(SETTINGS_FILE).map_err(|e| e.to_string())?;
+    match key {
+        Some(k) => store.set("sgdb_api_key", k),
+        None => { store.delete("sgdb_api_key"); }
+    }
+    store.save().map_err(|e| e.to_string())
 }
 
 fn open_in_file_manager(dir: &std::path::Path) -> Result<(), String> {

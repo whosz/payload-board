@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { convertFileSrc } from '@tauri-apps/api/core';
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -9,7 +8,9 @@ import {
 } from '../ui/dialog';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
-import { pickExecutable, pickIconFile, extractAppIcon } from '../../ipc/profiles';
+import { pickExecutable } from '../../ipc/profiles';
+import { InstalledAppsPicker } from './InstalledAppsPicker';
+import { SteamGridPicker } from './SteamGridPicker';
 import type { AppEntry } from '../../types';
 
 interface AppEntryEditorProps {
@@ -44,9 +45,16 @@ const inputStyle: React.CSSProperties = {
 };
 
 export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEditorProps) {
+  const isEditing = Boolean(initial?.id);
   const [form, setForm] = useState<Omit<AppEntry, 'id' | 'order'>>({ ...defaults, ...initial });
+
+  const [installedPickerOpen, setInstalledPickerOpen] = useState(false);
+  const [sgdbPickerOpen, setSgdbPickerOpen] = useState(false);
+
+  useEffect(() => {
+    setForm({ ...defaults, ...initial });
+  }, [open]);
   const [picking, setPicking] = useState(false);
-  const [iconLoading, setIconLoading] = useState(false);
 
   const handleBrowse = async () => {
     setPicking(true);
@@ -56,37 +64,11 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
         ...f,
         executable_path: result.path,
         name: f.name || result.suggested_name,
-        icon_cache_path: result.icon_path ?? f.icon_cache_path,
       }));
     } catch {
       // user cancelled
     } finally {
       setPicking(false);
-    }
-  };
-
-  const handleAutoIcon = async () => {
-    if (!form.executable_path) return;
-    setIconLoading(true);
-    try {
-      const icon = await extractAppIcon(form.executable_path);
-      setForm(f => ({ ...f, icon_cache_path: icon ?? undefined }));
-    } catch {
-      // ignore
-    } finally {
-      setIconLoading(false);
-    }
-  };
-
-  const handleCustomIcon = async () => {
-    setIconLoading(true);
-    try {
-      const path = await pickIconFile();
-      setForm(f => ({ ...f, icon_cache_path: path }));
-    } catch {
-      // user cancelled
-    } finally {
-      setIconLoading(false);
     }
   };
 
@@ -98,9 +80,8 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
     }
   };
 
-  const iconUrl = form.icon_cache_path ? convertFileSrc(form.icon_cache_path) : null;
-
   return (
+    <>
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
       <DialogContent
         style={{
@@ -115,7 +96,7 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
             className="font-mono uppercase tracking-wider text-sm"
             style={{ color: 'var(--color-text-primary)' }}
           >
-            Add Application
+            {isEditing ? 'Edit Application' : 'Add Application'}
           </DialogTitle>
         </DialogHeader>
 
@@ -148,69 +129,14 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
               >
                 Browse
               </Button>
-            </div>
-          </div>
-
-          {/* Icon */}
-          <div>
-            <div style={labelStyle}>Icon</div>
-            <div className="flex items-center gap-3">
-              {/* Preview */}
-              <div
-                style={{
-                  width: 40,
-                  height: 40,
-                  border: '1px solid var(--color-border-default)',
-                  background: 'var(--color-bg-surface)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0,
-                }}
+              <Button
+                variant="outline"
+                onClick={() => setInstalledPickerOpen(true)}
+                disabled={picking}
+                style={{ borderColor: 'var(--color-border-default)', color: 'var(--color-text-secondary)', fontSize: 12, whiteSpace: 'nowrap' }}
               >
-                {iconUrl ? (
-                  <img
-                    src={iconUrl}
-                    alt=""
-                    style={{ width: 32, height: 32, objectFit: 'contain' }}
-                    onError={e => { e.currentTarget.style.display = 'none'; }}
-                  />
-                ) : (
-                  <span style={{ color: 'var(--color-text-disabled)', fontSize: 10, fontFamily: 'monospace' }}>
-                    NONE
-                  </span>
-                )}
-              </div>
-              <div className="flex gap-2 flex-wrap">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleAutoIcon}
-                  disabled={iconLoading || !form.executable_path}
-                  style={{ borderColor: 'var(--color-border-default)', color: 'var(--color-text-secondary)', fontSize: 12 }}
-                >
-                  Auto-detect
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleCustomIcon}
-                  disabled={iconLoading}
-                  style={{ borderColor: 'var(--color-border-default)', color: 'var(--color-text-secondary)', fontSize: 12 }}
-                >
-                  Custom...
-                </Button>
-                {form.icon_cache_path && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setForm(f => ({ ...f, icon_cache_path: undefined }))}
-                    style={{ color: 'var(--color-text-muted)', fontSize: 12 }}
-                  >
-                    Clear
-                  </Button>
-                )}
-              </div>
+                Installed...
+              </Button>
             </div>
           </div>
 
@@ -225,6 +151,59 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
               style={inputStyle}
             />
           </div>
+
+          <div>
+            <div style={labelStyle}>Background art</div>
+            <div className="flex items-center gap-2">
+              {form.background_url ? (
+                <img
+                  src={form.background_url}
+                  alt=""
+                  style={{
+                    height: 36,
+                    width: 77,
+                    objectFit: 'cover',
+                    border: '1px solid var(--color-border-default)',
+                    flexShrink: 0,
+                  }}
+                  onError={e => { e.currentTarget.style.display = 'none'; }}
+                />
+              ) : (
+                <div
+                  style={{
+                    height: 36,
+                    width: 77,
+                    border: '1px solid var(--color-border-subtle)',
+                    background: 'var(--color-bg-surface)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                  }}
+                >
+                  <span style={{ color: 'var(--color-text-disabled)', fontSize: 9, fontFamily: 'monospace' }}>NONE</span>
+                </div>
+              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSgdbPickerOpen(true)}
+                style={{ borderColor: 'var(--color-border-default)', color: 'var(--color-text-secondary)', fontSize: 12 }}
+              >
+                SteamGridDB...
+              </Button>
+              {form.background_url && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setForm(f => ({ ...f, background_url: undefined }))}
+                  style={{ color: 'var(--color-text-muted)', fontSize: 12 }}
+                >
+                  Clear
+                </Button>
+              )}
+            </div>
+          </div>
         </div>
 
         <DialogFooter className="gap-2">
@@ -236,10 +215,29 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
             onClick={handleSave}
             disabled={!form.name.trim() || !form.executable_path.trim()}
           >
-            Add App
+            {isEditing ? 'Save' : 'Add App'}
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
+
+    <InstalledAppsPicker
+      open={installedPickerOpen}
+      onClose={() => setInstalledPickerOpen(false)}
+      onSelect={app => {
+        setForm(f => ({
+          ...f,
+          executable_path: app.exe_path ?? f.executable_path,
+          name: f.name || app.name,
+        }));
+      }}
+    />
+    <SteamGridPicker
+      open={sgdbPickerOpen}
+      onClose={() => setSgdbPickerOpen(false)}
+      initialQuery={form.name}
+      onSelect={url => setForm(f => ({ ...f, background_url: url }))}
+    />
+    </>
   );
 }

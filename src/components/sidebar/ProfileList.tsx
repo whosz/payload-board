@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Icon } from '../icons/Icon';
-import { faPlus, faXmark } from '../icons';
+import { faPlus, faTrash, faPen } from '../icons';
 import type { Profile } from '../../types';
 
 interface ProfileListProps {
@@ -8,10 +8,11 @@ interface ProfileListProps {
   activeProfileId: string | null;
   onSelect: (id: string) => void;
   onNew: () => void;
+  onEdit: (id: string) => void;
   onDelete: (id: string) => void;
 }
 
-export function ProfileList({ profiles, activeProfileId, onSelect, onNew, onDelete }: ProfileListProps) {
+export function ProfileList({ profiles, activeProfileId, onSelect, onNew, onEdit, onDelete }: ProfileListProps) {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   return (
@@ -47,19 +48,38 @@ export function ProfileList({ profiles, activeProfileId, onSelect, onNew, onDele
             >
               <button
                 onClick={() => onSelect(profile.id)}
-                className="flex-1 text-left px-4 py-3 cursor-pointer"
+                className="flex-1 text-left px-4 py-3 cursor-pointer flex items-center gap-2"
                 style={{
                   background: 'none',
                   border: 'none',
                   color: isActive ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
                   fontSize: 14,
                   minWidth: 0,
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
                 }}
               >
-                {profile.name}
+                {profile.emoji && (
+                  <span style={{ fontSize: 15, flexShrink: 0 }}>{profile.emoji}</span>
+                )}
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {profile.name}
+                </span>
+              </button>
+              <button
+                onClick={e => { e.stopPropagation(); onEdit(profile.id); }}
+                title="Edit profile"
+                className="tile-btn"
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  padding: '2px 6px',
+                  cursor: 'pointer',
+                  lineHeight: 0,
+                  flexShrink: 0,
+                  opacity: isHovered ? 0.6 : 0,
+                  transition: 'opacity 0.1s',
+                }}
+              >
+                <Icon icon={faPen} size={10} />
               </button>
               <button
                 onClick={e => { e.stopPropagation(); onDelete(profile.id); }}
@@ -76,7 +96,7 @@ export function ProfileList({ profiles, activeProfileId, onSelect, onNew, onDele
                   transition: 'opacity 0.1s',
                 }}
               >
-                <Icon icon={faXmark} size={11} crit />
+                <Icon icon={faTrash} size={11} crit />
               </button>
             </div>
           );

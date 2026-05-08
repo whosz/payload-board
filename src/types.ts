@@ -10,6 +10,7 @@ export interface AppEntry {
   wait_strategy: WaitStrategy;
   wait_seconds?: number;
   icon_cache_path?: string;
+  background_url?: string;
   enabled: boolean;
   order: number;
   requires_elevation?: boolean;
@@ -19,6 +20,8 @@ export interface Profile {
   id: string;
   name: string;
   color_accent?: string;
+  emoji?: string;
+  description?: string;
   apps: AppEntry[];
   created_at: string;
   updated_at: string;

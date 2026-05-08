@@ -23,3 +23,11 @@ export function resetAllData(): Promise<void> {
 export function openProfilesDir(): Promise<void> {
   return invoke<void>('open_profiles_dir');
 }
+
+export function getSgdbKey(): Promise<string | null> {
+  return invoke<string | null>('get_sgdb_key');
+}
+
+export function setSgdbKey(key: string | null): Promise<void> {
+  return invoke<void>('set_sgdb_key', { key });
+}

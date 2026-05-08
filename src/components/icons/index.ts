@@ -14,6 +14,7 @@ export {
   faTriangleExclamation,
   faGear,
   faTrash,
+  faPen,
   faSun,
   faMoon,
   faCircle as faCircleSolid,
