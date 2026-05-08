@@ -167,6 +167,7 @@ export default function App() {
                   <Button
                     variant="outline"
                     size="default"
+                    className="btn-header"
                     onClick={() => { setEditingApp(undefined); setAppEditorOpen(true); }}
                     style={{ borderColor: 'var(--color-border-default)', color: 'var(--color-text-secondary)' }}
                   >
@@ -177,6 +178,7 @@ export default function App() {
                 <Button
                   variant="outline"
                   size="default"
+                  className="btn-header"
                   disabled={!activeProfile || sortedApps.length === 0}
                   style={{ borderColor: 'var(--color-border-default)', color: 'var(--color-text-secondary)' }}
                   onClick={handleRunSequence}
@@ -188,7 +190,7 @@ export default function App() {
                   variant="destructive"
                   size="default"
                   disabled={!activeProfile || runningCount === 0}
-                  className="font-mono uppercase tracking-wider"
+                  className="btn-header font-mono uppercase tracking-wider"
                   onClick={async () => {
                     if (!activeProfileId) return;
                     try { await stopAll(activeProfileId); }
@@ -201,6 +203,7 @@ export default function App() {
                 <Button
                   variant="ghost"
                   size="default"
+                  className="btn-header-icon"
                   onClick={() => setSettingsOpen(true)}
                   style={{ color: 'var(--color-text-muted)', padding: '0 10px' }}
                   title="Settings"

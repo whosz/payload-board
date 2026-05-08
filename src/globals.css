@@ -149,6 +149,20 @@ body.light {
 .fa-icon-crit   { color: var(--color-status-crit); }
 .fa-icon-live   { color: var(--color-status-live); }
 
+/* ── Header buttons ── */
+.btn-header {
+  transition: color 0.12s, border-color 0.12s, background 0.12s !important;
+}
+.btn-header:hover:not(:disabled) {
+  color: var(--color-text-primary) !important;
+  border-color: var(--color-border-strong) !important;
+  background: var(--color-bg-hover) !important;
+}
+.btn-header-icon:hover:not(:disabled) {
+  color: var(--color-text-secondary) !important;
+  background: var(--color-bg-hover) !important;
+}
+
 /* ── Tile action buttons ── */
 .tile-btn {
   opacity: 0.6;
