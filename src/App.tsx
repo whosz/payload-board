@@ -26,6 +26,7 @@ export default function App() {
     setActiveProfileId,
     loading,
     createProfile,
+    removeProfile,
     addApp,
     removeApp,
   } = useProfiles();
@@ -88,6 +89,10 @@ export default function App() {
             activeProfileId={activeProfileId}
             onSelect={setActiveProfileId}
             onNew={() => setProfileEditorOpen(true)}
+            onDelete={async id => {
+              try { await removeProfile(id); }
+              catch (e) { pushError(`Failed to delete profile: ${e}`); }
+            }}
           />
         </Panel>
 
