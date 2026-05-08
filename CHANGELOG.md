@@ -5,6 +5,18 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.3.0] — 2026-05-08
+
+### Added
+- **Settings panel** (gear icon, top-right): four sections — Appearance, Storage, Danger Zone, About
+- **Light mode** — toggles `body.light` CSS class; preference persisted in `localStorage`; all hardcoded hex values replaced with `var(--color-*)` throughout every component so the theme cascades automatically
+- **Confirm delete dialog** — modal confirmation before a profile is removed
+- **Storage section**: shows current config directory, button to open it in the file manager, "Change directory" folder picker that migrates all data to the new location, "Reset to default" button
+- **Danger Zone** — "Reset all data" with inline double-confirmation
+- **About section** — app version (read from Tauri), creator contact, repo link
+- Rust commands: `get_data_dir`, `get_profiles_dir`, `pick_config_dir`, `set_profiles_dir`, `reset_all_data`, `open_profiles_dir`
+- `store.rs` now supports a custom profiles directory stored in a separate `payload-board-settings.json`; effective path resolved dynamically on every load/save
+
 ## [0.2.5] — 2026-05-08
 
 ### Added
