@@ -67,6 +67,22 @@ export default function App() {
   const dismissToast = (id: number) =>
     setToasts(prev => prev.filter(t => t.id !== id));
 
+  const handleRunSequence = async () => {
+    if (!activeProfileId) return;
+    for (const app of sortedApps) {
+      if (!app.enabled) continue;
+      if (getStatus(app.id).status === 'running') continue;
+      try {
+        await startApp(activeProfileId, app.id);
+      } catch (e) {
+        pushError(`Start failed — ${app.name}: ${e}`);
+      }
+      if (app.launch_delay_ms > 0) {
+        await new Promise(resolve => setTimeout(resolve, app.launch_delay_ms));
+      }
+    }
+  };
+
   const handleAddApp = async (entry: Omit<AppEntry, 'id' | 'order'>) => {
     if (!activeProfileId) return;
     try {
@@ -163,6 +179,7 @@ export default function App() {
                   size="default"
                   disabled={!activeProfile || sortedApps.length === 0}
                   style={{ borderColor: 'var(--color-border-default)', color: 'var(--color-text-secondary)' }}
+                  onClick={handleRunSequence}
                 >
                   <Icon icon={faPlay} size={12} />
                   Run Sequence
