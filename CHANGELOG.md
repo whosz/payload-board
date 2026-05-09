@@ -5,19 +5,25 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-## [0.4.0] — 2026-05-08
+## [0.4.0] — 2026-05-09
 
 ### Added
 - **SteamGridDB background art** — each app tile can display game artwork as a background (dark overlay preserves readability); pick art via the new SteamGridDB picker in the app editor (search game → pick grid image); API key configured in Settings
+- **Local background image** — "Local image..." button in app editor lets you pick any image file as tile background
+- **List view** — toggle between grid (cards) and list (compact rows) via grid/list icon buttons on the right of the sort bar; list rows show status LED, name, path, delay badge and all process controls in a single 44px row
 - **Profile emoji & description** — emoji picker (75 icons) and optional description field in profile editor; emoji displayed in sidebar before profile name
 - **Browse installed apps** — "Installed..." button in app editor opens a searchable list of apps read from Windows registry (`HKLM/HKCU Uninstall`); Windows only, returns empty list on other platforms
 - **Edit profile** — pen icon appears on hover next to each profile in sidebar; opens profile editor pre-filled with name, emoji and description
+- **API key save feedback** — Settings SteamGridDB section shows "API key saved." or "Failed to save API key." after pressing Save
 
 ### Fixed
 - **App editing** — editing an existing app no longer creates a duplicate; dialog shows "Edit Application" / "Save" when editing, "Add Application" / "Add App" when creating
 - **Error message in crashed tile** — when `start_app` or `restart_app` fails, the error is shown in red inside the tile below the path (in addition to the toast)
+- **SteamGridDB API key** — key now persists correctly across restarts (was silently discarded due to incorrect store serialization)
+- **App tile light mode** — tile text is always readable when background art is set; colors are pinned to dark values regardless of active theme
 
 ### Changed
+- App tile control buttons have a semi-transparent dark overlay behind them when a background image is loaded
 - Remove button on app tiles is now gray by default, turns red on hover
 - Trash icon replaces X in both app tile remove button and profile delete button
 - Confirm modal added before removing an app from a profile
