@@ -19,6 +19,9 @@ dist-ssr
 src-tauri/target/
 src-tauri/gen/
 
+# Windows Zone.Identifier alternate data streams (WSL downloads)
+*:Zone.Identifier
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
