@@ -7,6 +7,7 @@ Feature planning and todos for the Payload Board project.
 ```
 docs/
 ├── index.md                    ← you are here
+├── scope.md                    ← original project scope, stack rationale, design system brief
 ├── backlog.md                  ← lower-priority ideas and future features
 ├── planned/                    ← ready to build, not yet started
 │   ├── app-launch-config.md    ← CLI args field + app-specific presets
