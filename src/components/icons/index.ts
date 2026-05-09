@@ -17,6 +17,8 @@ export {
   faPen,
   faSun,
   faMoon,
+  faList,
+  faTableCellsLarge,
   faCircle as faCircleSolid,
 } from '@fortawesome/free-solid-svg-icons';
 

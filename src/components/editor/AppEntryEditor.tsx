@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { convertFileSrc } from '@tauri-apps/api/core';
 import {
   Dialog,
   DialogContent,
@@ -8,7 +9,11 @@ import {
 } from '../ui/dialog';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
-import { pickExecutable } from '../../ipc/profiles';
+import { pickExecutable, pickIconFile } from '../../ipc/profiles';
+
+function resolveUrl(url: string): string {
+  return url.startsWith('http') ? url : convertFileSrc(url);
+}
 import { InstalledAppsPicker } from './InstalledAppsPicker';
 import { SteamGridPicker } from './SteamGridPicker';
 import type { AppEntry } from '../../types';
@@ -55,6 +60,19 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
     setForm({ ...defaults, ...initial });
   }, [open]);
   const [picking, setPicking] = useState(false);
+  const [bgPicking, setBgPicking] = useState(false);
+
+  const handleLocalBg = async () => {
+    setBgPicking(true);
+    try {
+      const path = await pickIconFile();
+      setForm(f => ({ ...f, background_url: path }));
+    } catch {
+      // user cancelled
+    } finally {
+      setBgPicking(false);
+    }
+  };
 
   const handleBrowse = async () => {
     setPicking(true);
@@ -157,7 +175,7 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
             <div className="flex items-center gap-2">
               {form.background_url ? (
                 <img
-                  src={form.background_url}
+                  src={resolveUrl(form.background_url)}
                   alt=""
                   style={{
                     height: 36,
@@ -188,9 +206,19 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
                 variant="outline"
                 size="sm"
                 onClick={() => setSgdbPickerOpen(true)}
+                disabled={bgPicking}
                 style={{ borderColor: 'var(--color-border-default)', color: 'var(--color-text-secondary)', fontSize: 12 }}
               >
                 SteamGridDB...
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleLocalBg}
+                disabled={bgPicking}
+                style={{ borderColor: 'var(--color-border-default)', color: 'var(--color-text-secondary)', fontSize: 12 }}
+              >
+                Local image...
               </Button>
               {form.background_url && (
                 <Button

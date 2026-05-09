@@ -120,9 +120,13 @@ export function AppTile({
   const isRunning = status.status === 'running';
   const isStopped = status.status === 'stopped';
 
-  const bgStyle: React.CSSProperties = app.background_url
+  const bgSrc = app.background_url
+    ? (app.background_url.startsWith('http') ? app.background_url : convertFileSrc(app.background_url))
+    : null;
+
+  const bgStyle: React.CSSProperties = bgSrc
     ? {
-        backgroundImage: `linear-gradient(rgba(10,10,11,0.78) 0%, rgba(10,10,11,0.72) 50%, rgba(10,10,11,0.84) 100%), url("${app.background_url}")`,
+        backgroundImage: `linear-gradient(rgba(10,10,11,0.82) 0%, rgba(10,10,11,0.72) 50%, rgba(10,10,11,0.88) 100%), url("${bgSrc}")`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }
@@ -153,13 +157,13 @@ export function AppTile({
         )}
         <span
           className="font-medium truncate flex-1"
-          style={{ color: 'var(--color-text-primary)', fontSize: 15 }}
+          style={{ color: bgSrc ? '#e8e8ea' : 'var(--color-text-primary)', fontSize: 15 }}
           title={app.name}
         >
           {app.name}
         </span>
         {app.launch_delay_ms > 0 && (
-          <span className="font-mono" style={{ color: 'var(--color-text-muted)', fontSize: 11, flexShrink: 0 }}>
+          <span className="font-mono" style={{ color: bgSrc ? '#7a7a8a' : 'var(--color-text-muted)', fontSize: 11, flexShrink: 0 }}>
             +{app.launch_delay_ms}ms
           </span>
         )}
@@ -169,7 +173,7 @@ export function AppTile({
       <div className="flex flex-col gap-0.5" style={{ marginTop: 4 }}>
         <div
           className="font-mono truncate"
-          style={{ color: 'var(--color-text-muted)', fontSize: 11 }}
+          style={{ color: bgSrc ? '#7a7a8a' : 'var(--color-text-muted)', fontSize: 11 }}
           title={app.executable_path}
         >
           {app.executable_path}
@@ -189,7 +193,14 @@ export function AppTile({
       <div style={{ flex: 1 }} />
 
       {/* Row 3: process controls + edit/remove */}
-      <div className="flex items-center gap-1">
+      <div
+        className="flex items-center gap-1"
+        style={bgSrc ? {
+          background: 'rgba(10,10,11,0.55)',
+          margin: '0 -16px -14px',
+          padding: '6px 16px 14px',
+        } : undefined}
+      >
         <TileButton onClick={onStart} title="Start" disabled={isRunning}>
           <Icon icon={faPlay} size={14} active={!isRunning && !isStopped ? false : !isRunning} />
         </TileButton>

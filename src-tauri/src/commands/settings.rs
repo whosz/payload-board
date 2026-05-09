@@ -56,7 +56,7 @@ pub fn get_sgdb_key<R: tauri::Runtime>(app: AppHandle<R>) -> Option<String> {
 pub fn set_sgdb_key<R: tauri::Runtime>(app: AppHandle<R>, key: Option<String>) -> Result<(), String> {
     let store = app.store(SETTINGS_FILE).map_err(|e| e.to_string())?;
     match key {
-        Some(k) => store.set("sgdb_api_key", k),
+        Some(k) => store.set("sgdb_api_key", serde_json::Value::String(k)),
         None => { store.delete("sgdb_api_key"); }
     }
     store.save().map_err(|e| e.to_string())

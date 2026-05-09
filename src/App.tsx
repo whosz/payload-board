@@ -1,8 +1,10 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, lazy, Suspense } from 'react';
+const DesignReference = lazy(() => import('./components/DesignReference').then(m => ({ default: m.DesignReference })));
 import { Group as PanelGroup, Panel, Separator as PanelHandle } from 'react-resizable-panels';
 import { Button } from './components/ui/button';
 import { ProfileList } from './components/sidebar/ProfileList';
 import { AppTile } from './components/dashboard/AppTile';
+import { AppListRow } from './components/dashboard/AppListRow';
 import { StatusBar } from './components/dashboard/StatusBar';
 import { ProfileEditor } from './components/editor/ProfileEditor';
 import { AppEntryEditor } from './components/editor/AppEntryEditor';
@@ -15,7 +17,7 @@ import {
   DialogFooter,
 } from './components/ui/dialog';
 import { Icon } from './components/icons/Icon';
-import { faPlay, faPowerOff, faPlus, faXmark, faGear } from './components/icons';
+import { faPlay, faPowerOff, faPlus, faXmark, faGear, faList, faTableCellsLarge } from './components/icons';
 import { useProfiles } from './hooks/useProfiles';
 import { useProcessStatus } from './hooks/useProcessStatus';
 import { startApp, stopApp, restartApp, openPath, stopAll } from './ipc/processes';
@@ -53,6 +55,16 @@ export default function App() {
   const [confirmRemoveApp, setConfirmRemoveApp] = useState<AppEntry | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [sortOrder, setSortOrder] = useState<'manual' | 'az' | 'za'>('manual');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [designRefOpen, setDesignRefOpen] = useState(false);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && e.key === 'D') setDesignRefOpen(v => !v);
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
 
   const [theme, setTheme] = useState<'dark' | 'light'>(() =>
     (localStorage.getItem('theme') as 'dark' | 'light') ?? 'dark'
@@ -127,6 +139,16 @@ export default function App() {
       >
         LOADING...
       </div>
+    );
+  }
+
+  if (designRefOpen) {
+    return (
+      <Suspense fallback={null}>
+        <div style={{ position: 'fixed', inset: 0, overflow: 'auto', zIndex: 9999 }}>
+          <DesignReference />
+        </div>
+      </Suspense>
     );
   }
 
@@ -286,7 +308,25 @@ export default function App() {
                     >
                       Z→A
                     </button>
+                    <div style={{ flex: 1 }} />
+                    <button
+                      className={`sort-btn${viewMode === 'grid' ? ' sort-btn-active' : ''}`}
+                      onClick={() => setViewMode('grid')}
+                      title="Grid view"
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2px 7px' }}
+                    >
+                      <Icon icon={faTableCellsLarge} size={11} active={viewMode === 'grid'} />
+                    </button>
+                    <button
+                      className={`sort-btn${viewMode === 'list' ? ' sort-btn-active' : ''}`}
+                      onClick={() => setViewMode('list')}
+                      title="List view"
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2px 7px' }}
+                    >
+                      <Icon icon={faList} size={11} active={viewMode === 'list'} />
+                    </button>
                   </div>
+                {viewMode === 'grid' ? (
                 <div className="flex flex-wrap gap-4" style={{ alignContent: 'flex-start' }}>
                   {sortedApps.map(app => (
                     <AppTile
@@ -328,6 +368,49 @@ export default function App() {
                     />
                   ))}
                 </div>
+                ) : (
+                <div style={{ border: '1px solid var(--color-border-default)' }}>
+                  {sortedApps.map(app => (
+                    <AppListRow
+                      key={app.id}
+                      app={app}
+                      status={getStatus(app.id)}
+                      onStart={async () => {
+                        if (!activeProfileId) return;
+                        try { await startApp(activeProfileId, app.id); }
+                        catch (e) {
+                          const msg = String(e);
+                          pushError(`Start failed — ${app.name}: ${msg}`);
+                          setErrorStatus(app.id, msg);
+                        }
+                      }}
+                      onStop={async () => {
+                        try { await stopApp(app.id); }
+                        catch (e) { pushError(`Stop failed — ${app.name}: ${e}`); }
+                      }}
+                      onRestart={async () => {
+                        if (!activeProfileId) return;
+                        try { await restartApp(activeProfileId, app.id); }
+                        catch (e) {
+                          const msg = String(e);
+                          pushError(`Restart failed — ${app.name}: ${msg}`);
+                          setErrorStatus(app.id, msg);
+                        }
+                      }}
+                      onOpenPath={async () => {
+                        if (!activeProfileId) return;
+                        try { await openPath(activeProfileId, app.id); }
+                        catch (e) { pushError(`Open folder failed — ${app.name}: ${e}`); }
+                      }}
+                      onEdit={a => { setEditingApp(a); setAppEditorOpen(true); }}
+                      onRemove={id => {
+                        const app = activeProfile?.apps.find(a => a.id === id);
+                        if (app) setConfirmRemoveApp(app);
+                      }}
+                    />
+                  ))}
+                </div>
+                )}
                 </>
               )}
             </div>

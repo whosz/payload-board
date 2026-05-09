@@ -58,6 +58,7 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset }: 
   const [dirLoading, setDirLoading] = useState(false);
   const [sgdbKey, setSgdbKeyState] = useState('');
   const [sgdbSaving, setSgdbSaving] = useState(false);
+  const [sgdbStatus, setSgdbStatus] = useState<'saved' | 'error' | null>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -68,9 +69,13 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset }: 
 
   const handleSaveSgdbKey = async () => {
     setSgdbSaving(true);
+    setSgdbStatus(null);
     try {
       await setSgdbKey(sgdbKey.trim() || null);
-    } catch { /* ignore */ } finally {
+      setSgdbStatus('saved');
+    } catch {
+      setSgdbStatus('error');
+    } finally {
       setSgdbSaving(false);
     }
   };
@@ -158,7 +163,7 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset }: 
                 type="password"
                 placeholder="Paste API key..."
                 value={sgdbKey}
-                onChange={e => setSgdbKeyState(e.target.value)}
+                onChange={e => { setSgdbKeyState(e.target.value); setSgdbStatus(null); }}
                 onKeyDown={e => e.key === 'Enter' && handleSaveSgdbKey()}
                 style={{
                   background: 'var(--color-bg-surface)',
@@ -179,6 +184,16 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset }: 
                 Save
               </Button>
             </div>
+            {sgdbStatus && (
+              <div style={{
+                marginTop: 6,
+                fontSize: 11,
+                fontFamily: 'monospace',
+                color: sgdbStatus === 'saved' ? 'var(--color-status-live)' : 'var(--color-status-crit)',
+              }}>
+                {sgdbStatus === 'saved' ? 'API key saved.' : 'Failed to save API key.'}
+              </div>
+            )}
           </section>
 
           {/* STORAGE */}
