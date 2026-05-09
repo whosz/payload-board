@@ -30,6 +30,38 @@ pub async fn start_app<R: tauri::Runtime>(
     let args = entry.args.clone();
     let working_dir = entry.working_dir.clone();
 
+    let exe_name = Path::new(&exe)
+        .file_stem()
+        .and_then(|s| s.to_str())
+        .unwrap_or("")
+        .to_lowercase();
+
+    // If the process is already running on the system, adopt it instead of double-launching
+    {
+        use sysinfo::System;
+        let sys = System::new_all();
+        for (pid, proc) in sys.processes() {
+            let name = proc.name().to_string_lossy().to_lowercase();
+            let name = name.trim_end_matches(".exe");
+            if name == exe_name {
+                let existing_pid = pid.as_u32();
+                let mut map = process_map.lock().unwrap();
+                map.insert(
+                    entry_id.clone(),
+                    ProcessEntry {
+                        pid: existing_pid,
+                        status: ProcessStatus::Running,
+                        exe_name: exe_name.clone(),
+                        started_at: Instant::now(),
+                    },
+                );
+                drop(map);
+                emit_status(&app, &entry_id, Some(existing_pid), ProcessStatus::Running);
+                return Ok(());
+            }
+        }
+    }
+
     let mut cmd = std::process::Command::new(&exe);
     cmd.args(&args);
     if let Some(dir) = &working_dir {
@@ -46,12 +78,6 @@ pub async fn start_app<R: tauri::Runtime>(
         .map_err(|e| format!("Failed to spawn '{}': {}", exe, e))?;
     let initial_pid = child.id();
     std::mem::forget(child);
-
-    let exe_name = Path::new(&exe)
-        .file_stem()
-        .and_then(|s| s.to_str())
-        .unwrap_or("")
-        .to_lowercase();
 
     {
         let mut map = process_map.lock().unwrap();
@@ -287,6 +313,74 @@ pub async fn open_path<R: tauri::Runtime>(
 
     let exe_path = Path::new(&entry.executable_path);
     platform::create_adapter().open_path(exe_path)
+}
+
+// ── scan_running_apps ─────────────────────────────────────────────────────────
+
+/// Check all apps in a profile against currently running OS processes.
+/// For each match found, adopt the PID into the process map so the tile shows Running.
+/// Called when a profile is selected, so externally-launched apps are reflected immediately.
+#[tauri::command]
+pub async fn scan_running_apps<R: tauri::Runtime>(
+    app: AppHandle<R>,
+    process_map: State<'_, ProcessMap>,
+    profile_id: String,
+) -> Result<(), String> {
+    use sysinfo::System;
+
+    let profiles = store::load_profiles(&app);
+    let profile = profiles
+        .iter()
+        .find(|p| p.id == profile_id)
+        .ok_or("Profile not found")?;
+
+    let sys = System::new_all();
+
+    for entry in &profile.apps {
+        // Skip entries already tracked as running
+        {
+            let map = process_map.lock().unwrap();
+            if let Some(e) = map.get(&entry.id) {
+                if e.status == ProcessStatus::Running {
+                    continue;
+                }
+            }
+        }
+
+        let exe_name = Path::new(&entry.executable_path)
+            .file_stem()
+            .and_then(|s| s.to_str())
+            .unwrap_or("")
+            .to_lowercase();
+
+        if exe_name.is_empty() {
+            continue;
+        }
+
+        for (pid, proc) in sys.processes() {
+            let name = proc.name().to_string_lossy().to_lowercase();
+            let name = name.trim_end_matches(".exe");
+            if name == exe_name {
+                let existing_pid = pid.as_u32();
+                {
+                    let mut map = process_map.lock().unwrap();
+                    map.insert(
+                        entry.id.clone(),
+                        ProcessEntry {
+                            pid: existing_pid,
+                            status: ProcessStatus::Running,
+                            exe_name: exe_name.clone(),
+                            started_at: Instant::now(),
+                        },
+                    );
+                }
+                emit_status(&app, &entry.id, Some(existing_pid), ProcessStatus::Running);
+                break;
+            }
+        }
+    }
+
+    Ok(())
 }
 
 // ── stop_all ──────────────────────────────────────────────────────────────────

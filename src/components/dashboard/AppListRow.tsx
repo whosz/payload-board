@@ -115,7 +115,11 @@ export function AppListRow({
           style={{ color: isCrashed ? 'var(--color-status-crit)' : 'var(--color-text-muted)', fontSize: 10 }}
           title={isCrashed && status.error_message ? status.error_message : app.executable_path}
         >
-          {isCrashed && status.error_message ? status.error_message : app.executable_path}
+          {isCrashed && status.error_message
+            ? status.error_message
+            : app.args.length > 0
+              ? `${app.executable_path}  ${app.args.join(' ')}`
+              : app.executable_path}
         </div>
       </div>
 

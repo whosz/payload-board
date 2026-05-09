@@ -1,7 +1,7 @@
 #![cfg(target_os = "linux")]
 
 use std::path::PathBuf;
-use super::PlatformAdapter;
+use super::{InstalledApp, PlatformAdapter};
 
 pub struct LinuxAdapter;
 
@@ -40,6 +40,58 @@ impl PlatformAdapter for LinuxAdapter {
             .spawn()
             .map_err(|e| e.to_string())?;
         Ok(())
+    }
+
+    fn list_installed_apps(&self) -> Vec<InstalledApp> {
+        let mut apps = Vec::new();
+        let mut search_dirs = vec![
+            PathBuf::from("/usr/share/applications"),
+            PathBuf::from("/var/lib/flatpak/exports/share/applications"),
+        ];
+        if let Ok(home) = std::env::var("HOME") {
+            search_dirs.push(PathBuf::from(&home).join(".local/share/applications"));
+        }
+
+        for dir in search_dirs {
+            let Ok(entries) = std::fs::read_dir(&dir) else { continue };
+            for entry in entries.flatten() {
+                let path = entry.path();
+                if path.extension().and_then(|e| e.to_str()) != Some("desktop") {
+                    continue;
+                }
+                let Ok(content) = std::fs::read_to_string(&path) else { continue };
+
+                let mut name: Option<String> = None;
+                let mut exec: Option<String> = None;
+                let mut hidden = false;
+
+                for line in content.lines() {
+                    if line.starts_with("Name=") && name.is_none() {
+                        name = Some(line[5..].to_string());
+                    } else if line.starts_with("Exec=") && exec.is_none() {
+                        exec = Some(line[5..].to_string());
+                    } else if line == "NoDisplay=true" || line == "Hidden=true" {
+                        hidden = true;
+                    }
+                }
+
+                if hidden { continue; }
+                let Some(name) = name else { continue };
+                if name.is_empty() { continue; }
+
+                // Extract executable: first token, strip field codes and quotes
+                let exe_path = exec.map(|e| {
+                    let first = e.split_whitespace().next().unwrap_or("").to_string();
+                    first.trim_matches('"').to_string()
+                }).filter(|s| !s.is_empty());
+
+                apps.push(InstalledApp { name, exe_path });
+            }
+        }
+
+        apps.sort_by(|a, b| a.name.to_lowercase().cmp(&b.name.to_lowercase()));
+        apps.dedup_by(|a, b| a.name.to_lowercase() == b.name.to_lowercase());
+        apps
     }
 }
 

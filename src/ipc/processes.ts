@@ -19,3 +19,7 @@ export function openPath(profileId: string, entryId: string): Promise<void> {
 export function stopAll(profileId: string): Promise<void> {
   return invoke('stop_all', { profileId });
 }
+
+export function scanRunningApps(profileId: string): Promise<void> {
+  return invoke('scan_running_apps', { profileId });
+}

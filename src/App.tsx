@@ -20,7 +20,7 @@ import { Icon } from './components/icons/Icon';
 import { faPlay, faPowerOff, faPlus, faXmark, faGear, faList, faTableCellsLarge } from './components/icons';
 import { useProfiles } from './hooks/useProfiles';
 import { useProcessStatus } from './hooks/useProcessStatus';
-import { startApp, stopApp, restartApp, openPath, stopAll } from './ipc/processes';
+import { startApp, stopApp, restartApp, openPath, stopAll, scanRunningApps } from './ipc/processes';
 import type { AppEntry } from './types';
 
 interface Toast {
@@ -74,6 +74,12 @@ export default function App() {
     document.body.classList.toggle('light', theme === 'light');
     localStorage.setItem('theme', theme);
   }, [theme]);
+
+  useEffect(() => {
+    if (activeProfileId) {
+      scanRunningApps(activeProfileId).catch(() => {});
+    }
+  }, [activeProfileId]);
 
   const pushError = useCallback((msg: string) => {
     const id = Date.now();
@@ -197,12 +203,22 @@ export default function App() {
                 minHeight: 56,
               }}
             >
-              <span
-                className="font-mono uppercase tracking-widest text-sm"
-                style={{ color: 'var(--color-text-secondary)' }}
-              >
-                {activeProfile?.name ?? 'No Profile'}
-              </span>
+              <div className="flex flex-col justify-center min-w-0 mr-4">
+                <span
+                  className="font-mono uppercase tracking-widest text-sm"
+                  style={{ color: 'var(--color-text-secondary)' }}
+                >
+                  {activeProfile?.name ?? 'No Profile'}
+                </span>
+                {activeProfile?.description && (
+                  <span
+                    className="truncate"
+                    style={{ color: 'var(--color-text-muted)', fontSize: 11 }}
+                  >
+                    {activeProfile.description}
+                  </span>
+                )}
+              </div>
 
               <div className="flex items-center gap-3">
                 {activeProfile && (

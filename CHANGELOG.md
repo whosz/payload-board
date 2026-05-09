@@ -5,6 +5,17 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.4.1] — 2026-05-09
+
+### Added
+- **CLI arguments field** — free-text input in the app editor (below executable path); args are displayed in small mono text on the tile and list row
+- **Browse installed apps — macOS & Linux** — macOS scans `/Applications` and `~/Applications` for `.app` bundles; Linux parses `.desktop` files from standard XDG application directories; Windows registry support was already in v0.4.0
+- **Detect already running** — launching an app that is already running on the OS adopts the existing process instead of double-launching; scanning also runs automatically when switching profiles
+- **Profile description in top bar** — when a profile with a description is active, the description appears below the profile name in the top panel
+
+### Changed
+- "UI redesign" and "App-specific preset dropdowns" moved to Future release ideas in backlog
+
 ## [0.4.0] — 2026-05-09
 
 ### Added

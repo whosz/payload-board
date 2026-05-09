@@ -4,9 +4,7 @@ Lower-priority ideas and Phase 6 nice-to-haves. Promote to a feature file when r
 
 ## Near term
 
-- [ ] **CLI arguments field** — free-text input below the executable path in the app entry editor; easy to paste into; see `planned/app-launch-config.md`
-- [ ] **App-specific preset dropdowns** — curated launch options for select apps (e.g. CrewChief); dropdown only visible when app name matches a known preset; selecting a preset appends to the args field; see `planned/app-launch-config.md`
-- [ ] **UI redesign** — Figma-driven redesign of all components, new colour tokens and fonts, in-app onboarding, logo; see `planned/ui-redesign.md`
+- [x] **CLI arguments field** — free-text input below the executable path in the app entry editor; easy to paste into; see `planned/app-launch-config.md`
 
 ## Phase 6 — nice-to-have
 
@@ -29,6 +27,10 @@ Lower-priority ideas and Phase 6 nice-to-haves. Promote to a feature file when r
 - [ ] **Profile sharing** — sharable profile URLs or a community registry (very long term)
 
 ## Future release ideas
+
+### UI
+- [ ] **UI redesign** — Figma-driven redesign of all components, new colour tokens and fonts, in-app onboarding, logo; see `planned/ui-redesign.md`
+- [ ] **App-specific preset dropdowns** — curated launch options for select apps (e.g. CrewChief); dropdown only visible when app name matches a known preset; selecting a preset appends to the args field; see `planned/app-launch-config.md`
 
 ### Process reliability
 - [ ] **Auto-restart on crash** — automatically relaunch an app if it exits unexpectedly; configurable retry limit before giving up

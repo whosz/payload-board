@@ -52,13 +52,16 @@ const inputStyle: React.CSSProperties = {
 export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEditorProps) {
   const isEditing = Boolean(initial?.id);
   const [form, setForm] = useState<Omit<AppEntry, 'id' | 'order'>>({ ...defaults, ...initial });
+  const [argsStr, setArgsStr] = useState((initial?.args ?? []).join(' '));
 
   const [installedPickerOpen, setInstalledPickerOpen] = useState(false);
   const [sgdbPickerOpen, setSgdbPickerOpen] = useState(false);
 
   useEffect(() => {
     setForm({ ...defaults, ...initial });
+    setArgsStr((initial?.args ?? []).join(' '));
   }, [open]);
+
   const [picking, setPicking] = useState(false);
   const [bgPicking, setBgPicking] = useState(false);
 
@@ -92,8 +95,10 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
 
   const handleSave = () => {
     if (form.name.trim() && form.executable_path.trim()) {
-      onSave(form);
+      const args = argsStr.trim() ? argsStr.trim().split(/\s+/) : [];
+      onSave({ ...form, args });
       setForm(defaults);
+      setArgsStr('');
       onClose();
     }
   };
@@ -156,6 +161,17 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
                 Installed...
               </Button>
             </div>
+          </div>
+
+          <div>
+            <div style={labelStyle}>Arguments</div>
+            <Input
+              value={argsStr}
+              onChange={e => setArgsStr(e.target.value)}
+              placeholder="--no-update --windowed"
+              className="font-mono text-xs"
+              style={inputStyle}
+            />
           </div>
 
           <div>

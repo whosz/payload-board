@@ -4,7 +4,7 @@ mod process_manager;
 mod store;
 
 use commands::apps::{list_installed_apps, pick_executable, pick_icon_file};
-use commands::processes::{open_path, restart_app, start_app, stop_all, stop_app};
+use commands::processes::{open_path, restart_app, scan_running_apps, start_app, stop_all, stop_app};
 use commands::profiles::{delete_profile, list_profiles, save_profile};
 use commands::settings::{
     get_data_dir, get_profiles_dir, get_sgdb_key, open_profiles_dir, pick_config_dir,
@@ -46,6 +46,7 @@ pub fn run() {
             restart_app,
             open_path,
             stop_all,
+            scan_running_apps,
             get_data_dir,
             get_profiles_dir,
             pick_config_dir,

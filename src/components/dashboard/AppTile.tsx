@@ -187,6 +187,15 @@ export function AppTile({
             {status.error_message}
           </div>
         )}
+        {app.args.length > 0 && (
+          <div
+            className="font-mono truncate"
+            style={{ color: bgSrc ? 'rgba(255,255,255,0.25)' : 'var(--color-text-disabled)', fontSize: 10 }}
+            title={app.args.join(' ')}
+          >
+            {app.args.join(' ')}
+          </div>
+        )}
       </div>
 
       {/* Spacer */}
