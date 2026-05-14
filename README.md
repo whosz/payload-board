@@ -1,6 +1,6 @@
 # Payload Board
 
-A desktop app for managing sets of applications (profiles) — launch them in sequence, monitor their status in real time, and close everything with one click. Built for the "dark cockpit" aesthetic: zero rounded corners, functional data, no fluff.
+A desktop app for managing sets of applications (profiles) — launch them in sequence, monitor their status in real time, and close everything with one click. Built for the "dark cockpit" aesthetic: functional data, no fluff.
 
 Inspired by the pain of managing a dozen simracing apps that all had to be started in the right order before a session and closed one by one afterwards. Payload Board automates that.
 
@@ -17,15 +17,18 @@ Inspired by the pain of managing a dozen simracing apps that all had to be start
 ## Features
 
 - Named profiles with emoji icon and description
-- Multiple app entries per profile with launch order and delay (ms)
+- Multiple app entries per profile with launch order, delay (ms), and CLI arguments
 - Per-process controls: start, stop, restart, open folder
 - Status LED per tile: live (cyan glow) / stopped / crashed (red pulse with error message)
-- Confirm dialogs before removing apps or deleting profiles
-- Light mode toggle; preference persisted in localStorage
-- Settings panel: config directory, change storage path, reset all data
-- Browse installed apps list (Windows) or pick executable via file dialog
+- Tile and list view — switch between grid of cards or compact rows
+- SteamGridDB integration — search and assign game artwork as tile backgrounds; API key in Settings
+- Local background image per app — pick any image file as a tile background
+- Detect already-running processes — adopts existing process instead of double-launching
+- Browse installed apps (Windows registry; macOS and Linux via `.app` / `.desktop` files)
 - Custom icon per app (image file picker)
 - A→Z / Z→A sort, or manual order
+- Confirm dialogs before removing apps or deleting profiles
+- Settings panel: theme selector (Purple / Grey), SteamGridDB API key, config directory, reset all data
 - Persistent profiles (JSON, stored in platform app data dir)
 
 ## Installation
@@ -70,10 +73,10 @@ First Rust compile takes 5–10 minutes. Subsequent builds are fast.
 
 ## Usage
 
-1. **Create a profile** — click `+ NEW PROFILE` in the sidebar, enter a name (and optionally an emoji icon and description).
-2. **Add apps** — select the profile, click `Add App`, browse to the executable or pick from the installed apps list (Windows). Set the launch delay if needed.
-3. **Configure order** — apps launch in the order they were added.
-4. **Run** — click `RUN SEQUENCE`. Watch the tiles turn live.
+1. **Create a profile** — click `+ NEW PROFILE` in the sidebar, enter a name and optionally an emoji and description.
+2. **Add apps** — select the profile, click `Add App`, browse to the executable or pick from the installed apps list. Set the launch delay and any CLI arguments if needed.
+3. **Configure order** — apps launch in the order they appear; sort A→Z or drag to reorder.
+4. **Run** — click `RUN SEQUENCE`. Watch the tiles turn live. The button is disabled while a session is active.
 5. **End session** — click `END SESSION`. All profile apps receive a graceful close signal; any that don't exit within 5 s are force-killed.
 
 ## FAQ
@@ -102,6 +105,8 @@ After `start_app`, Payload Board scans the process list for 10 seconds looking f
 | Frontend | React 18 + TypeScript |
 | Build | Vite |
 | Styling | Tailwind CSS v4 |
-| Components | shadcn/ui (heavily customised — zero radius, no shadows) |
+| Styling tokens | CSS custom properties (`--color-*`); Purple / Grey themes via `[data-theme]` |
+| Components | shadcn/ui (heavily customised) |
+| Fonts | Exo (headers/labels) + Inter (body/buttons) |
 | Icons | FontAwesome 6 Free (Solid + Regular) |
 | Persistence | `tauri-plugin-store` (JSON) |
