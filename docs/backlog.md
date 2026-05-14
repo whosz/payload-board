@@ -29,7 +29,7 @@ Lower-priority ideas and Phase 6 nice-to-haves. Promote to a feature file when r
 ## Future release ideas
 
 ### UI
-- [ ] **UI redesign** — Figma-driven redesign of all components, new colour tokens and fonts, in-app onboarding, logo; see `planned/ui-redesign.md`
+- [x] **UI redesign** — Figma-driven redesign of all components, new colour tokens and fonts, in-app onboarding, logo; see `planned/ui-redesign.md`
 - [ ] **App-specific preset dropdowns** — curated launch options for select apps (e.g. CrewChief); dropdown only visible when app name matches a known preset; selecting a preset appends to the args field; see `planned/app-launch-config.md`
 - [ ] **Automatic tile images on app detection** — when an app is added via "Browse installed apps" or by name match, automatically search SteamGridDB (if API key is configured) and download the best-matching grid image as the tile background; user can still override or clear it manually
 
