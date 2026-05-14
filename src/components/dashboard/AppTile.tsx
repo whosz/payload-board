@@ -113,14 +113,20 @@ export function AppTile({ app, status, onStart, onStop, onRestart, onOpenPath, o
             }} />
           </>
         ) : (
-          <div style={{
-            position: 'absolute', inset: 0,
-            backgroundImage: 'var(--tile-placeholder-url)',
-            backgroundSize: '100% 100%',
-            backgroundRepeat: 'no-repeat',
-            opacity: tileHovered ? 1 : 0.5,
-            transition: 'opacity 0.15s ease',
-          }} />
+          <>
+            <div style={{
+              position: 'absolute', inset: 0,
+              backgroundImage: 'var(--tile-placeholder-url)',
+              backgroundSize: '100% 100%',
+              backgroundRepeat: 'no-repeat',
+              opacity: tileHovered ? 1 : 0.5,
+              transition: 'opacity 0.15s ease',
+            }} />
+            <div style={{
+              position: 'absolute', inset: 0,
+              background: 'linear-gradient(0deg, var(--color-tile-gradient) 0%, color-mix(in srgb, var(--color-tile-gradient) 50%, transparent) 45%, color-mix(in srgb, var(--color-tile-gradient) 25%, transparent) 65%, transparent 85%)',
+            }} />
+          </>
         )}
         {app.icon_cache_path && (
           <img

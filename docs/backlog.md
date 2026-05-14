@@ -21,6 +21,7 @@ Lower-priority ideas and Phase 6 nice-to-haves. Promote to a feature file when r
 - [ ] **Session logs** — timestamped log per session: which apps launched, exit codes, crash events
 - [ ] **Detect already running** — on sequence start, check if process is already up; skip it rather than double-launching
 - [ ] **Browse installed apps list** — Windows (registry), macOS (`/Applications`), Linux (`.desktop` files); currently Windows-only in v0.4.0
+- [ ] **macOS & Linux installers** — add macOS (.dmg / .app bundle) and Linux (.deb / .AppImage) build targets to CI; currently Windows-only (NSIS + MSI)
 
 ## Future ideas
 
