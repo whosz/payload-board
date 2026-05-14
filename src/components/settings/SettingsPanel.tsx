@@ -30,9 +30,9 @@ function SectionLabel({ children, crit }: { children: React.ReactNode; crit?: bo
     <div
       style={{
         fontFamily: 'var(--font-display)',
-        fontSize: 10,
-        fontWeight: 600,
-        letterSpacing: '0.08em',
+        fontSize: 12,
+        fontWeight: 700,
+        letterSpacing: '1px',
         color: crit ? 'var(--color-status-crit)' : 'var(--color-text-secondary)',
         borderBottom: `1px solid ${crit ? 'var(--color-status-crit)' : 'var(--color-border-divider)'}`,
         paddingBottom: 8,
@@ -250,13 +250,16 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset }: 
           {/* ABOUT */}
           <section>
             <SectionLabel>About</SectionLabel>
-            <div className="flex flex-col gap-1">
-              <span style={{ fontFamily: 'var(--font-display)', fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', color: 'var(--color-text-secondary)' }}>
-                Payload Board v{version}
-              </span>
-              <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, fontWeight: 400, lineHeight: '16px', letterSpacing: '0.25px', color: 'var(--color-text-primary)' }}>
-                Made by Matt · github.com/whosz/payload-board
-              </span>
+            <div className="flex items-center gap-4">
+              <img src="/logo.svg" alt="Payload Board" style={{ width: 48, height: 48, flexShrink: 0 }} />
+              <div className="flex flex-col gap-1">
+                <span style={{ fontFamily: 'var(--font-display)', fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', color: 'var(--color-text-secondary)' }}>
+                  Payload Board v{version}
+                </span>
+                <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, fontWeight: 400, lineHeight: '16px', letterSpacing: '0.25px', color: 'var(--color-text-primary)' }}>
+                  Made by Matt · github.com/whosz/payload-board
+                </span>
+              </div>
             </div>
           </section>
 

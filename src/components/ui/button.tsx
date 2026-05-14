@@ -50,7 +50,7 @@ const buttonVariants = cva(
       },
       size: {
         /* 32px — top header */
-        lg: "h-8 px-3 rounded-lg text-xs font-bold uppercase tracking-[0.5px] leading-[18px]",
+        lg: "h-8 px-3 rounded-lg text-xs font-bold uppercase tracking-[1px] leading-[18px]",
         /* 28px — table actions / modals */
         default: "h-7 px-2 rounded-lg text-[10px] font-semibold tracking-[0.25px] leading-[12px]",
         /* 30×28 — icon-only view toggle */

@@ -5,13 +5,13 @@ Lower-priority ideas and Phase 6 nice-to-haves. Promote to a feature file when r
 ## Near term
 
 - [x] **CLI arguments field** — free-text input below the executable path in the app entry editor; easy to paste into; see `planned/app-launch-config.md`
-- [ ] **Default view: tiles** — change the initial view mode from list to grid (tiles) on first launch and after reset
-- [ ] **Remove background animation** — remove the animated gradient on `body::before`; keep the static gradient colours
-- [ ] **Update tile placeholder + hover effect** — redesign the SVG grid placeholder graphic; add a visible hover effect on tiles (e.g. border glow or overlay)
-- [ ] **App logo** — design and add a logo/icon for the app (window title bar, taskbar, About section)
-- [ ] **More readable header font** — evaluate replacing or tuning Orbitron for app/profile names; Orbitron is stylised but can hurt readability at smaller sizes
-- [ ] **Status bar font style** — update typography for "Total", "Alive", "Crashed" labels in the status bar (currently Orbitron 10px)
-- [ ] **Disable "Run Sequence" during active session** — button should be disabled while any app in the profile is running, not just when the app list is empty
+- [x] **Default view: tiles** — change the initial view mode from list to grid (tiles) on first launch and after reset
+- [x] **Remove background animation** — remove the animated gradient on `body::before`; keep the static gradient colours
+- [x] **Update tile placeholder + hover effect** — redesign the SVG grid placeholder graphic; add a visible hover effect on tiles (e.g. border glow or overlay)
+- [x] **App logo** — design and add a logo/icon for the app (window title bar, taskbar, About section)
+- [x] **More readable header font** — evaluate replacing or tuning Orbitron for app/profile names; switched to Exo (display) + Inter (body)
+- [x] **Status bar font style** — update typography for "Total", "Alive", "Crashed" labels in the status bar (currently Orbitron 10px)
+- [x] **Disable "Run Sequence" during active session** — button should be disabled while any app in the profile is running, not just when the app list is empty
 
 ## Phase 6 — nice-to-have
 

@@ -118,6 +118,8 @@ export function AppTile({ app, status, onStart, onStop, onRestart, onOpenPath, o
             backgroundImage: 'var(--tile-placeholder-url)',
             backgroundSize: '100% 100%',
             backgroundRepeat: 'no-repeat',
+            opacity: tileHovered ? 1 : 0.5,
+            transition: 'opacity 0.15s ease',
           }} />
         )}
         {app.icon_cache_path && (
@@ -191,10 +193,10 @@ export function AppTile({ app, status, onStart, onStop, onRestart, onOpenPath, o
         <div
           style={{
             fontFamily: 'var(--font-display)',
-            fontSize: 16,
+            fontSize: 18,
             fontWeight: 700,
             color: 'var(--color-text-primary)',
-            letterSpacing: '2px',
+            letterSpacing: '1.5px',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
@@ -208,21 +210,21 @@ export function AppTile({ app, status, onStart, onStop, onRestart, onOpenPath, o
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <IconBtn onClick={onStart} title="Start" disabled={isRunning}>
-              <Icon icon={faPlay} size={12} active={!isRunning} />
+              <Icon icon={faPlay} size={14} active={!isRunning} />
             </IconBtn>
             <IconBtn onClick={onStop} title="Stop" disabled={isStopped}>
-              <Icon icon={faStop} size={12} crit={isRunning} />
+              <Icon icon={faStop} size={14} crit={isRunning} />
             </IconBtn>
             <IconBtn onClick={onRestart} title="Restart">
-              <Icon icon={faRotateRight} size={12} />
+              <Icon icon={faRotateRight} size={14} />
             </IconBtn>
             <IconBtn onClick={onOpenPath} title="Open folder">
-              <Icon icon={faFolderOpen} size={12} />
+              <Icon icon={faFolderOpen} size={14} />
             </IconBtn>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <IconBtn onClick={() => onEdit(app)} title="Edit">
-              <Icon icon={faSliders} size={12} />
+              <Icon icon={faSliders} size={14} />
             </IconBtn>
             <button
               onClick={() => onRemove(app.id)}
@@ -232,7 +234,7 @@ export function AppTile({ app, status, onStart, onStop, onRestart, onOpenPath, o
               onMouseLeave={() => setRemoveHovered(false)}
               style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', lineHeight: 0, width: 14, height: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
-              <Icon icon={faTrash} size={12} crit={removeHovered} />
+              <Icon icon={faTrash} size={14} crit={removeHovered} />
             </button>
           </div>
         </div>

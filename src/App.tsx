@@ -53,7 +53,7 @@ export default function App() {
   const [confirmRemoveApp, setConfirmRemoveApp] = useState<AppEntry | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [sortOrder, setSortOrder] = useState<'manual' | 'az' | 'za'>('manual');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [designRefOpen, setDesignRefOpen] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
 
@@ -237,10 +237,7 @@ export default function App() {
         {/* Top header */}
         <div
           className="flex items-center justify-between px-6 flex-shrink-0"
-          style={{
-            borderBottom: '1px solid var(--color-border-divider)',
-            minHeight: 64,
-          }}
+          style={{ minHeight: 64 }}
         >
           <div className="flex flex-col justify-center min-w-0 mr-4">
             <span
@@ -250,7 +247,7 @@ export default function App() {
                 fontWeight: 600,
                 color: 'var(--color-text-primary)',
                 lineHeight: '22px',
-                letterSpacing: '2px',
+                letterSpacing: '1.5px',
               }}
             >
               {activeProfile?.name ?? 'No Profile'}
@@ -261,7 +258,7 @@ export default function App() {
             <Button
               variant="cta"
               size="lg"
-              disabled={!activeProfile || sortedApps.length === 0}
+              disabled={!activeProfile || sortedApps.length === 0 || runningCount > 0}
               onClick={handleRunSequence}
             >
               <Icon icon={faPlay} size={12} active />
@@ -283,11 +280,14 @@ export default function App() {
           </div>
         </div>
 
+        {/* Separator */}
+        <div style={{ height: 1, background: 'var(--color-border-divider)', margin: '0 24px', flexShrink: 0 }} />
+
         {/* Table actions bar */}
         {activeProfile && sortedApps.length > 0 && (
           <div
             className="flex items-center justify-between px-6 flex-shrink-0"
-            style={{ minHeight: 48, gap: 8 }}
+            style={{ padding: '16px 24px 0', gap: 8 }}
           >
             {/* Left: Add app */}
             <Button
@@ -373,11 +373,11 @@ export default function App() {
         )}
 
         {/* App grid / list */}
-        <div className="flex-1 overflow-auto px-6 pb-4">
+        <div className="flex-1 overflow-auto px-6 pb-4 pt-4">
           {!activeProfile ? (
             <div className="flex flex-col items-center justify-center h-full gap-4" style={{ color: 'var(--color-text-muted)' }}>
-              <span style={{ fontFamily: 'var(--font-display)', fontSize: 10, letterSpacing: '0.1em' }}>
-                NO PROFILE SELECTED
+              <span style={{ fontFamily: 'var(--font-display)', fontSize: 10, fontWeight: 600, letterSpacing: '1.5px', lineHeight: '16px', textTransform: 'uppercase', color: 'var(--color-text-secondary)' }}>
+                No profile selected
               </span>
               <Button variant="cta" size="lg" onClick={() => setProfileEditorOpen(true)}>
                 <Icon icon={faPlus} size={12} />
@@ -386,8 +386,8 @@ export default function App() {
             </div>
           ) : sortedApps.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full gap-4" style={{ color: 'var(--color-text-muted)' }}>
-              <span style={{ fontFamily: 'var(--font-display)', fontSize: 10, letterSpacing: '0.1em' }}>
-                NO APPS IN THIS PROFILE
+              <span style={{ fontFamily: 'var(--font-display)', fontSize: 10, fontWeight: 600, letterSpacing: '1.5px', lineHeight: '16px', textTransform: 'uppercase', color: 'var(--color-text-secondary)' }}>
+                No apps in this profile
               </span>
               <Button variant="cta" size="lg" onClick={() => setAppEditorOpen(true)}>
                 <Icon icon={faPlus} size={12} />
@@ -395,13 +395,13 @@ export default function App() {
               </Button>
             </div>
           ) : viewMode === 'grid' ? (
-            <div className="flex flex-wrap gap-3 pt-3" style={{ alignContent: 'flex-start' }}>
+            <div className="flex flex-wrap gap-3" style={{ alignContent: 'flex-start' }}>
               {sortedApps.map(app => (
                 <AppTile key={app.id} app={app} status={getStatus(app.id)} {...makeHandlers(app)} />
               ))}
             </div>
           ) : (
-            <div className="flex flex-col gap-1.5 pt-3">
+            <div className="flex flex-col gap-1.5">
               {sortedApps.map(app => (
                 <AppListRow key={app.id} app={app} status={getStatus(app.id)} {...makeHandlers(app)} />
               ))}

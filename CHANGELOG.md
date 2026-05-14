@@ -5,6 +5,23 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.5.1] — 2026-05-14
+
+### Changed
+- **Font system** — switched from Orbitron/Onest to **Exo** (display/headers) + **Inter** (body/buttons); all `font-mono` usages also use Exo; removed Consolas entirely
+- **Default view** — app grid now opens in tile view by default (was list view)
+- **Removed background animation** — static gradient colours kept; animated `body::before` radial ellipses removed to eliminate visual noise
+- **Tile placeholder** — redesigned SVG grid graphic from Figma (purple `#6C41A5` fill); placeholder fades from 50% opacity to 100% on hover, matching the background image hover effect
+- **App logo** — new app logo added to Settings → About section and used as the window icon (`/logo.svg`)
+- **Icon sizes** — action icon buttons in AppTile and AppListRow increased from 12px to 14px
+- **Separators** — all section dividers rebuilt as standalone indented `<div>` elements (1px `--color-border-divider`) instead of CSS borders on container elements; affects sidebar, status bar, and main panel
+- **Spacing** — consistent 16px gap between top header, separator, Add App bar, and first tile row
+- **Run Sequence disabled during session** — button is now disabled whenever any app in the profile is running (was only disabled when app list was empty)
+- **Empty state text** — "No apps in this profile" and "No profile selected" now use the same Exo 10/600/1.5px uppercase style as the "Profiles" header
+- **Status bar** — all three stats ("Total", "Alive", "Crashed") rendered in matching Exo 10/600/1.5px uppercase style
+- **Modal section titles** — "Appearance", "SteamGridDB", "Storage", "Danger Zone", "About" section labels in Settings updated to Exo 12/700/1px, matching app name style in list rows
+- **Sort button** — uses `outline` variant (no uppercase, text-secondary) to distinguish from action buttons
+
 ## [0.5.0] — 2026-05-14
 
 ### Changed

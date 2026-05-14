@@ -12,29 +12,33 @@ export function StatusBar({ profile, statuses }: StatusBarProps) {
   const crashed = profile?.apps.filter(a => statuses[a.id]?.status === 'crashed').length ?? 0;
 
   return (
+    <>
+    <div style={{ height: 1, background: 'var(--color-border-divider)', margin: '0 24px', flexShrink: 0 }} />
     <div
       className="flex items-center gap-6 px-6"
       style={{
-        borderTop: '1px solid var(--color-border-divider)',
         minHeight: 57,
         flexShrink: 0,
       }}
     >
-      <Stat label="Total" value={total} weight={600} />
-      <Stat label="Alive" value={running} weight={400} />
-      <Stat label="Crashed" value={crashed} weight={400} />
+      <Stat label="Total" value={total} />
+      <Stat label="Alive" value={running} />
+      <Stat label="Crashed" value={crashed} />
     </div>
+    </>
   );
 }
 
-function Stat({ label, value, weight }: { label: string; value: number; weight: number }) {
+function Stat({ label, value }: { label: string; value: number }) {
   return (
     <span
       style={{
         fontFamily: 'var(--font-display)',
         fontSize: 10,
-        fontWeight: weight,
-        letterSpacing: '0.06em',
+        fontWeight: 600,
+        letterSpacing: '1.5px',
+        lineHeight: '16px',
+        textTransform: 'uppercase',
         color: 'var(--color-text-secondary)',
       }}
     >

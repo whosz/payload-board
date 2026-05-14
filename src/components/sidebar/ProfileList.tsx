@@ -129,7 +129,8 @@ export function ProfileList({ profiles, activeProfileId, onSelect, onNew, onEdit
       </div>
 
       {/* Actions — New Profile + Settings */}
-      <div style={{ borderTop: '1px solid var(--color-border-divider)', padding: '4px 8px' }}>
+      <div style={{ height: 1, background: 'var(--color-border-divider)', margin: '0 16px', flexShrink: 0 }} />
+      <div style={{ padding: '4px 8px' }}>
         <NavButton icon={<Icon icon={faPlus} size={12} />} label="New Profile" onClick={onNew} />
         <NavButton icon={<Icon icon={faGear} size={12} />} label="Settings" onClick={onSettings} />
       </div>

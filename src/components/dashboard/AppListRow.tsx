@@ -100,7 +100,7 @@ export function AppListRow({ app, status, onStart, onStop, onRestart, onOpenPath
             fontSize: 12,
             fontWeight: 700,
             color: 'var(--color-text-primary)',
-            letterSpacing: '2px',
+            letterSpacing: '1px',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
@@ -133,21 +133,21 @@ export function AppListRow({ app, status, onStart, onStop, onRestart, onOpenPath
       <div className="flex items-center flex-shrink-0" style={{ gap: 24 }}>
         <div className="flex items-center" style={{ gap: 12 }}>
           <Btn onClick={onStart} title="Start" disabled={isRunning}>
-            <Icon icon={faPlay} size={12} active={!isRunning} />
+            <Icon icon={faPlay} size={14} active={!isRunning} />
           </Btn>
           <Btn onClick={onStop} title="Stop" disabled={isStopped}>
-            <Icon icon={faStop} size={12} crit={isRunning} />
+            <Icon icon={faStop} size={14} crit={isRunning} />
           </Btn>
           <Btn onClick={onRestart} title="Restart">
-            <Icon icon={faRotateRight} size={12} />
+            <Icon icon={faRotateRight} size={14} />
           </Btn>
           <Btn onClick={onOpenPath} title="Open folder">
-            <Icon icon={faFolderOpen} size={12} />
+            <Icon icon={faFolderOpen} size={14} />
           </Btn>
         </div>
         <div className="flex items-center" style={{ gap: 12 }}>
           <Btn onClick={() => onEdit(app)} title="Edit">
-            <Icon icon={faSliders} size={12} />
+            <Icon icon={faSliders} size={14} />
           </Btn>
           <button
             onClick={() => onRemove(app.id)}
@@ -157,7 +157,7 @@ export function AppListRow({ app, status, onStart, onStop, onRestart, onOpenPath
             onMouseLeave={() => setRemoveHovered(false)}
             style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', lineHeight: 0, width: 14, height: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           >
-            <Icon icon={faTrash} size={12} crit={removeHovered} />
+            <Icon icon={faTrash} size={14} crit={removeHovered} />
           </button>
         </div>
       </div>
