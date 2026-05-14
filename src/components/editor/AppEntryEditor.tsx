@@ -1,22 +1,18 @@
 import { useState, useEffect } from 'react';
 import { convertFileSrc } from '@tauri-apps/api/core';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '../ui/dialog';
+import { Dialog, DialogContent } from '../ui/dialog';
 import { Button } from '../ui/button';
-import { Input } from '../ui/input';
+import { InputField } from '../ui/input';
+import { Icon } from '../icons/Icon';
+import { faXmark } from '../icons';
 import { pickExecutable, pickIconFile } from '../../ipc/profiles';
+import { InstalledAppsPicker } from './InstalledAppsPicker';
+import { SteamGridPicker } from './SteamGridPicker';
+import type { AppEntry } from '../../types';
 
 function resolveUrl(url: string): string {
   return url.startsWith('http') ? url : convertFileSrc(url);
 }
-import { InstalledAppsPicker } from './InstalledAppsPicker';
-import { SteamGridPicker } from './SteamGridPicker';
-import type { AppEntry } from '../../types';
 
 interface AppEntryEditorProps {
   open: boolean;
@@ -34,48 +30,21 @@ const defaults: Omit<AppEntry, 'id' | 'order'> = {
   enabled: true,
 };
 
-const labelStyle: React.CSSProperties = {
-  color: 'var(--color-text-secondary)',
-  fontSize: 11,
-  fontFamily: 'monospace',
-  textTransform: 'uppercase',
-  letterSpacing: '0.04em',
-  marginBottom: 4,
-};
-
-const inputStyle: React.CSSProperties = {
-  background: 'var(--color-bg-surface)',
-  borderColor: 'var(--color-border-default)',
-  color: 'var(--color-text-primary)',
-};
-
 export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEditorProps) {
-  const isEditing = Boolean(initial?.id);
+  const [isEditing, setIsEditing] = useState(Boolean(initial?.id));
   const [form, setForm] = useState<Omit<AppEntry, 'id' | 'order'>>({ ...defaults, ...initial });
   const [argsStr, setArgsStr] = useState((initial?.args ?? []).join(' '));
-
+  const [picking, setPicking] = useState(false);
+  const [bgPicking, setBgPicking] = useState(false);
   const [installedPickerOpen, setInstalledPickerOpen] = useState(false);
   const [sgdbPickerOpen, setSgdbPickerOpen] = useState(false);
 
   useEffect(() => {
+    if (!open) return;
+    setIsEditing(Boolean(initial?.id));
     setForm({ ...defaults, ...initial });
     setArgsStr((initial?.args ?? []).join(' '));
   }, [open]);
-
-  const [picking, setPicking] = useState(false);
-  const [bgPicking, setBgPicking] = useState(false);
-
-  const handleLocalBg = async () => {
-    setBgPicking(true);
-    try {
-      const path = await pickIconFile();
-      setForm(f => ({ ...f, background_url: path }));
-    } catch {
-      // user cancelled
-    } finally {
-      setBgPicking(false);
-    }
-  };
 
   const handleBrowse = async () => {
     setPicking(true);
@@ -86,10 +55,18 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
         executable_path: result.path,
         name: f.name || result.suggested_name,
       }));
-    } catch {
-      // user cancelled
-    } finally {
+    } catch { /* cancelled */ } finally {
       setPicking(false);
+    }
+  };
+
+  const handleLocalBg = async () => {
+    setBgPicking(true);
+    try {
+      const path = await pickIconFile();
+      setForm(f => ({ ...f, background_url: path }));
+    } catch { /* cancelled */ } finally {
+      setBgPicking(false);
     }
   };
 
@@ -105,183 +82,178 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
 
   return (
     <>
-    <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent
-        style={{
-          background: 'var(--color-bg-elevated)',
-          border: '1px solid var(--color-border-default)',
-          boxShadow: 'none',
-          maxWidth: 480,
-        }}
-      >
-        <DialogHeader>
-          <DialogTitle
-            className="font-mono uppercase tracking-wider text-sm"
-            style={{ color: 'var(--color-text-primary)' }}
-          >
-            {isEditing ? 'Edit Application' : 'Add Application'}
-          </DialogTitle>
-        </DialogHeader>
+      <Dialog open={open} onOpenChange={v => !v && onClose()}>
+        <DialogContent
+          showCloseButton={false}
+          style={{
+            background: 'var(--color-bg-base)',
+            border: '1px solid var(--color-border-divider)',
+            borderRadius: 8,
+            boxShadow: 'none',
+            maxWidth: 480,
+            padding: '16px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 16,
+          }}
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <span style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: 16,
+              fontWeight: 600,
+              color: 'var(--color-text-primary)',
+            }}>
+              {isEditing ? 'Edit Application' : 'Add Application'}
+            </span>
+            <button
+              onClick={onClose}
+              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', lineHeight: 0 }}
+            >
+              <Icon icon={faXmark} size={14} />
+            </button>
+          </div>
 
-        <div className="flex flex-col gap-3 py-4">
-          <div>
-            <div style={labelStyle}>Name</div>
-            <Input
+          {/* Fields */}
+          <div className="flex flex-col gap-3">
+            <InputField
+              label="Name"
+              placeholder="App name"
               value={form.name}
               onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-              placeholder="App name"
-              style={inputStyle}
+              autoFocus
             />
-          </div>
 
-          <div>
-            <div style={labelStyle}>Executable</div>
-            <div className="flex gap-2">
-              <Input
-                value={form.executable_path}
-                onChange={e => setForm(f => ({ ...f, executable_path: e.target.value }))}
-                placeholder="/path/to/executable"
-                className="flex-1 font-mono text-xs"
-                style={inputStyle}
-              />
-              <Button
-                variant="outline"
-                onClick={handleBrowse}
-                disabled={picking}
-                style={{ borderColor: 'var(--color-border-default)', color: 'var(--color-text-secondary)' }}
-              >
-                Browse
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setInstalledPickerOpen(true)}
-                disabled={picking}
-                style={{ borderColor: 'var(--color-border-default)', color: 'var(--color-text-secondary)', fontSize: 12, whiteSpace: 'nowrap' }}
-              >
-                Installed...
-              </Button>
+            <div>
+              <div style={{ fontFamily: 'var(--font-body)', fontSize: 10, fontWeight: 500, color: 'var(--color-text-muted)', marginBottom: 4 }}>
+                Executable
+              </div>
+              <div className="flex gap-2">
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <input
+                    value={form.executable_path}
+                    onChange={e => setForm(f => ({ ...f, executable_path: e.target.value }))}
+                    placeholder="/path/to/executable"
+                    className="h-7 w-full min-w-0 rounded-lg border px-2 py-1 outline-none transition-colors bg-[var(--color-bg-base)] border-[rgba(176,169,198,0.3)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:border-[rgba(93,90,242,1)] disabled:pointer-events-none disabled:opacity-50"
+                    style={{ fontFamily: 'var(--font-body)', fontSize: 12, fontWeight: 400 }}
+                  />
+                </div>
+                <Button variant="default" size="default" onClick={handleBrowse} disabled={picking}>
+                  Browse
+                </Button>
+                <Button variant="default" size="default" onClick={() => setInstalledPickerOpen(true)} disabled={picking}>
+                  Installed...
+                </Button>
+              </div>
             </div>
-          </div>
 
-          <div>
-            <div style={labelStyle}>Arguments</div>
-            <Input
+            <InputField
+              label="Arguments"
+              placeholder="--no-update --windowed"
               value={argsStr}
               onChange={e => setArgsStr(e.target.value)}
-              placeholder="--no-update --windowed"
-              className="font-mono text-xs"
-              style={inputStyle}
+              style={{ fontFamily: 'var(--font-body)', fontSize: 12 }}
             />
-          </div>
 
-          <div>
-            <div style={labelStyle}>Launch Delay (ms)</div>
-            <Input
+            <InputField
+              label="Launch Delay (ms)"
               type="number"
               value={form.launch_delay_ms}
               onChange={e => setForm(f => ({ ...f, launch_delay_ms: Number(e.target.value) }))}
               min={0}
               step={500}
-              style={inputStyle}
             />
-          </div>
 
-          <div>
-            <div style={labelStyle}>Background art</div>
-            <div className="flex items-center gap-2">
-              {form.background_url ? (
-                <img
-                  src={resolveUrl(form.background_url)}
-                  alt=""
-                  style={{
-                    height: 36,
-                    width: 77,
-                    objectFit: 'cover',
-                    border: '1px solid var(--color-border-default)',
-                    flexShrink: 0,
-                  }}
-                  onError={e => { e.currentTarget.style.display = 'none'; }}
-                />
-              ) : (
-                <div
-                  style={{
-                    height: 36,
-                    width: 77,
-                    border: '1px solid var(--color-border-subtle)',
-                    background: 'var(--color-bg-surface)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0,
-                  }}
-                >
-                  <span style={{ color: 'var(--color-text-disabled)', fontSize: 9, fontFamily: 'monospace' }}>NONE</span>
-                </div>
-              )}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setSgdbPickerOpen(true)}
-                disabled={bgPicking}
-                style={{ borderColor: 'var(--color-border-default)', color: 'var(--color-text-secondary)', fontSize: 12 }}
-              >
-                SteamGridDB...
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleLocalBg}
-                disabled={bgPicking}
-                style={{ borderColor: 'var(--color-border-default)', color: 'var(--color-text-secondary)', fontSize: 12 }}
-              >
-                Local image...
-              </Button>
-              {form.background_url && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setForm(f => ({ ...f, background_url: undefined }))}
-                  style={{ color: 'var(--color-text-muted)', fontSize: 12 }}
-                >
-                  Clear
+            {/* Background art */}
+            <div>
+              <div style={{ fontFamily: 'var(--font-body)', fontSize: 10, fontWeight: 500, color: 'var(--color-text-muted)', marginBottom: 4 }}>
+                Background art
+              </div>
+              <div className="flex items-center gap-2">
+                {form.background_url ? (
+                  <img
+                    src={resolveUrl(form.background_url)}
+                    alt=""
+                    style={{
+                      height: 36,
+                      width: 77,
+                      objectFit: 'cover',
+                      borderRadius: 4,
+                      border: '1px solid var(--color-border-subtle)',
+                      flexShrink: 0,
+                    }}
+                    onError={e => { e.currentTarget.style.display = 'none'; }}
+                  />
+                ) : (
+                  <div
+                    style={{
+                      height: 36,
+                      width: 77,
+                      border: '1px solid var(--color-border-subtle)',
+                      background: 'var(--color-bg-elevated)',
+                      borderRadius: 4,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                    }}
+                  >
+                    <span style={{ color: 'var(--color-text-muted)', fontSize: 9, fontFamily: 'var(--font-body)' }}>none</span>
+                  </div>
+                )}
+                <Button variant="default" size="sm" onClick={() => setSgdbPickerOpen(true)} disabled={bgPicking}>
+                  SteamGridDB...
                 </Button>
-              )}
+                <Button variant="default" size="sm" onClick={handleLocalBg} disabled={bgPicking}>
+                  Local image...
+                </Button>
+                {form.background_url && (
+                  <Button variant="ghost" size="sm" onClick={() => setForm(f => ({ ...f, background_url: undefined }))}>
+                    Clear
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
-        </div>
 
-        <DialogFooter className="gap-2">
-          <Button variant="ghost" onClick={onClose} style={{ color: 'var(--color-text-muted)' }}>
-            Cancel
-          </Button>
-          <Button
-            variant="cockpit"
-            onClick={handleSave}
-            disabled={!form.name.trim() || !form.executable_path.trim()}
+          {/* Footer */}
+          <div
+            className="flex items-center justify-end gap-2 pt-3"
+            style={{ borderTop: '1px solid var(--color-border-divider)' }}
           >
-            {isEditing ? 'Save' : 'Add App'}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+            <Button variant="ghost" size="default" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button
+              variant="fill"
+              size="default"
+              onClick={handleSave}
+              disabled={!form.name.trim() || !form.executable_path.trim()}
+            >
+              {isEditing ? 'Save' : 'Add App'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
-    <InstalledAppsPicker
-      open={installedPickerOpen}
-      onClose={() => setInstalledPickerOpen(false)}
-      onSelect={app => {
-        setForm(f => ({
-          ...f,
-          executable_path: app.exe_path ?? f.executable_path,
-          name: f.name || app.name,
-        }));
-      }}
-    />
-    <SteamGridPicker
-      open={sgdbPickerOpen}
-      onClose={() => setSgdbPickerOpen(false)}
-      initialQuery={form.name}
-      onSelect={url => setForm(f => ({ ...f, background_url: url }))}
-    />
+      <InstalledAppsPicker
+        open={installedPickerOpen}
+        onClose={() => setInstalledPickerOpen(false)}
+        onSelect={app => {
+          setForm(f => ({
+            ...f,
+            executable_path: app.exe_path ?? f.executable_path,
+            name: f.name || app.name,
+          }));
+        }}
+      />
+      <SteamGridPicker
+        open={sgdbPickerOpen}
+        onClose={() => setSgdbPickerOpen(false)}
+        initialQuery={form.name}
+        onSelect={url => setForm(f => ({ ...f, background_url: url }))}
+      />
     </>
   );
 }

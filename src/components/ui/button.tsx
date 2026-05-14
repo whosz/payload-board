@@ -4,37 +4,82 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "group/button inline-flex shrink-0 items-center justify-center rounded-none border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "group/button inline-flex shrink-0 items-center justify-center gap-1.5 border bg-transparent whitespace-nowrap transition-all outline-none select-none cursor-pointer disabled:pointer-events-none disabled:opacity-40 [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground [a]:hover:bg-primary/80",
-        outline:
-          "border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
-        secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80 aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
-        ghost:
-          "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
-        destructive:
-          "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
-        link: "text-primary underline-offset-4 hover:underline",
-        cockpit:
-          "bg-[#FFE600] text-[#0A0A0B] font-mono uppercase tracking-wider hover:bg-[#FFE600]/90 active:bg-[#FFE600]/80",
+        /* CTA — Run Sequence / Add App: transparent + accent border, teal icon */
+        cta: [
+          "uppercase tracking-[0.25px] leading-[12px]",
+          "border-[var(--color-accent-border)] text-[var(--color-text-primary)]",
+          "hover:bg-[var(--color-btn-cta-hover)] hover:border-[var(--color-accent-border)]",
+        ],
+        /* Destructive Large — End Session: transparent + red border, red icon */
+        destructive: [
+          "uppercase tracking-[0.25px] leading-[12px]",
+          "border-[var(--color-btn-destructive-border)] text-[var(--color-text-primary)]",
+          "hover:bg-[var(--color-error-bg)] hover:border-[var(--color-btn-destructive-border-hover)]",
+        ],
+        /* Default — modal action buttons (Browse, Cancel, Save, theme selector) */
+        default: [
+          "uppercase",
+          "border-[var(--color-border-subtle)] text-[var(--color-text-primary)]",
+          "hover:bg-[var(--color-btn-default-hover)] hover:text-[var(--color-text-primary)]",
+        ],
+        /* Fill — Save buttons in modals */
+        fill: [
+          "uppercase tracking-[0.25px] leading-[12px]",
+          "bg-[var(--color-btn-fill-bg)] border-[var(--color-accent-border)] text-[var(--color-text-primary)]",
+          "hover:bg-[var(--color-btn-fill-hover)] hover:border-[var(--color-accent-border)]",
+        ],
+        /* Ghost — no border, muted */
+        ghost: [
+          "border-transparent text-[var(--color-text-muted)]",
+          "hover:bg-[var(--color-btn-cta-hover)] hover:text-[var(--color-text-primary)]",
+        ],
+        /* Nav — sidebar NavigationButton */
+        nav: [
+          "border-transparent text-[var(--color-text-secondary)]",
+          "hover:text-[var(--color-text-primary)]",
+        ],
+        /* Outline — Sort / filter controls (text-secondary, no uppercase) */
+        outline: [
+          "border-[var(--color-border-subtle)] text-[var(--color-text-secondary)]",
+          "hover:bg-[var(--color-btn-default-hover)] hover:text-[var(--color-text-primary)]",
+        ],
       },
       size: {
-        default:
-          "h-8 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
-        xs: "h-6 gap-1 px-2 text-xs in-data-[slot=button-group]:rounded-none has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3",
-        sm: "h-7 gap-1 px-2.5 text-[0.8rem] in-data-[slot=button-group]:rounded-none has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3.5",
-        lg: "h-9 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
-        icon: "size-8",
-        "icon-xs":
-          "size-6 in-data-[slot=button-group]:rounded-none [&_svg:not([class*='size-'])]:size-3",
-        "icon-sm":
-          "size-7 in-data-[slot=button-group]:rounded-none",
-        "icon-lg": "size-9",
+        /* 32px — top header */
+        lg: "h-8 px-3 rounded-lg text-xs font-bold uppercase tracking-[0.5px] leading-[18px]",
+        /* 28px — table actions / modals */
+        default: "h-7 px-2 rounded-lg text-[10px] font-semibold tracking-[0.25px] leading-[12px]",
+        /* 30×28 — icon-only view toggle */
+        icon: "h-7 w-[30px] rounded-lg",
+        /* sidebar navigation */
+        nav: "h-10 w-full px-3 rounded-none justify-start gap-2",
+        /* 24px — small utility */
+        sm: "h-6 px-2 rounded-md text-[10px] font-semibold",
       },
     },
+    compoundVariants: [
+      /* Destructive Small (default/sm sizes) — filled with error-bg, error-text color */
+      {
+        variant: "destructive",
+        size: "default",
+        className: [
+          "bg-[var(--color-error-bg)] border-[var(--color-btn-destructive-border)] text-[var(--color-error-text)]",
+          "hover:bg-[rgba(100,2,11,1)] hover:border-[var(--color-btn-destructive-border-hover)] hover:text-[var(--color-text-primary)]",
+        ],
+      },
+      {
+        variant: "destructive",
+        size: "sm",
+        className: [
+          "bg-[var(--color-error-bg)] border-[var(--color-btn-destructive-border)] text-[var(--color-error-text)]",
+          "hover:bg-[rgba(100,2,11,1)] hover:border-[var(--color-btn-destructive-border-hover)] hover:text-[var(--color-text-primary)]",
+        ],
+      },
+    ],
     defaultVariants: {
       variant: "default",
       size: "default",

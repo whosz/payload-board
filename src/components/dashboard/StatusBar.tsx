@@ -13,28 +13,32 @@ export function StatusBar({ profile, statuses }: StatusBarProps) {
 
   return (
     <div
-      className="flex items-center gap-6 px-5 font-mono"
+      className="flex items-center gap-6 px-6"
       style={{
-        background: 'var(--color-bg-surface)',
-        borderTop: '1px solid var(--color-border-subtle)',
-        color: 'var(--color-text-muted)',
-        minHeight: 44,
-        fontSize: 12,
-        letterSpacing: '0.04em',
+        borderTop: '1px solid var(--color-border-divider)',
+        minHeight: 57,
+        flexShrink: 0,
       }}
     >
-      <span>
-        TOTAL <span style={{ color: 'var(--color-text-secondary)' }}>{total}</span>
-      </span>
-      <span>
-        ALIVE{' '}
-        <span style={{ color: running > 0 ? 'var(--color-status-live)' : 'var(--color-text-muted)' }}>{running}</span>
-      </span>
-      {crashed > 0 && (
-        <span>
-          CRASHED <span style={{ color: 'var(--color-status-crit)' }}>{crashed}</span>
-        </span>
-      )}
+      <Stat label="Total" value={total} weight={600} />
+      <Stat label="Alive" value={running} weight={400} />
+      <Stat label="Crashed" value={crashed} weight={400} />
     </div>
+  );
+}
+
+function Stat({ label, value, weight }: { label: string; value: number; weight: number }) {
+  return (
+    <span
+      style={{
+        fontFamily: 'var(--font-display)',
+        fontSize: 10,
+        fontWeight: weight,
+        letterSpacing: '0.06em',
+        color: 'var(--color-text-secondary)',
+      }}
+    >
+      {label}{'  '}{value}
+    </span>
   );
 }

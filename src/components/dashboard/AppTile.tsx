@@ -8,7 +8,6 @@ import {
   faFolderOpen,
   faSliders,
   faTrash,
-  faCircleRegular,
   faTriangleExclamation,
 } from '../icons';
 import type { AppEntry } from '../../types';
@@ -25,33 +24,7 @@ interface AppTileProps {
   onRemove: (id: string) => void;
 }
 
-function StatusLed({ status }: { status: ProcessInfo['status'] }) {
-  if (status === 'running') {
-    return (
-      <span
-        style={{
-          display: 'inline-block',
-          width: 8,
-          height: 8,
-          borderRadius: '50%',
-          background: 'var(--color-status-live)',
-          boxShadow: '0 0 8px var(--color-status-live)',
-          flexShrink: 0,
-        }}
-      />
-    );
-  }
-  if (status === 'crashed') {
-    return (
-      <span style={{ animation: 'pulse-crit 1s infinite', lineHeight: 0 }}>
-        <Icon icon={faTriangleExclamation} size={12} crit />
-      </span>
-    );
-  }
-  return <Icon icon={faCircleRegular} size={8} />;
-}
-
-function TileButton({
+function IconBtn({
   onClick,
   title,
   children,
@@ -71,11 +44,15 @@ function TileButton({
       style={{
         background: 'none',
         border: 'none',
-        padding: '2px 4px',
+        padding: 0,
         cursor: 'pointer',
         lineHeight: 0,
+        width: 14,
+        height: 14,
         display: 'flex',
         alignItems: 'center',
+        justifyContent: 'center',
+        flexShrink: 0,
       }}
     >
       {children}
@@ -83,152 +60,182 @@ function TileButton({
   );
 }
 
-function RemoveButton({ onClick }: { onClick: () => void }) {
-  const [hovered, setHovered] = useState(false);
-  return (
-    <button
-      onClick={onClick}
-      title="Remove"
-      className="tile-btn"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        background: 'none',
-        border: 'none',
-        padding: '2px 4px',
-        cursor: 'pointer',
-        lineHeight: 0,
-        display: 'flex',
-        alignItems: 'center',
-      }}
-    >
-      <Icon icon={faTrash} size={14} crit={hovered} />
-    </button>
-  );
-}
-
-export function AppTile({
-  app,
-  status,
-  onStart,
-  onStop,
-  onRestart,
-  onOpenPath,
-  onEdit,
-  onRemove,
-}: AppTileProps) {
+export function AppTile({ app, status, onStart, onStop, onRestart, onOpenPath, onEdit, onRemove }: AppTileProps) {
+  const [removeHovered, setRemoveHovered] = useState(false);
+  const [tileHovered, setTileHovered] = useState(false);
   const isRunning = status.status === 'running';
   const isStopped = status.status === 'stopped';
+  const isCrashed = status.status === 'crashed';
 
   const bgSrc = app.background_url
     ? (app.background_url.startsWith('http') ? app.background_url : convertFileSrc(app.background_url))
     : null;
 
-  const bgStyle: React.CSSProperties = bgSrc
-    ? {
-        backgroundImage: `linear-gradient(rgba(10,10,11,0.82) 0%, rgba(10,10,11,0.72) 50%, rgba(10,10,11,0.88) 100%), url("${bgSrc}")`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-      }
-    : { background: 'var(--color-bg-elevated)' };
-
   return (
     <div
-      className="flex flex-col"
+      onMouseEnter={() => setTileHovered(true)}
+      onMouseLeave={() => setTileHovered(false)}
       style={{
-        width: 340,
-        height: 170,
-        ...bgStyle,
-        border: `1px solid ${status.status === 'crashed' ? 'var(--color-status-crit)' : 'var(--color-border-default)'}`,
+        position: 'relative',
+        width: 260,
+        height: 180,
+        borderRadius: 8,
+        overflow: 'hidden',
         flexShrink: 0,
-        padding: '14px 16px',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        padding: 18,
+        background: 'var(--color-bg-elevated)',
+        border: `1px solid ${isCrashed ? 'var(--color-status-crit)' : 'transparent'}`,
+        transition: 'box-shadow 0.15s ease',
+        boxShadow: isCrashed
+          ? (tileHovered ? '0 2px 25px 0 var(--color-tile-shadow-error-hover)' : '0 2px 25px 0 var(--color-tile-shadow-error)')
+          : (tileHovered ? '0 2px 20px 0 var(--color-tile-shadow-hover)' : '0 2px 20px 0 var(--color-tile-shadow)'),
       }}
     >
-      {/* Row 1: LED + icon + name + delay badge */}
-      <div className="flex items-center gap-2">
-        <StatusLed status={status.status} />
+      {/* ── BG — absolute, covers top 128px, not a flex child ── */}
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 128, overflow: 'hidden' }}>
+        {bgSrc ? (
+          <>
+            <img
+              src={bgSrc}
+              alt=""
+              style={{
+                position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover',
+                opacity: tileHovered ? 1 : 0.5,
+                transition: 'opacity 0.15s ease',
+              }}
+            />
+            <div style={{
+              position: 'absolute', inset: 0,
+              background: 'linear-gradient(0deg, var(--color-tile-gradient) 0%, color-mix(in srgb, var(--color-tile-gradient) 50%, transparent) 45%, color-mix(in srgb, var(--color-tile-gradient) 25%, transparent) 65%, transparent 85%)',
+            }} />
+          </>
+        ) : (
+          <div style={{
+            position: 'absolute', inset: 0,
+            backgroundImage: 'var(--tile-placeholder-url)',
+            backgroundSize: '100% 100%',
+            backgroundRepeat: 'no-repeat',
+          }} />
+        )}
         {app.icon_cache_path && (
           <img
             src={convertFileSrc(app.icon_cache_path)}
             alt=""
-            style={{ width: 20, height: 20, objectFit: 'contain', flexShrink: 0 }}
+            style={{ position: 'absolute', top: 10, left: 10, width: 32, height: 32, objectFit: 'contain' }}
             onError={e => { e.currentTarget.style.display = 'none'; }}
           />
         )}
-        <span
-          className="font-medium truncate flex-1"
-          style={{ color: bgSrc ? '#e8e8ea' : 'var(--color-text-primary)', fontSize: 15 }}
+      </div>
+
+      {/* ── Note — flex item 1, always 18px tall, rendered above BG ── */}
+      <div
+        style={{
+          height: 18,
+          borderRadius: 16,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          padding: isCrashed ? '4px 4px 4px 8px' : 0,
+          background: isCrashed ? 'var(--color-note-bg)' : 'transparent',
+          flexShrink: 0,
+          position: 'relative',
+          zIndex: 1,
+        }}
+      >
+        {isCrashed ? (
+          <>
+            <span style={{
+              fontFamily: 'var(--font-body)',
+              fontSize: 11,
+              fontWeight: 500,
+              color: 'var(--color-error-text)',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              flex: 1,
+            }}>
+              {status.error_message ?? 'Process crashed'}
+            </span>
+            <span style={{ animation: 'pulse-crit 1s infinite', lineHeight: 0, flexShrink: 0 }}>
+              <Icon icon={faTriangleExclamation} size={10} crit />
+            </span>
+          </>
+        ) : isRunning ? (
+          <span style={{
+            width: 10,
+            height: 10,
+            borderRadius: '50%',
+            background: 'var(--color-status-live)',
+            boxShadow: '0 0 8px var(--color-status-live)',
+            display: 'inline-block',
+            animation: 'pulse-live 2s infinite',
+            marginLeft: 'auto',
+          }} />
+        ) : null}
+      </div>
+
+      {/* ── Header — flex item 2, 224×50, gap=16 between name and controls ── */}
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 16,
+          position: 'relative',
+          zIndex: 1,
+        }}
+      >
+        {/* App name */}
+        <div
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: 16,
+            fontWeight: 700,
+            color: 'var(--color-text-primary)',
+            letterSpacing: '2px',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}
           title={app.name}
         >
           {app.name}
-        </span>
-        {app.launch_delay_ms > 0 && (
-          <span className="font-mono" style={{ color: bgSrc ? '#7a7a8a' : 'var(--color-text-muted)', fontSize: 11, flexShrink: 0 }}>
-            +{app.launch_delay_ms}ms
-          </span>
-        )}
-      </div>
-
-      {/* Row 2: path + optional error — immediately below name */}
-      <div className="flex flex-col gap-0.5" style={{ marginTop: 4 }}>
-        <div
-          className="font-mono truncate"
-          style={{ color: bgSrc ? '#7a7a8a' : 'var(--color-text-muted)', fontSize: 11 }}
-          title={app.executable_path}
-        >
-          {app.executable_path}
         </div>
-        {status.status === 'crashed' && status.error_message && (
-          <div
-            className="font-mono truncate"
-            style={{ color: 'var(--color-status-crit)', fontSize: 10 }}
-            title={status.error_message}
-          >
-            {status.error_message}
+
+        {/* Controls row: LeftActions + RightActions */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <IconBtn onClick={onStart} title="Start" disabled={isRunning}>
+              <Icon icon={faPlay} size={12} active={!isRunning} />
+            </IconBtn>
+            <IconBtn onClick={onStop} title="Stop" disabled={isStopped}>
+              <Icon icon={faStop} size={12} crit={isRunning} />
+            </IconBtn>
+            <IconBtn onClick={onRestart} title="Restart">
+              <Icon icon={faRotateRight} size={12} />
+            </IconBtn>
+            <IconBtn onClick={onOpenPath} title="Open folder">
+              <Icon icon={faFolderOpen} size={12} />
+            </IconBtn>
           </div>
-        )}
-        {app.args.length > 0 && (
-          <div
-            className="font-mono truncate"
-            style={{ color: bgSrc ? 'rgba(255,255,255,0.25)' : 'var(--color-text-disabled)', fontSize: 10 }}
-            title={app.args.join(' ')}
-          >
-            {app.args.join(' ')}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <IconBtn onClick={() => onEdit(app)} title="Edit">
+              <Icon icon={faSliders} size={12} />
+            </IconBtn>
+            <button
+              onClick={() => onRemove(app.id)}
+              title="Remove"
+              className="tile-btn"
+              onMouseEnter={() => setRemoveHovered(true)}
+              onMouseLeave={() => setRemoveHovered(false)}
+              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', lineHeight: 0, width: 14, height: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            >
+              <Icon icon={faTrash} size={12} crit={removeHovered} />
+            </button>
           </div>
-        )}
-      </div>
-
-      {/* Spacer */}
-      <div style={{ flex: 1 }} />
-
-      {/* Row 3: process controls + edit/remove */}
-      <div
-        className="flex items-center gap-1"
-        style={bgSrc ? {
-          background: 'rgba(10,10,11,0.55)',
-          margin: '0 -16px -14px',
-          padding: '6px 16px 14px',
-        } : undefined}
-      >
-        <TileButton onClick={onStart} title="Start" disabled={isRunning}>
-          <Icon icon={faPlay} size={14} active={!isRunning && !isStopped ? false : !isRunning} />
-        </TileButton>
-        <TileButton onClick={onStop} title="Stop" disabled={isStopped}>
-          <Icon icon={faStop} size={14} crit={isRunning} />
-        </TileButton>
-        <TileButton onClick={onRestart} title="Restart">
-          <Icon icon={faRotateRight} size={14} />
-        </TileButton>
-        <TileButton onClick={onOpenPath} title="Open folder">
-          <Icon icon={faFolderOpen} size={14} />
-        </TileButton>
-
-        <div style={{ flex: 1 }} />
-
-        <TileButton onClick={() => onEdit(app)} title="Edit settings">
-          <Icon icon={faSliders} size={14} />
-        </TileButton>
-        <RemoveButton onClick={() => onRemove(app.id)} />
+        </div>
       </div>
     </div>
   );

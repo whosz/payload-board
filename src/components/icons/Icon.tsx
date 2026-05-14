@@ -8,16 +8,14 @@ interface IconProps {
   active?: boolean;
   crit?: boolean;
   live?: boolean;
+  muted?: boolean;
 }
 
-export function Icon({ icon, className = '', size = 12, active, crit, live }: IconProps) {
-  const color = crit
-    ? '#FF2D55'
-    : live
-    ? '#00E5FF'
-    : active
-    ? '#FFE600'
-    : '#54545A';
+export function Icon({ icon, className = '', size = 12, active, crit, live, muted }: IconProps) {
+  let color = 'var(--color-text-secondary)';
+  if (crit)   color = 'var(--color-status-crit)';
+  else if (live || active) color = 'var(--color-status-live)';
+  else if (muted) color = 'var(--color-text-muted)';
 
   return (
     <FontAwesomeIcon

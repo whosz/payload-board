@@ -5,6 +5,24 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.5.0] — 2026-05-14
+
+### Changed
+- **Full UI rebuild** — every React component rewritten from Figma specs; no layout logic or Tauri backend changed
+- **Layout** — outer padding (`8px`), two rounded panels (`r=16`): SidePanel `266px` fixed + MainPanel `flex-1`; both use semi-transparent `bg-surface` with gradient background visible behind them
+- **Color system** — all colors migrated to CSS custom properties (`--color-*`); Purple (default) and Grey themes selectable in Settings; `[data-theme]` attribute on `<html>`; gradient background via `body::before` with three radial ellipses per theme
+- **Typography** — Orbitron for all headers/labels (profile name 20px/600/2px, tile name 16px/700/2px, list row name 12px/700/2px, section labels 10px/600/1.5px uppercase); Onest for body text, paths, buttons, inputs
+- **AppTile** — 260×180px, `bg-elevated` base, SVG grid placeholder pattern when no background image; background photo at 50% opacity (100% on hover); teal glow dot for running state; red border + error note pill for crashed state; hover scale `1.01`
+- **AppListRow** — 52px rows, `padding: 8px 16px`, `gap: 16px`; same status LED logic as tile; Orbitron 12/700/2px name, Onest 11/500 path
+- **Button variants** — CTA/Fill/Destructive are uppercase Onest 10/600; Default (modal actions) uppercase text-primary; Outline (Sort/view toggles) text-secondary no-uppercase; Ghost no-border muted; Nav sidebar buttons; compound variants for Destructive Small (filled error-bg)
+- **ProfileList** — active item has 4px status-live left bar; hover reveals edit/delete icon buttons; "Profiles" header and nav button labels Orbitron 10/600/1.5px uppercase
+- **StatusBar** — "Total" Orbitron 10/600, "Alive"/"Crashed" Orbitron 10/400, all text-secondary
+- **Modals** — ProfileEditor and AppEntryEditor: `bg-base`, `border-divider`, `r=8`, inline Orbitron header + X close; emoji picker; footer with `border-top`; label flash on close fixed
+- **Settings** — inline header style matching editors; White theme option removed (kept in CSS, removed from UI); SteamGridDB input/button sizes unified
+- **Icon component** — color via CSS vars (`--color-text-muted` default, `--color-status-live` for active/live, `--color-status-crit` for crit, `--color-text-secondary` for secondary)
+- **Theme-aware SVG tile placeholder** — three separate SVG files (`tile-placeholder.svg`, `tile-placeholder-grey.svg`) referenced via `--tile-placeholder-url` CSS variable
+- Removed `react-resizable-panels` dependency; removed `src/components/ui/resizable.tsx`
+
 ## [0.4.1] — 2026-05-09
 
 ### Added

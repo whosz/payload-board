@@ -20,6 +20,8 @@ export {
   faList,
   faTableCellsLarge,
   faCircle as faCircleSolid,
+  faChevronDown,
+  faGears,
 } from '@fortawesome/free-solid-svg-icons';
 
 export {

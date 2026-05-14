@@ -21,7 +21,6 @@ export interface Profile {
   name: string;
   color_accent?: string;
   emoji?: string;
-  description?: string;
   apps: AppEntry[];
   created_at: string;
   updated_at: string;

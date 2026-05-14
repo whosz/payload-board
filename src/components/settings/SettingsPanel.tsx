@@ -1,14 +1,10 @@
 import { useState, useEffect } from 'react';
 import { getVersion } from '@tauri-apps/api/app';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '../ui/dialog';
+import { Dialog, DialogContent } from '../ui/dialog';
 import { Button } from '../ui/button';
-import { Switch } from '../ui/switch';
 import { Input } from '../ui/input';
+import { Icon } from '../icons/Icon';
+import { faXmark } from '../icons';
 import {
   getProfilesDir,
   pickConfigDir,
@@ -19,22 +15,28 @@ import {
   setSgdbKey,
 } from '../../ipc/settings';
 
+type Theme = 'purple' | 'grey';
+
 interface SettingsPanelProps {
   open: boolean;
   onClose: () => void;
-  theme: 'dark' | 'light';
-  onThemeChange: (t: 'dark' | 'light') => void;
+  theme: Theme;
+  onThemeChange: (t: Theme) => void;
   onReset: () => void;
 }
 
 function SectionLabel({ children, crit }: { children: React.ReactNode; crit?: boolean }) {
   return (
     <div
-      className="font-mono uppercase tracking-widest text-xs pb-2 mb-3"
       style={{
-        color: crit ? 'var(--color-status-crit)' : 'var(--color-text-muted)',
-        borderBottom: `1px solid ${crit ? 'var(--color-status-crit)' : 'var(--color-border-subtle)'}`,
-        opacity: crit ? 0.8 : 1,
+        fontFamily: 'var(--font-display)',
+        fontSize: 10,
+        fontWeight: 600,
+        letterSpacing: '0.08em',
+        color: crit ? 'var(--color-status-crit)' : 'var(--color-text-secondary)',
+        borderBottom: `1px solid ${crit ? 'var(--color-status-crit)' : 'var(--color-border-divider)'}`,
+        paddingBottom: 8,
+        marginBottom: 12,
       }}
     >
       {children}
@@ -42,14 +44,10 @@ function SectionLabel({ children, crit }: { children: React.ReactNode; crit?: bo
   );
 }
 
-function SettingsRow({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="flex items-center justify-between py-2 gap-4">
-      <span style={{ color: 'var(--color-text-secondary)', fontSize: 14 }}>{label}</span>
-      <div className="flex items-center gap-2 flex-shrink-0">{children}</div>
-    </div>
-  );
-}
+const THEMES: { value: Theme; label: string }[] = [
+  { value: 'purple', label: 'Purple' },
+  { value: 'grey', label: 'Grey' },
+];
 
 export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset }: SettingsPanelProps) {
   const [version, setVersion] = useState('...');
@@ -78,11 +76,6 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset }: 
     } finally {
       setSgdbSaving(false);
     }
-  };
-
-  const handleOpenDir = async () => {
-    try { await openProfilesDir(); }
-    catch { /* ignore */ }
   };
 
   const handleChangeDir = async () => {
@@ -121,42 +114,59 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset }: 
   return (
     <Dialog open={open} onOpenChange={v => { if (!v) { setConfirmReset(false); onClose(); } }}>
       <DialogContent
+        showCloseButton={false}
         style={{
-          background: 'var(--color-bg-elevated)',
-          border: '1px solid var(--color-border-default)',
+          background: 'var(--color-bg-base)',
+          border: '1px solid var(--color-border-divider)',
+          borderRadius: 8,
           boxShadow: 'none',
           maxWidth: 480,
+          padding: '16px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 16,
         }}
       >
-        <DialogHeader>
-          <DialogTitle
-            className="font-mono uppercase tracking-wider text-sm"
-            style={{ color: 'var(--color-text-primary)' }}
-          >
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <span style={{ fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 600, color: 'var(--color-text-primary)' }}>
             Settings
-          </DialogTitle>
-        </DialogHeader>
+          </span>
+          <button
+            onClick={onClose}
+            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', lineHeight: 0 }}
+          >
+            <Icon icon={faXmark} size={14} />
+          </button>
+        </div>
 
-        <div className="flex flex-col gap-6 py-2">
+        <div className="flex flex-col gap-6">
 
           {/* APPEARANCE */}
           <section>
             <SectionLabel>Appearance</SectionLabel>
-            <SettingsRow label="Light mode">
-              <Switch
-                checked={theme === 'light'}
-                onCheckedChange={checked => onThemeChange(checked ? 'light' : 'dark')}
-              />
-            </SettingsRow>
+            <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--color-text-secondary)', marginBottom: 8 }}>
+              Theme
+            </div>
+            <div className="flex gap-1.5">
+              {THEMES.map(t => (
+                <Button
+                  key={t.value}
+                  variant={theme === t.value ? 'fill' : 'default'}
+                  size="default"
+                  onClick={() => onThemeChange(t.value)}
+                >
+                  {t.label}
+                </Button>
+              ))}
+            </div>
           </section>
 
           {/* STEAMGRIDDB */}
           <section>
             <SectionLabel>SteamGridDB</SectionLabel>
-            <div style={{ fontSize: 12, color: 'var(--color-text-muted)', marginBottom: 8 }}>
-              API key from{' '}
-              <span style={{ fontFamily: 'monospace' }}>steamgriddb.com/api</span>
-              {' '}— used to fetch game background artwork for tiles.
+            <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, fontWeight: 400, lineHeight: '16px', letterSpacing: '0.25px', color: 'var(--color-text-primary)', marginBottom: 8 }}>
+              API key from steamgriddb.com/api — used to fetch game background artwork for tiles.
             </div>
             <div className="flex gap-2">
               <Input
@@ -165,32 +175,14 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset }: 
                 value={sgdbKey}
                 onChange={e => { setSgdbKeyState(e.target.value); setSgdbStatus(null); }}
                 onKeyDown={e => e.key === 'Enter' && handleSaveSgdbKey()}
-                style={{
-                  background: 'var(--color-bg-surface)',
-                  borderColor: 'var(--color-border-default)',
-                  color: 'var(--color-text-primary)',
-                  fontFamily: 'monospace',
-                  fontSize: 12,
-                  flex: 1,
-                }}
+                style={{ flex: 1 }}
               />
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleSaveSgdbKey}
-                disabled={sgdbSaving}
-                style={{ borderColor: 'var(--color-border-default)', color: 'var(--color-text-secondary)', fontSize: 12 }}
-              >
+              <Button variant="default" size="default" onClick={handleSaveSgdbKey} disabled={sgdbSaving}>
                 Save
               </Button>
             </div>
             {sgdbStatus && (
-              <div style={{
-                marginTop: 6,
-                fontSize: 11,
-                fontFamily: 'monospace',
-                color: sgdbStatus === 'saved' ? 'var(--color-status-live)' : 'var(--color-status-crit)',
-              }}>
+              <div style={{ marginTop: 6, fontSize: 11, fontFamily: 'var(--font-body)', color: sgdbStatus === 'saved' ? 'var(--color-status-live)' : 'var(--color-status-crit)' }}>
                 {sgdbStatus === 'saved' ? 'API key saved.' : 'Failed to save API key.'}
               </div>
             )}
@@ -200,36 +192,29 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset }: 
           <section>
             <SectionLabel>Storage</SectionLabel>
             <div
-              className="font-mono text-xs break-all cursor-pointer mb-3"
               style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: 11,
                 color: 'var(--color-text-muted)',
-                background: 'var(--color-bg-surface)',
+                background: 'var(--color-bg-elevated)',
                 border: '1px solid var(--color-border-subtle)',
+                borderRadius: 8,
                 padding: '8px 10px',
                 lineHeight: 1.5,
+                wordBreak: 'break-all',
+                marginBottom: 8,
+                cursor: 'pointer',
               }}
-              onClick={handleOpenDir}
+              onClick={() => openProfilesDir().catch(() => {})}
               title="Click to open in file manager"
             >
               {profilesDir || '...'}
             </div>
             <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={dirLoading}
-                onClick={handleChangeDir}
-                style={{ borderColor: 'var(--color-border-default)', color: 'var(--color-text-secondary)', fontSize: 12 }}
-              >
+              <Button variant="default" size="default" disabled={dirLoading} onClick={handleChangeDir}>
                 Change directory...
               </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                disabled={dirLoading}
-                onClick={handleResetToDefault}
-                style={{ color: 'var(--color-text-muted)', fontSize: 12 }}
-              >
+              <Button variant="ghost" size="default" disabled={dirLoading} onClick={handleResetToDefault}>
                 Reset to default
               </Button>
             </div>
@@ -239,37 +224,22 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset }: 
           <section>
             <SectionLabel crit>Danger Zone</SectionLabel>
             {!confirmReset ? (
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => setConfirmReset(true)}
-                className="font-mono uppercase tracking-wider"
-              >
+              <Button variant="destructive" size="default" onClick={() => setConfirmReset(true)}>
                 Reset all data
               </Button>
             ) : (
               <div
                 className="flex flex-col gap-3 p-3"
-                style={{ border: '1px solid var(--color-status-crit)', background: 'var(--color-bg-surface)' }}
+                style={{ border: '1px solid var(--color-status-crit)', borderRadius: 8, background: 'var(--color-bg-elevated)' }}
               >
-                <span style={{ color: 'var(--color-text-secondary)', fontSize: 13 }}>
+                <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, fontWeight: 400, lineHeight: '16px', letterSpacing: '0.25px', color: 'var(--color-text-primary)' }}>
                   This will permanently delete all profiles and apps. Are you sure?
                 </span>
                 <div className="flex gap-2">
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={handleReset}
-                    className="font-mono uppercase tracking-wider"
-                  >
+                  <Button variant="destructive" size="default" onClick={handleReset}>
                     Yes, delete everything
                   </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setConfirmReset(false)}
-                    style={{ color: 'var(--color-text-muted)' }}
-                  >
+                  <Button variant="default" size="default" onClick={() => setConfirmReset(false)}>
                     Cancel
                   </Button>
                 </div>
@@ -280,11 +250,11 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset }: 
           {/* ABOUT */}
           <section>
             <SectionLabel>About</SectionLabel>
-            <div className="flex flex-col gap-1" style={{ fontSize: 13 }}>
-              <span style={{ color: 'var(--color-text-primary)', fontFamily: 'monospace' }}>
+            <div className="flex flex-col gap-1">
+              <span style={{ fontFamily: 'var(--font-display)', fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', color: 'var(--color-text-secondary)' }}>
                 Payload Board v{version}
               </span>
-              <span style={{ color: 'var(--color-text-muted)' }}>
+              <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, fontWeight: 400, lineHeight: '16px', letterSpacing: '0.25px', color: 'var(--color-text-primary)' }}>
                 Made by Matt · github.com/whosz/payload-board
               </span>
             </div>

@@ -360,29 +360,28 @@ export function DesignReference() {
       {/* ── BUTTONS ── */}
       <Section title="Buttons">
         <Row label="Variants — default size">
-          <Button variant="cockpit">Cockpit</Button>
+          <Button variant="cta">CTA</Button>
           <Button variant="default">Default</Button>
           <Button variant="outline">Outline</Button>
-          <Button variant="secondary">Secondary</Button>
+          <Button variant="fill">Fill</Button>
           <Button variant="ghost">Ghost</Button>
           <Button variant="destructive">Destructive</Button>
-          <Button variant="link">Link</Button>
+          <Button variant="nav">Nav</Button>
         </Row>
         <Row label="Sizes — outline variant">
           <Button variant="outline" size="lg">Large</Button>
           <Button variant="outline" size="default">Default</Button>
           <Button variant="outline" size="sm">Small</Button>
-          <Button variant="outline" size="xs">XSmall</Button>
           <Button variant="outline" size="icon"><Icon icon={faGear} size={14} /></Button>
-          <Button variant="outline" size="icon-sm"><Icon icon={faGear} size={12} /></Button>
-          <Button variant="outline" size="icon-xs"><Icon icon={faGear} size={10} /></Button>
+          <Button variant="outline" size="icon"><Icon icon={faGear} size={12} /></Button>
+          <Button variant="outline" size="sm"><Icon icon={faGear} size={10} /></Button>
         </Row>
         <Row label="States — outline">
           <Button variant="outline">Normal</Button>
           <Button variant="outline" disabled>Disabled</Button>
         </Row>
         <Row label="Special usage">
-          <Button variant="cockpit" size="sm" className="font-mono uppercase tracking-wider">
+          <Button variant="cta" size="sm" className="font-mono uppercase tracking-wider">
             Launch All
           </Button>
           <Button variant="destructive" size="sm" className="font-mono uppercase tracking-wider">
@@ -580,6 +579,7 @@ export function DesignReference() {
             onNew={noop}
             onEdit={noop}
             onDelete={noop}
+            onSettings={noop}
           />
         </div>
       </Section>
@@ -709,7 +709,7 @@ export function DesignReference() {
             style={{ borderColor: 'var(--color-border-default)', color: 'var(--color-text-secondary)', fontSize: 11 }}>
             Stop All
           </Button>
-          <Button variant="outline" size="icon-sm" className="btn-header-icon"
+          <Button variant="outline" size="icon" className="btn-header-icon"
             style={{ borderColor: 'var(--color-border-default)', color: 'var(--color-text-muted)' }}>
             <Icon icon={faGear} size={13} />
           </Button>
