@@ -532,6 +532,7 @@ export default function App() {
         }}
       />
       <AppEntryEditor
+        key={editingApp?.id ?? 'new'}
         open={appEditorOpen}
         onClose={() => { setAppEditorOpen(false); setEditingApp(undefined); }}
         onSave={handleSaveApp}

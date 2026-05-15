@@ -73,7 +73,10 @@ pub fn check_crashed_processes<R: tauri::Runtime>(map: &ProcessMap, app: &AppHan
     let sys = System::new_all();
 
     for (entry_id, pid) in candidates {
-        let alive = sys.process(sysinfo::Pid::from(pid as usize)).is_some();
+        let alive = sys
+            .process(sysinfo::Pid::from(pid as usize))
+            .map(|p| !matches!(p.status(), sysinfo::ProcessStatus::Zombie | sysinfo::ProcessStatus::Dead))
+            .unwrap_or(false);
         if !alive {
             {
                 let mut guard = map.lock().unwrap();
