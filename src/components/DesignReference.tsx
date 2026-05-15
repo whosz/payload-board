@@ -445,8 +445,8 @@ export function DesignReference() {
         <Row label="Switch — off / on">
           <Switch checked={false} onCheckedChange={noop} />
           <Switch checked={true} onCheckedChange={noop} />
-          <Switch size="sm" checked={false} onCheckedChange={noop} />
-          <Switch size="sm" checked={true} onCheckedChange={noop} />
+          
+          
         </Row>
         <Row label="Number input (delay)">
           <div style={{ width: 140 }}>

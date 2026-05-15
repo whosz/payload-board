@@ -3,6 +3,7 @@ import { getVersion } from '@tauri-apps/api/app';
 import { Dialog, DialogContent } from '../ui/dialog';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
+import { Switch } from '../ui/switch';
 import { Icon } from '../icons/Icon';
 import { faXmark } from '../icons';
 import {
@@ -69,13 +70,6 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset }: 
     getAutostart().then(setAutostartState).catch(() => {});
   }, [open]);
 
-  const handleAutostartToggle = async () => {
-    const next = !autostart;
-    try {
-      await setAutostart(next);
-      setAutostartState(next);
-    } catch { /* ignore */ }
-  };
 
   const handleSaveSgdbKey = async () => {
     setSgdbSaving(true);
@@ -172,16 +166,12 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset }: 
                 </Button>
               ))}
             </div>
-            <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--color-text-secondary)', marginBottom: 8 }}>
-              Launch on startup
+            <div className="flex items-center gap-3">
+              <Switch checked={autostart} onCheckedChange={v => { setAutostartState(v); setAutostart(v).catch(() => setAutostartState(!v)); }} />
+              <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--color-text-secondary)' }}>
+                Launch on startup
+              </span>
             </div>
-            <Button
-              variant={autostart ? 'fill' : 'default'}
-              size="default"
-              onClick={handleAutostartToggle}
-            >
-              {autostart ? 'Enabled' : 'Disabled'}
-            </Button>
           </section>
 
           {/* STEAMGRIDDB */}
