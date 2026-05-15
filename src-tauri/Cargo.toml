@@ -23,11 +23,14 @@ uuid                = { version = "1", features = ["v4"] }
 sysinfo             = "0.32"
 tokio               = { version = "1", features = ["time"] }
 reqwest             = { version = "0.12", features = ["json"] }
+tauri-plugin-autostart = "2"
 
 [target.'cfg(windows)'.dependencies]
 windows = { version = "0.58", features = [
   "Win32_UI_Shell",
   "Win32_System_Registry",
+  "Win32_System_Threading",
+  "Win32_Foundation",
 ] }
 winreg = "0.52"
 

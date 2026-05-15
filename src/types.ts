@@ -14,6 +14,7 @@ export interface AppEntry {
   enabled: boolean;
   order: number;
   requires_elevation?: boolean;
+  priority?: 'low' | 'normal' | 'high';
 }
 
 export interface Profile {

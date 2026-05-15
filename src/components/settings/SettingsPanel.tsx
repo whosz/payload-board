@@ -13,6 +13,8 @@ import {
   openProfilesDir,
   getSgdbKey,
   setSgdbKey,
+  getAutostart,
+  setAutostart,
 } from '../../ipc/settings';
 
 type Theme = 'purple' | 'grey';
@@ -57,13 +59,23 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset }: 
   const [sgdbKey, setSgdbKeyState] = useState('');
   const [sgdbSaving, setSgdbSaving] = useState(false);
   const [sgdbStatus, setSgdbStatus] = useState<'saved' | 'error' | null>(null);
+  const [autostart, setAutostartState] = useState(false);
 
   useEffect(() => {
     if (!open) return;
     getVersion().then(setVersion).catch(() => setVersion('?'));
     getProfilesDir().then(setProfilesDirState).catch(() => {});
     getSgdbKey().then(k => setSgdbKeyState(k ?? '')).catch(() => {});
+    getAutostart().then(setAutostartState).catch(() => {});
   }, [open]);
+
+  const handleAutostartToggle = async () => {
+    const next = !autostart;
+    try {
+      await setAutostart(next);
+      setAutostartState(next);
+    } catch { /* ignore */ }
+  };
 
   const handleSaveSgdbKey = async () => {
     setSgdbSaving(true);
@@ -148,7 +160,7 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset }: 
             <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--color-text-secondary)', marginBottom: 8 }}>
               Theme
             </div>
-            <div className="flex gap-1.5">
+            <div className="flex gap-1.5" style={{ marginBottom: 16 }}>
               {THEMES.map(t => (
                 <Button
                   key={t.value}
@@ -160,6 +172,16 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset }: 
                 </Button>
               ))}
             </div>
+            <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--color-text-secondary)', marginBottom: 8 }}>
+              Launch on startup
+            </div>
+            <Button
+              variant={autostart ? 'fill' : 'default'}
+              size="default"
+              onClick={handleAutostartToggle}
+            >
+              {autostart ? 'Enabled' : 'Disabled'}
+            </Button>
           </section>
 
           {/* STEAMGRIDDB */}
@@ -253,7 +275,7 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset }: 
             <div className="flex items-center gap-4">
               <img src="/logo.svg" alt="Payload Board" style={{ width: 48, height: 48, flexShrink: 0 }} />
               <div className="flex flex-col gap-1">
-                <span style={{ fontFamily: 'var(--font-display)', fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', color: 'var(--color-text-secondary)' }}>
+                <span style={{ fontFamily: 'var(--font-display)', fontSize: 12, fontWeight: 700, letterSpacing: '1px', color: 'var(--color-text-secondary)' }}>
                   Payload Board v{version}
                 </span>
                 <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, fontWeight: 400, lineHeight: '16px', letterSpacing: '0.25px', color: 'var(--color-text-primary)' }}>

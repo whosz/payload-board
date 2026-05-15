@@ -29,6 +29,7 @@ pub async fn start_app<R: tauri::Runtime>(
     let exe = entry.executable_path.clone();
     let args = entry.args.clone();
     let working_dir = entry.working_dir.clone();
+    let priority = entry.priority.clone();
 
     let exe_name = Path::new(&exe)
         .file_stem()
@@ -78,6 +79,10 @@ pub async fn start_app<R: tauri::Runtime>(
         .map_err(|e| format!("Failed to spawn '{}': {}", exe, e))?;
     let initial_pid = child.id();
     std::mem::forget(child);
+
+    if let Some(ref p) = priority {
+        apply_priority(initial_pid, p);
+    }
 
     {
         let mut map = process_map.lock().unwrap();
@@ -446,4 +451,39 @@ pub async fn stop_all<R: tauri::Runtime>(
     }
 
     Ok(())
+}
+
+// ── apply_priority ────────────────────────────────────────────────────────────
+
+fn apply_priority(pid: u32, priority: &str) {
+    #[cfg(windows)]
+    {
+        use windows::Win32::Foundation::CloseHandle;
+        use windows::Win32::System::Threading::{
+            OpenProcess, SetPriorityClass,
+            IDLE_PRIORITY_CLASS, NORMAL_PRIORITY_CLASS, HIGH_PRIORITY_CLASS,
+            PROCESS_SET_INFORMATION,
+        };
+        unsafe {
+            let Ok(handle) = OpenProcess(PROCESS_SET_INFORMATION, false, pid) else { return };
+            let class = match priority {
+                "low"  => IDLE_PRIORITY_CLASS,
+                "high" => HIGH_PRIORITY_CLASS,
+                _      => NORMAL_PRIORITY_CLASS,
+            };
+            let _ = SetPriorityClass(handle, class);
+            let _ = CloseHandle(handle);
+        }
+    }
+    #[cfg(unix)]
+    {
+        let niceness: i32 = match priority {
+            "low"  => 10,
+            "high" => -5,
+            _      => 0,
+        };
+        let _ = std::process::Command::new("renice")
+            .args(["-n", &niceness.to_string(), &pid.to_string()])
+            .output();
+    }
 }

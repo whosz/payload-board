@@ -16,10 +16,10 @@ Lower-priority ideas and Phase 6 nice-to-haves. Promote to a feature file when r
 ## Phase 6 — nice-to-have
 
 - [ ] **System tray** — Tauri tray API (cross-platform); quick start/stop profile from tray menu without opening main window
-- [ ] **Autostart** — `tauri-plugin-autostart` (cross-platform); option per profile or global
+- [x] **Autostart** — `tauri-plugin-autostart` (cross-platform); option per profile or global
 - [ ] **Export / import profiles** — serialize profile JSON to file; import via file picker
 - [ ] **Session logs** — timestamped log per session: which apps launched, exit codes, crash events
-- [ ] **Detect already running** — on sequence start, check if process is already up; skip it rather than double-launching
+- [x] **Detect already running** — on sequence start, check if process is already up; skip it rather than double-launching
 - [x] **Browse installed apps list** — Windows (registry), macOS (`/Applications`), Linux (`.desktop` files); currently Windows-only in v0.4.0
 - [x] **macOS & Linux installers** — add macOS (.dmg / .app bundle) and Linux (.deb / .AppImage) build targets to CI; currently Windows-only (NSIS + MSI)
 
@@ -43,7 +43,7 @@ Lower-priority ideas and Phase 6 nice-to-haves. Promote to a feature file when r
 
 ### Process reliability
 - [ ] **Auto-restart on crash** — automatically relaunch an app if it exits unexpectedly; configurable retry limit before giving up
-- [ ] **Process priority / CPU affinity** — set process priority (High / Normal / Low) per app entry; useful when one app (e.g. iRacing) should always win over others (e.g. SimHub)
+- [x] **Process priority / CPU affinity** — set process priority (High / Normal / Low) per app entry; useful when one app (e.g. iRacing) should always win over others (e.g. SimHub)
 
 ### Launch conditions
 - [ ] **Conditional launch** — only start an app if a condition is met: USB device connected, network available, or another process already running

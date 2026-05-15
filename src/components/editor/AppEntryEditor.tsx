@@ -176,6 +176,25 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
               step={500}
             />
 
+            {/* Process priority */}
+            <div>
+              <div style={{ fontFamily: 'var(--font-body)', fontSize: 10, fontWeight: 500, color: 'var(--color-text-muted)', marginBottom: 4 }}>
+                Process Priority
+              </div>
+              <div className="flex gap-1.5">
+                {(['low', 'normal', 'high'] as const).map(p => (
+                  <Button
+                    key={p}
+                    variant={(form.priority ?? 'normal') === p ? 'fill' : 'default'}
+                    size="default"
+                    onClick={() => setForm(f => ({ ...f, priority: p === 'normal' ? undefined : p }))}
+                  >
+                    {p.charAt(0).toUpperCase() + p.slice(1)}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
             {/* Background art */}
             <div>
               <div style={{ fontFamily: 'var(--font-body)', fontSize: 10, fontWeight: 500, color: 'var(--color-text-muted)', marginBottom: 4 }}>

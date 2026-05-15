@@ -31,3 +31,11 @@ export function getSgdbKey(): Promise<string | null> {
 export function setSgdbKey(key: string | null): Promise<void> {
   return invoke<void>('set_sgdb_key', { key });
 }
+
+export function getAutostart(): Promise<boolean> {
+  return invoke<boolean>('plugin:autostart|is_enabled');
+}
+
+export function setAutostart(enable: boolean): Promise<void> {
+  return invoke<void>(enable ? 'plugin:autostart|enable' : 'plugin:autostart|disable');
+}

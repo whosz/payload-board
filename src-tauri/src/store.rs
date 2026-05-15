@@ -21,6 +21,7 @@ pub struct AppEntry {
     pub enabled: bool,
     pub order: i32,
     pub requires_elevation: Option<bool>,
+    pub priority: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
