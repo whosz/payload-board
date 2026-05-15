@@ -8,7 +8,6 @@ import {
   faFolderOpen,
   faSliders,
   faTrash,
-  faTriangleExclamation,
 } from '../icons';
 import type { AppEntry } from '../../types';
 import type { ProcessInfo } from '../../hooks/useProcessStatus';
@@ -136,25 +135,21 @@ export function AppTile({ app, status, onStart, onStop, onRestart, onOpenPath, o
             onError={e => { e.currentTarget.style.display = 'none'; }}
           />
         )}
-      </div>
-
-      {/* ── Note — flex item 1, always 18px tall, rendered above BG ── */}
-      <div
-        style={{
-          height: 18,
-          borderRadius: 16,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 10,
-          padding: isCrashed ? '4px 4px 4px 8px' : 0,
-          background: isCrashed ? 'var(--color-note-bg)' : 'transparent',
-          flexShrink: 0,
-          position: 'relative',
-          zIndex: 1,
-        }}
-      >
-        {isCrashed ? (
-          <>
+        {/* ── Error pill — text + red dot inside, overlaid at top of BG when crashed ── */}
+        {isCrashed && (
+          <div style={{
+            position: 'absolute',
+            top: 12,
+            left: 12,
+            right: 12,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            padding: '6px 10px',
+            background: 'rgba(10,8,22,0.82)',
+            borderRadius: 8,
+            zIndex: 2,
+          }}>
             <span style={{
               fontFamily: 'var(--font-body)',
               fontSize: 11,
@@ -167,23 +162,38 @@ export function AppTile({ app, status, onStart, onStop, onRestart, onOpenPath, o
             }}>
               {status.error_message ?? 'Process crashed'}
             </span>
-            <span style={{ animation: 'pulse-crit 1s infinite', lineHeight: 0, flexShrink: 0 }}>
-              <Icon icon={faTriangleExclamation} size={10} crit />
-            </span>
-          </>
-        ) : isRunning ? (
+            <span style={{
+              width: 12,
+              height: 12,
+              borderRadius: '50%',
+              background: 'var(--color-status-crit)',
+              boxShadow: '0 0 8px var(--color-status-crit)',
+              flexShrink: 0,
+              display: 'inline-block',
+              animation: 'pulse-crit 1s infinite',
+            }} />
+          </div>
+        )}
+        {/* ── Running dot — same position as red dot in error pill ── */}
+        {isRunning && (
           <span style={{
-            width: 10,
-            height: 10,
+            position: 'absolute',
+            top: 18,
+            right: 22,
+            width: 12,
+            height: 12,
             borderRadius: '50%',
             background: 'var(--color-status-live)',
             boxShadow: '0 0 8px var(--color-status-live)',
             display: 'inline-block',
+            zIndex: 2,
             animation: 'pulse-live 2s infinite',
-            marginLeft: 'auto',
           }} />
-        ) : null}
+        )}
       </div>
+
+      {/* ── Note — flex item 1, 18px spacer ── */}
+      <div style={{ height: 18, flexShrink: 0 }} />
 
       {/* ── Header — flex item 2, 224×50, gap=16 between name and controls ── */}
       <div

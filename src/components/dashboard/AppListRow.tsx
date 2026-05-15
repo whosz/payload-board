@@ -92,7 +92,7 @@ export function AppListRow({ app, status, onStart, onStop, onRestart, onOpenPath
         />
       )}
 
-      {/* Name + path */}
+      {/* Name */}
       <div className="flex flex-col justify-center min-w-0 flex-1" style={{ gap: 2 }}>
         <div
           style={{
@@ -109,24 +109,22 @@ export function AppListRow({ app, status, onStart, onStop, onRestart, onOpenPath
         >
           {app.name}
         </div>
-        <div
-          style={{
-            fontFamily: 'var(--font-body)',
-            fontSize: 11,
-            fontWeight: 500,
-            color: isCrashed ? 'var(--color-error-text)' : 'var(--color-text-muted)',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }}
-          title={isCrashed && status.error_message ? status.error_message : app.executable_path}
-        >
-          {isCrashed && status.error_message
-            ? status.error_message
-            : app.args.length > 0
-              ? `${app.executable_path}  ${app.args.join(' ')}`
-              : app.executable_path}
-        </div>
+        {isCrashed && status.error_message && (
+          <div
+            style={{
+              fontFamily: 'var(--font-body)',
+              fontSize: 11,
+              fontWeight: 500,
+              color: 'var(--color-error-text)',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
+            title={status.error_message}
+          >
+            {status.error_message}
+          </div>
+        )}
       </div>
 
       {/* Controls — LeftActions (12px gap) + 24px gap + RightActions (12px gap) */}

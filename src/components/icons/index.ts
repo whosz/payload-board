@@ -21,6 +21,9 @@ export {
   faTableCellsLarge,
   faCircle as faCircleSolid,
   faChevronDown,
+  faChevronLeft,
+  faChevronRight,
+  faMinus,
   faGears,
 } from '@fortawesome/free-solid-svg-icons';
 

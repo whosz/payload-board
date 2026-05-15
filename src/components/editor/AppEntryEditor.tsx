@@ -167,15 +167,6 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
               style={{ fontFamily: 'var(--font-body)', fontSize: 12 }}
             />
 
-            <InputField
-              label="Launch Delay (ms)"
-              type="number"
-              value={form.launch_delay_ms}
-              onChange={e => setForm(f => ({ ...f, launch_delay_ms: Number(e.target.value) }))}
-              min={0}
-              step={500}
-            />
-
             {/* Process priority */}
             <div>
               <div style={{ fontFamily: 'var(--font-body)', fontSize: 10, fontWeight: 500, color: 'var(--color-text-muted)', marginBottom: 4 }}>

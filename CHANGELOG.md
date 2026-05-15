@@ -5,6 +5,19 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.5.2] — 2026-05-15
+
+### Added
+- **Clear errors button** — appears in the table actions bar (left of Sort) when one or more apps are in a crashed state; resets all crashed entries to stopped
+- **Collapsible sidebar** — chevron-left button in the Profiles header collapses the sidebar with a smooth animation; chevron-right button in the top-left of the main panel restores it; margins stay equal on both sides when collapsed
+
+### Changed
+- **AppTile error state** — crash pill redesigned: dark overlay at the top of the background image area with error text on the left and a pulsing red dot (with glow) on the right; red and green status dots now share the same position on the tile
+- **Launch Delay field** — removed from the App Editor UI (data is preserved in storage)
+
+### Fixed
+- **Open Folder on Linux/WSL2** — `xdg-open` exit code is now checked; falls back to `explorer.exe` (via `wslpath`) on WSL2, then tries common file managers (`nautilus`, `thunar`, `dolphin`) before returning an error
+
 ## [0.5.1] — 2026-05-14
 
 ### Changed

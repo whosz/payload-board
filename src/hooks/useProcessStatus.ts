@@ -37,5 +37,17 @@ export function useProcessStatus() {
     }));
   }
 
-  return { statuses, getStatus, setErrorStatus };
+  function clearErrors() {
+    setStatuses(prev => {
+      const next = { ...prev };
+      for (const key of Object.keys(next)) {
+        if (next[key].status === 'crashed') {
+          next[key] = { ...next[key], status: 'stopped', error_message: undefined };
+        }
+      }
+      return next;
+    });
+  }
+
+  return { statuses, getStatus, setErrorStatus, clearErrors };
 }

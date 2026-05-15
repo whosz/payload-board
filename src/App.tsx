@@ -13,7 +13,7 @@ import {
   DialogContent,
 } from './components/ui/dialog';
 import { Icon } from './components/icons/Icon';
-import { faPlay, faPowerOff, faPlus, faXmark, faList, faTableCellsLarge, faChevronDown } from './components/icons';
+import { faPlay, faPowerOff, faPlus, faXmark, faList, faTableCellsLarge, faChevronDown, faChevronRight } from './components/icons';
 import { useProfiles } from './hooks/useProfiles';
 import { useProcessStatus } from './hooks/useProcessStatus';
 import { startApp, stopApp, restartApp, openPath, stopAll, scanRunningApps } from './ipc/processes';
@@ -42,7 +42,7 @@ export default function App() {
     reload,
   } = useProfiles();
 
-  const { getStatus, statuses, setErrorStatus } = useProcessStatus();
+  const { getStatus, statuses, setErrorStatus, clearErrors } = useProcessStatus();
 
   const [profileEditorOpen, setProfileEditorOpen] = useState(false);
   const [editingProfile, setEditingProfile] = useState<typeof profiles[0] | undefined>();
@@ -56,6 +56,7 @@ export default function App() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [designRefOpen, setDesignRefOpen] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -137,6 +138,10 @@ export default function App() {
     ? activeProfile.apps.filter(a => getStatus(a.id).status === 'running').length
     : 0;
 
+  const crashedCount = activeProfile
+    ? activeProfile.apps.filter(a => getStatus(a.id).status === 'crashed').length
+    : 0;
+
   const sortLabel = sortOrder === 'az' ? 'Sort: A→Z' : sortOrder === 'za' ? 'Sort: Z→A' : 'Sort: Manual';
 
   if (loading) {
@@ -195,15 +200,16 @@ export default function App() {
 
   return (
     <div
-      className="flex h-full p-2 gap-2"
-      style={{ background: 'transparent' }}
+      className="flex h-full p-2"
+      style={{ background: 'transparent', gap: sidebarOpen ? 8 : 0, transition: 'gap 0.2s ease' }}
       onClick={() => setSortOpen(false)}
     >
       {/* ── Sidebar ── */}
       <div
         className="flex-shrink-0 flex flex-col overflow-hidden"
         style={{
-          width: 266,
+          width: sidebarOpen ? 266 : 0,
+          transition: 'width 0.2s ease',
           background: 'var(--color-bg-surface)',
           backdropFilter: 'blur(24px)',
           WebkitBackdropFilter: 'blur(24px)',
@@ -221,6 +227,7 @@ export default function App() {
           }}
           onDelete={id => setConfirmDeleteId(id)}
           onSettings={() => setSettingsOpen(true)}
+          onCollapse={() => setSidebarOpen(false)}
         />
       </div>
 
@@ -232,6 +239,7 @@ export default function App() {
           backdropFilter: 'blur(24px)',
           WebkitBackdropFilter: 'blur(24px)',
           borderRadius: 16,
+          position: 'relative',
         }}
       >
         {/* Top header */}
@@ -239,7 +247,18 @@ export default function App() {
           className="flex items-center justify-between px-6 flex-shrink-0"
           style={{ minHeight: 64 }}
         >
-          <div className="flex flex-col justify-center min-w-0 mr-4">
+          <div className="flex items-center gap-3 min-w-0 mr-4">
+            {!sidebarOpen && (
+              <button
+                onClick={() => setSidebarOpen(true)}
+                title="Show sidebar"
+                className="tile-btn"
+                style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', lineHeight: 0, width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
+              >
+                <Icon icon={faChevronRight} size={10} />
+              </button>
+            )}
+          <div className="flex flex-col justify-center min-w-0">
             <span
               style={{
                 fontFamily: 'var(--font-display)',
@@ -252,6 +271,7 @@ export default function App() {
             >
               {activeProfile?.name ?? 'No Profile'}
             </span>
+          </div>
           </div>
 
           <div className="flex items-center gap-2">
@@ -299,8 +319,13 @@ export default function App() {
               Add app
             </Button>
 
-            {/* Right: Sort dropdown + view toggle */}
+            {/* Right: Clear errors + Sort dropdown + view toggle */}
             <div className="flex items-center gap-1.5" onClick={e => e.stopPropagation()}>
+              {crashedCount > 0 && (
+                <Button variant="destructive" size="default" onClick={clearErrors}>
+                  Clear errors
+                </Button>
+              )}
               {/* Sort dropdown */}
               <div style={{ position: 'relative' }}>
                 <Button

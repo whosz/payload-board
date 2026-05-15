@@ -580,6 +580,7 @@ export function DesignReference() {
             onEdit={noop}
             onDelete={noop}
             onSettings={noop}
+            onCollapse={noop}
           />
         </div>
       </Section>

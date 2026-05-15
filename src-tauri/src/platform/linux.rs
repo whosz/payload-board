@@ -35,11 +35,40 @@ impl PlatformAdapter for LinuxAdapter {
 
     fn open_path(&self, exe_path: &std::path::Path) -> Result<(), String> {
         let dir = exe_path.parent().unwrap_or(exe_path);
-        std::process::Command::new("xdg-open")
+
+        // Try xdg-open first; exit code 0 means it worked
+        let xdg_ok = std::process::Command::new("xdg-open")
             .arg(dir)
-            .spawn()
-            .map_err(|e| e.to_string())?;
-        Ok(())
+            .status()
+            .map(|s| s.success())
+            .unwrap_or(false);
+
+        if xdg_ok {
+            return Ok(());
+        }
+
+        // WSL2 fallback: open with Windows Explorer
+        if let Ok(win_path) = std::process::Command::new("wslpath")
+            .args(["-w", &dir.to_string_lossy()])
+            .output()
+        {
+            let win_path = String::from_utf8_lossy(&win_path.stdout).trim().to_string();
+            if !win_path.is_empty() {
+                let _ = std::process::Command::new("explorer.exe")
+                    .arg(&win_path)
+                    .spawn();
+                return Ok(());
+            }
+        }
+
+        // Try common file managers as last resort
+        for fm in &["nautilus", "thunar", "dolphin", "nemo", "pcmanfm"] {
+            if std::process::Command::new(fm).arg(dir).spawn().is_ok() {
+                return Ok(());
+            }
+        }
+
+        Err(format!("No file manager found to open {:?}", dir))
     }
 
     fn list_installed_apps(&self) -> Vec<InstalledApp> {

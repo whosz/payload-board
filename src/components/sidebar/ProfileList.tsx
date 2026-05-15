@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Icon } from '../icons/Icon';
-import { faPlus, faTrash, faPen, faGear } from '../icons';
+import { faPlus, faTrash, faPen, faGear, faChevronLeft } from '../icons';
 import type { Profile } from '../../types';
 
 interface ProfileListProps {
@@ -11,17 +11,20 @@ interface ProfileListProps {
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
   onSettings: () => void;
+  onCollapse: () => void;
 }
 
-export function ProfileList({ profiles, activeProfileId, onSelect, onNew, onEdit, onDelete, onSettings }: ProfileListProps) {
+export function ProfileList({ profiles, activeProfileId, onSelect, onNew, onEdit, onDelete, onSettings, onCollapse }: ProfileListProps) {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   return (
     <aside className="flex flex-col h-full">
       {/* Header */}
       <div
-        className="px-4 py-3"
-        style={{
+        className="px-4 py-3 flex items-center justify-between"
+        style={{ minHeight: 40 }}
+      >
+        <span style={{
           fontFamily: 'var(--font-display)',
           fontSize: 10,
           fontWeight: 600,
@@ -29,9 +32,17 @@ export function ProfileList({ profiles, activeProfileId, onSelect, onNew, onEdit
           lineHeight: '16px',
           textTransform: 'uppercase',
           color: 'var(--color-text-secondary)',
-        }}
-      >
-        Profiles
+        }}>
+          Profiles
+        </span>
+        <button
+          onClick={onCollapse}
+          title="Hide sidebar"
+          className="tile-btn"
+          style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', lineHeight: 0, width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        >
+          <Icon icon={faChevronLeft} size={10} />
+        </button>
       </div>
 
       {/* Profile list */}
