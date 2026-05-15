@@ -6,6 +6,7 @@ import { InputField } from '../ui/input';
 import { Icon } from '../icons/Icon';
 import { faXmark } from '../icons';
 import { pickExecutable, pickIconFile } from '../../ipc/profiles';
+import { sgdbAutoBg } from '../../ipc/steamgriddb';
 import { InstalledAppsPicker } from './InstalledAppsPicker';
 import { SteamGridPicker } from './SteamGridPicker';
 import type { AppEntry } from '../../types';
@@ -36,6 +37,7 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
   const [argsStr, setArgsStr] = useState((initial?.args ?? []).join(' '));
   const [picking, setPicking] = useState(false);
   const [bgPicking, setBgPicking] = useState(false);
+  const [bgAutoLoading, setBgAutoLoading] = useState(false);
   const [installedPickerOpen, setInstalledPickerOpen] = useState(false);
   const [sgdbPickerOpen, setSgdbPickerOpen] = useState(false);
 
@@ -46,15 +48,24 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
     setArgsStr((initial?.args ?? []).join(' '));
   }, [open]);
 
+  const autoFetchBg = (name: string, currentBg?: string) => {
+    if (currentBg || !name.trim()) return;
+    setBgAutoLoading(true);
+    sgdbAutoBg(name)
+      .then(url => setForm(f => ({ ...f, background_url: f.background_url ?? url })))
+      .catch(() => { /* no API key or no results — silently ignore */ })
+      .finally(() => setBgAutoLoading(false));
+  };
+
   const handleBrowse = async () => {
     setPicking(true);
     try {
       const result = await pickExecutable();
-      setForm(f => ({
-        ...f,
-        executable_path: result.path,
-        name: f.name || result.suggested_name,
-      }));
+      setForm(f => {
+        const name = f.name || result.suggested_name;
+        autoFetchBg(name, f.background_url);
+        return { ...f, executable_path: result.path, name };
+      });
     } catch { /* cancelled */ } finally {
       setPicking(false);
     }
@@ -199,7 +210,9 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
                       flexShrink: 0,
                     }}
                   >
-                    <span style={{ color: 'var(--color-text-muted)', fontSize: 9, fontFamily: 'var(--font-body)' }}>none</span>
+                    <span style={{ color: 'var(--color-text-muted)', fontSize: 9, fontFamily: 'var(--font-body)' }}>
+                      {bgAutoLoading ? '...' : 'none'}
+                    </span>
                   </div>
                 )}
                 <Button variant="default" size="sm" onClick={() => setSgdbPickerOpen(true)} disabled={bgPicking}>
@@ -240,12 +253,16 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
       <InstalledAppsPicker
         open={installedPickerOpen}
         onClose={() => setInstalledPickerOpen(false)}
-        onSelect={app => {
-          setForm(f => ({
-            ...f,
-            executable_path: app.exe_path ?? f.executable_path,
-            name: f.name || app.name,
-          }));
+        onSelect={picked => {
+          setForm(f => {
+            const name = f.name || picked.name;
+            autoFetchBg(name, f.background_url);
+            return {
+              ...f,
+              executable_path: picked.exe_path ?? f.executable_path,
+              name,
+            };
+          });
         }}
       />
       <SteamGridPicker

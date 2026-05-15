@@ -10,7 +10,7 @@ use commands::settings::{
     get_data_dir, get_profiles_dir, get_sgdb_key, open_profiles_dir, pick_config_dir,
     reset_all_data, set_profiles_dir, set_sgdb_key,
 };
-use commands::steamgriddb::{sgdb_grids, sgdb_search};
+use commands::steamgriddb::{sgdb_auto_bg, sgdb_grids, sgdb_search};
 use process_manager::{check_crashed_processes, new_process_map, ProcessMap};
 use tauri::Manager;
 
@@ -57,6 +57,7 @@ pub fn run() {
             set_sgdb_key,
             sgdb_search,
             sgdb_grids,
+            sgdb_auto_bg,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

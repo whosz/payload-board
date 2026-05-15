@@ -20,8 +20,8 @@ Lower-priority ideas and Phase 6 nice-to-haves. Promote to a feature file when r
 - [ ] **Export / import profiles** — serialize profile JSON to file; import via file picker
 - [ ] **Session logs** — timestamped log per session: which apps launched, exit codes, crash events
 - [ ] **Detect already running** — on sequence start, check if process is already up; skip it rather than double-launching
-- [ ] **Browse installed apps list** — Windows (registry), macOS (`/Applications`), Linux (`.desktop` files); currently Windows-only in v0.4.0
-- [ ] **macOS & Linux installers** — add macOS (.dmg / .app bundle) and Linux (.deb / .AppImage) build targets to CI; currently Windows-only (NSIS + MSI)
+- [x] **Browse installed apps list** — Windows (registry), macOS (`/Applications`), Linux (`.desktop` files); currently Windows-only in v0.4.0
+- [x] **macOS & Linux installers** — add macOS (.dmg / .app bundle) and Linux (.deb / .AppImage) build targets to CI; currently Windows-only (NSIS + MSI)
 
 ## Future ideas
 
@@ -39,7 +39,7 @@ Lower-priority ideas and Phase 6 nice-to-haves. Promote to a feature file when r
 ### UI
 - [x] **UI redesign** — Figma-driven redesign of all components, new colour tokens and fonts, in-app onboarding, logo; see `planned/ui-redesign.md`
 - [ ] **App-specific preset dropdowns** — curated launch options for select apps (e.g. CrewChief); dropdown only visible when app name matches a known preset; selecting a preset appends to the args field; see `planned/app-launch-config.md`
-- [ ] **Automatic tile images on app detection** — when an app is added via "Browse installed apps" or by name match, automatically search SteamGridDB (if API key is configured) and download the best-matching grid image as the tile background; user can still override or clear it manually
+- [x] **Automatic tile images on app detection** — when an app is added via "Browse installed apps" or by name match, automatically search SteamGridDB (if API key is configured) and download the best-matching grid image as the tile background; user can still override or clear it manually
 
 ### Process reliability
 - [ ] **Auto-restart on crash** — automatically relaunch an app if it exits unexpectedly; configurable retry limit before giving up

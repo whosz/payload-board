@@ -50,6 +50,7 @@ jobs:
             Windows may show a SmartScreen warning on first run — click "More info → Run anyway".
           releaseDraft: true
           prerelease: false
+          args: --bundles nsis,msi
 
       - name: Package and upload portable build
         if: startsWith(github.ref, 'refs/tags/')
@@ -61,3 +62,79 @@ jobs:
           $zip = "Payload-Board-${version}-portable-x64.zip"
           Compress-Archive -Path "src-tauri\target\release\payload-board.exe" -DestinationPath $zip
           gh release upload $version $zip
+
+  build-macos:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Build and publish release
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: Payload Board ${{ github.ref_name }}
+          releaseDraft: true
+          prerelease: false
+          args: --bundles dmg
+
+  build-linux:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libayatana-appindicator3-dev \
+            libssl-dev \
+            pkg-config \
+            build-essential \
+            curl \
+            wget \
+            file \
+            libxdo-dev
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Build and publish release
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: Payload Board ${{ github.ref_name }}
+          releaseDraft: true
+          prerelease: false
+          args: --bundles deb,appimage

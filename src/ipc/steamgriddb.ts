@@ -18,3 +18,7 @@ export function sgdbSearch(query: string): Promise<SgdbGame[]> {
 export function sgdbGrids(gameId: number): Promise<SgdbGrid[]> {
   return invoke<SgdbGrid[]>('sgdb_grids', { gameId });
 }
+
+export function sgdbAutoBg(name: string): Promise<string> {
+  return invoke<string>('sgdb_auto_bg', { name });
+}

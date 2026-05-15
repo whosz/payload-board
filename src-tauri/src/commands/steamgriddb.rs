@@ -97,3 +97,52 @@ pub async fn sgdb_grids<R: tauri::Runtime>(
         Err(resp.errors.unwrap_or_default().join(", "))
     }
 }
+
+/// Search by name and return the URL of the first grid image found.
+/// Silently returns Err if no API key, no game found, or no grids available.
+#[tauri::command]
+pub async fn sgdb_auto_bg<R: tauri::Runtime>(
+    app: AppHandle<R>,
+    name: String,
+) -> Result<String, String> {
+    let key = get_api_key(&app)?;
+    let client = reqwest::Client::new();
+
+    let search_resp: SgdbResponse<Vec<SgdbGame>> = client
+        .get(format!(
+            "https://www.steamgriddb.com/api/v2/search/autocomplete/{}",
+            encode_path(&name)
+        ))
+        .header("Authorization", format!("Bearer {}", key))
+        .send()
+        .await
+        .map_err(|e| e.to_string())?
+        .json()
+        .await
+        .map_err(|e| e.to_string())?;
+
+    let game_id = search_resp
+        .data
+        .and_then(|games| games.into_iter().next())
+        .ok_or_else(|| "No game found".to_string())?
+        .id;
+
+    let grids_resp: SgdbResponse<Vec<SgdbGrid>> = client
+        .get(format!(
+            "https://www.steamgriddb.com/api/v2/grids/game/{}?dimensions=460x215",
+            game_id
+        ))
+        .header("Authorization", format!("Bearer {}", key))
+        .send()
+        .await
+        .map_err(|e| e.to_string())?
+        .json()
+        .await
+        .map_err(|e| e.to_string())?;
+
+    grids_resp
+        .data
+        .and_then(|grids| grids.into_iter().next())
+        .map(|g| g.url)
+        .ok_or_else(|| "No grid images found".to_string())
+}
