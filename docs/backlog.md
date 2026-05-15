@@ -22,6 +22,8 @@ Lower-priority ideas and Phase 6 nice-to-haves. Promote to a feature file when r
 - [x] **Detect already running** — on sequence start, check if process is already up; skip it rather than double-launching
 - [x] **Browse installed apps list** — Windows (registry), macOS (`/Applications`), Linux (`.desktop` files); currently Windows-only in v0.4.0
 - [x] **macOS & Linux installers** — add macOS (.dmg / .app bundle) and Linux (.deb / .AppImage) build targets to CI; currently Windows-only (NSIS + MSI)
+- [x] **Clear errors button** — resets all crashed app states at once; appears in actions bar when any app has crashed (v0.5.2)
+- [x] **Collapsible sidebar** — chevron toggle in Profiles header; equal margins when collapsed (v0.5.2)
 
 ## Future ideas
 
@@ -44,6 +46,8 @@ Lower-priority ideas and Phase 6 nice-to-haves. Promote to a feature file when r
 ### Process reliability
 - [ ] **Auto-restart on crash** — automatically relaunch an app if it exits unexpectedly; configurable retry limit before giving up
 - [x] **Process priority / CPU affinity** — set process priority (High / Normal / Low) per app entry; useful when one app (e.g. iRacing) should always win over others (e.g. SimHub)
+- [x] **Fix zombie process detection on Linux** — watcher now checks for `Zombie | Dead` status so crashed apps don't stay "running" (v0.5.2)
+- [x] **Open Folder on Linux/WSL2** — `xdg-open` exit code checked; falls back to `explorer.exe` via `wslpath`, then common file managers (v0.5.2)
 
 ### Launch conditions
 - [ ] **Conditional launch** — only start an app if a condition is met: USB device connected, network available, or another process already running
