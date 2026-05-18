@@ -16,14 +16,23 @@ Lower-priority ideas and Phase 6 nice-to-haves. Promote to a feature file when r
 ## Phase 6 — nice-to-have
 
 - [ ] **System tray** — Tauri tray API (cross-platform); quick start/stop profile from tray menu without opening main window
+- [ ] **Start minimised to tray** — option to launch the app straight to the system tray without showing the main window
+- [ ] **Start apps minimised** — option per app entry (or per sequence) to launch apps in a minimised state
+- [ ] **Settings tabs** — split the Settings modal into tabs (e.g. Appearance / Integrations / Storage / Advanced) as the panel grows
 - [x] **Autostart** — `tauri-plugin-autostart` (cross-platform); option per profile or global
-- [ ] **Export / import profiles** — serialize profile JSON to file; import via file picker
-- [ ] **Session logs** — timestamped log per session: which apps launched, exit codes, crash events
 - [x] **Detect already running** — on sequence start, check if process is already up; skip it rather than double-launching
 - [x] **Browse installed apps list** — Windows (registry), macOS (`/Applications`), Linux (`.desktop` files); currently Windows-only in v0.4.0
 - [x] **macOS & Linux installers** — add macOS (.dmg / .app bundle) and Linux (.deb / .AppImage) build targets to CI; currently Windows-only (NSIS + MSI)
 - [x] **Clear errors button** — resets all crashed app states at once; appears in actions bar when any app has crashed (v0.5.2)
 - [x] **Collapsible sidebar** — chevron toggle in Profiles header; equal margins when collapsed (v0.5.2)
+- [ ] **Auto-restart on crash** — automatically relaunch an app if it exits unexpectedly; configurable retry limit before giving up
+- [ ] **Conditional launch** — only start an app if a condition is met: USB device connected, network available, or another process already running
+- [ ] **Environment variables per app** — inject custom env vars at launch without touching the system environment
+- [ ] **Duplicate profile** — clone an existing profile as a starting point instead of building from scratch
+- [ ] **Working directory override** — some apps behave differently depending on where they're launched from; allow overriding per app entry
+- [ ] **App notes field** — small text note per app entry for quirks or reminders (e.g. "must launch before SimHub or it crashes")
+- [ ] **Run multiple instances** — same executable, different args, treated as separate independent entries
+- [ ] **System-wide hotkeys** — trigger RUN SEQUENCE or END SESSION from anywhere, even when the Payload Board window is in the background
 
 ## Future ideas
 
@@ -44,24 +53,12 @@ Lower-priority ideas and Phase 6 nice-to-haves. Promote to a feature file when r
 - [x] **Automatic tile images on app detection** — when an app is added via "Browse installed apps" or by name match, automatically search SteamGridDB (if API key is configured) and download the best-matching grid image as the tile background; user can still override or clear it manually
 
 ### Process reliability
-- [ ] **Auto-restart on crash** — automatically relaunch an app if it exits unexpectedly; configurable retry limit before giving up
 - [x] **Process priority / CPU affinity** — set process priority (High / Normal / Low) per app entry; useful when one app (e.g. iRacing) should always win over others (e.g. SimHub)
 - [x] **Fix zombie process detection on Linux** — watcher now checks for `Zombie | Dead` status so crashed apps don't stay "running" (v0.5.2)
 - [x] **Open Folder on Linux/WSL2** — `xdg-open` exit code checked; falls back to `explorer.exe` via `wslpath`, then common file managers (v0.5.2)
 
-### Launch conditions
-- [ ] **Conditional launch** — only start an app if a condition is met: USB device connected, network available, or another process already running
-- [ ] **Environment variables per app** — inject custom env vars at launch without touching the system environment
-
-### Profile management
-- [ ] **Duplicate profile** — clone an existing profile as a starting point instead of building from scratch
-- [ ] **Working directory override** — some apps behave differently depending on where they're launched from; allow overriding per app entry
-- [ ] **App notes field** — small text note per app entry for quirks or reminders (e.g. "must launch before SimHub or it crashes")
-- [ ] **Run multiple instances** — same executable, different args, treated as separate independent entries
-
 ### Session awareness
+- [ ] **Export / import profiles** — serialize profile JSON to file; import via file picker
+- [ ] **Session logs** — timestamped log per session: which apps launched, exit codes, crash events
 - [ ] **Session history** — log of past sessions: profile used, duration, which apps crashed or were force-killed
 - [ ] **Usage stats** — how often each profile is run, average session length
-
-### Global hotkeys
-- [ ] **System-wide hotkeys** — trigger RUN SEQUENCE or END SESSION from anywhere, even when the Payload Board window is in the background
