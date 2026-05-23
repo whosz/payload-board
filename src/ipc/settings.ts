@@ -32,6 +32,22 @@ export function setSgdbKey(key: string | null): Promise<void> {
   return invoke<void>('set_sgdb_key', { key });
 }
 
+export function getStartMinimisedToTray(): Promise<boolean> {
+  return invoke<boolean>('get_start_minimised_to_tray');
+}
+
+export function setStartMinimisedToTray(enable: boolean): Promise<void> {
+  return invoke<void>('set_start_minimised_to_tray', { enable });
+}
+
+export function getMinimiseOnClose(): Promise<boolean> {
+  return invoke<boolean>('get_minimise_on_close');
+}
+
+export function setMinimiseOnClose(enable: boolean): Promise<void> {
+  return invoke<void>('set_minimise_on_close', { enable });
+}
+
 export function getAutostart(): Promise<boolean> {
   return invoke<boolean>('plugin:autostart|is_enabled');
 }

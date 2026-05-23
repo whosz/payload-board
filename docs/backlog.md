@@ -16,8 +16,9 @@ Lower-priority ideas and Phase 6 nice-to-haves. Promote to a feature file when r
 ## Phase 6 — nice-to-have
 
 - [ ] **System tray** — Tauri tray API (cross-platform); quick start/stop profile from tray menu without opening main window
-- [ ] **Start minimised to tray** — option to launch the app straight to the system tray without showing the main window
-- [ ] **Start apps minimised** — option per app entry (or per sequence) to launch apps in a minimised state
+- [x] **Start minimised to tray** — tray icon always present; "Start minimised to tray" toggle in Settings hides the window on launch
+- [x] **Start apps minimised** — "Launch minimised" toggle per app in editor; Windows only (SW_SHOWMINIMIZED via CreateProcessW); hidden on Linux/macOS
+- [x] **Minimise on close** — "Minimise on close" toggle in Settings; closing the window hides it to the tray; quit via tray menu
 - [ ] **Settings tabs** — split the Settings modal into tabs (e.g. Appearance / Integrations / Storage / Advanced) as the panel grows
 - [x] **Autostart** — `tauri-plugin-autostart` (cross-platform); option per profile or global
 - [x] **Detect already running** — on sequence start, check if process is already up; skip it rather than double-launching

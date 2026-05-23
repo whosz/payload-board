@@ -16,6 +16,10 @@ import {
   setSgdbKey,
   getAutostart,
   setAutostart,
+  getStartMinimisedToTray,
+  setStartMinimisedToTray,
+  getMinimiseOnClose,
+  setMinimiseOnClose,
 } from '../../ipc/settings';
 
 type Theme = 'purple' | 'grey';
@@ -61,6 +65,8 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset }: 
   const [sgdbSaving, setSgdbSaving] = useState(false);
   const [sgdbStatus, setSgdbStatus] = useState<'saved' | 'error' | null>(null);
   const [autostart, setAutostartState] = useState(false);
+  const [startMinimised, setStartMinimisedState] = useState(false);
+  const [minimiseOnClose, setMinimiseOnCloseState] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -68,6 +74,8 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset }: 
     getProfilesDir().then(setProfilesDirState).catch(() => {});
     getSgdbKey().then(k => setSgdbKeyState(k ?? '')).catch(() => {});
     getAutostart().then(setAutostartState).catch(() => {});
+    getStartMinimisedToTray().then(setStartMinimisedState).catch(() => {});
+    getMinimiseOnClose().then(setMinimiseOnCloseState).catch(() => {});
   }, [open]);
 
 
@@ -166,11 +174,25 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset }: 
                 </Button>
               ))}
             </div>
-            <div className="flex items-center gap-3">
-              <Switch checked={autostart} onCheckedChange={v => { setAutostartState(v); setAutostart(v).catch(() => setAutostartState(!v)); }} />
-              <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--color-text-secondary)' }}>
-                Launch on startup
-              </span>
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-3">
+                <Switch checked={autostart} onCheckedChange={v => { setAutostartState(v); setAutostart(v).catch(() => setAutostartState(!v)); }} />
+                <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--color-text-secondary)' }}>
+                  Launch on startup
+                </span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Switch checked={startMinimised} onCheckedChange={v => { setStartMinimisedState(v); setStartMinimisedToTray(v).catch(() => setStartMinimisedState(!v)); }} />
+                <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--color-text-secondary)' }}>
+                  Start minimised to tray
+                </span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Switch checked={minimiseOnClose} onCheckedChange={v => { setMinimiseOnCloseState(v); setMinimiseOnClose(v).catch(() => setMinimiseOnCloseState(!v)); }} />
+                <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--color-text-secondary)' }}>
+                  Minimise on close
+                </span>
+              </div>
             </div>
           </section>
 

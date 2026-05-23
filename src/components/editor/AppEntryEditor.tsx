@@ -3,6 +3,7 @@ import { convertFileSrc } from '@tauri-apps/api/core';
 import { Dialog, DialogContent } from '../ui/dialog';
 import { Button } from '../ui/button';
 import { InputField } from '../ui/input';
+import { Switch } from '../ui/switch';
 import { Icon } from '../icons/Icon';
 import { faXmark } from '../icons';
 import { pickExecutable, pickIconFile } from '../../ipc/profiles';
@@ -158,6 +159,18 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
                 </Button>
               </div>
             </div>
+
+            {navigator.userAgent.includes('Windows') && (
+              <div className="flex items-center gap-3">
+                <Switch
+                  checked={!!form.launch_minimised}
+                  onCheckedChange={v => setForm(f => ({ ...f, launch_minimised: v || undefined }))}
+                />
+                <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--color-text-secondary)' }}>
+                  Launch minimised
+                </span>
+              </div>
+            )}
 
             <InputField
               label="Arguments"

@@ -15,6 +15,7 @@ export interface AppEntry {
   order: number;
   requires_elevation?: boolean;
   priority?: 'low' | 'normal' | 'high';
+  launch_minimised?: boolean;
 }
 
 export interface Profile {

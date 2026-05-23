@@ -1,6 +1,6 @@
 [package]
 name = "payload-board"
-version = "0.5.2"
+version = "0.5.3"
 description = "Payload Board — cross-platform app launcher and session manager"
 authors = ["matt"]
 edition = "2021"
@@ -13,7 +13,7 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
-tauri               = { version = "2", features = [] }
+tauri               = { version = "2", features = ["tray-icon"] }
 tauri-plugin-store  = "2"
 tauri-plugin-dialog = "2"
 tauri-plugin-shell  = "2"
@@ -28,6 +28,7 @@ tauri-plugin-autostart = "2"
 [target.'cfg(windows)'.dependencies]
 windows = { version = "0.58", features = [
   "Win32_UI_Shell",
+  "Win32_UI_WindowsAndMessaging",
   "Win32_System_Registry",
   "Win32_System_Threading",
   "Win32_Foundation",

@@ -30,6 +30,7 @@ pub async fn start_app<R: tauri::Runtime>(
     let args = entry.args.clone();
     let working_dir = entry.working_dir.clone();
     let priority = entry.priority.clone();
+    let launch_minimised = entry.launch_minimised.unwrap_or(false);
 
     let exe_name = Path::new(&exe)
         .file_stem()
@@ -63,22 +64,26 @@ pub async fn start_app<R: tauri::Runtime>(
         }
     }
 
-    let mut cmd = std::process::Command::new(&exe);
-    cmd.args(&args);
-    if let Some(dir) = &working_dir {
-        cmd.current_dir(dir);
-    }
-    #[cfg(unix)]
-    {
-        use std::os::unix::process::CommandExt;
-        cmd.process_group(0);
-    }
-
-    let child = cmd
-        .spawn()
-        .map_err(|e| format!("Failed to spawn '{}': {}", exe, e))?;
-    let initial_pid = child.id();
-    std::mem::forget(child);
+    let initial_pid = if launch_minimised {
+        spawn_minimised(&exe, &args, working_dir.as_deref())?
+    } else {
+        let mut cmd = std::process::Command::new(&exe);
+        cmd.args(&args);
+        if let Some(dir) = &working_dir {
+            cmd.current_dir(dir);
+        }
+        #[cfg(unix)]
+        {
+            use std::os::unix::process::CommandExt;
+            cmd.process_group(0);
+        }
+        let child = cmd
+            .spawn()
+            .map_err(|e| format!("Failed to spawn '{}': {}", exe, e))?;
+        let pid = child.id();
+        std::mem::forget(child);
+        pid
+    };
 
     if let Some(ref p) = priority {
         apply_priority(initial_pid, p);
@@ -451,6 +456,72 @@ pub async fn stop_all<R: tauri::Runtime>(
     }
 
     Ok(())
+}
+
+// ── spawn_minimised ───────────────────────────────────────────────────────────
+
+fn spawn_minimised(exe: &str, args: &[String], working_dir: Option<&str>) -> Result<u32, String> {
+    #[cfg(windows)]
+    {
+        use windows::Win32::Foundation::CloseHandle;
+        use windows::Win32::System::Threading::{
+            CreateProcessW, PROCESS_INFORMATION, STARTUPINFOW, STARTF_USESHOWWINDOW,
+        };
+        use windows::Win32::UI::WindowsAndMessaging::SW_SHOWMINIMIZED;
+        use windows::core::PWSTR;
+
+        let cmd_line = if args.is_empty() {
+            format!("\"{}\"", exe)
+        } else {
+            format!("\"{}\" {}", exe, args.join(" "))
+        };
+        let mut cmd_wide: Vec<u16> = cmd_line.encode_utf16().chain(std::iter::once(0)).collect();
+
+        let wd_wide: Option<Vec<u16>> = working_dir
+            .map(|d| d.encode_utf16().chain(std::iter::once(0)).collect());
+
+        let mut si = STARTUPINFOW::default();
+        si.cb = std::mem::size_of::<STARTUPINFOW>() as u32;
+        si.dwFlags = STARTF_USESHOWWINDOW;
+        si.wShowWindow = SW_SHOWMINIMIZED.0 as u16;
+
+        let mut pi = PROCESS_INFORMATION::default();
+
+        unsafe {
+            let wd_ptr = wd_wide.as_ref().map(|v| windows::core::PCWSTR(v.as_ptr()));
+            CreateProcessW(
+                None,
+                Some(PWSTR(cmd_wide.as_mut_ptr())),
+                None, None, false,
+                Default::default(),
+                None,
+                wd_ptr,
+                &si,
+                &mut pi,
+            ).map_err(|e| e.to_string())?;
+            let _ = CloseHandle(pi.hProcess);
+            let _ = CloseHandle(pi.hThread);
+            Ok(pi.dwProcessId)
+        }
+    }
+    #[cfg(not(windows))]
+    {
+        // No universal minimise mechanism on Linux/macOS — spawn normally
+        let mut cmd = std::process::Command::new(exe);
+        cmd.args(args);
+        if let Some(dir) = working_dir {
+            cmd.current_dir(dir);
+        }
+        #[cfg(unix)]
+        {
+            use std::os::unix::process::CommandExt;
+            cmd.process_group(0);
+        }
+        let child = cmd.spawn().map_err(|e| format!("Failed to spawn '{}': {}", exe, e))?;
+        let pid = child.id();
+        std::mem::forget(child);
+        Ok(pid)
+    }
 }
 
 // ── apply_priority ────────────────────────────────────────────────────────────

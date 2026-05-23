@@ -5,6 +5,13 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.5.3] — 2026-05-23
+
+### Added
+- **Start minimised to tray** — system tray icon is always present; "Start minimised to tray" toggle in Settings hides the main window on launch
+- **Launch minimised** — per-app toggle in the App Editor; launches the process with `SW_SHOWMINIMIZED` on Windows; hidden on Linux and macOS
+- **Minimise on close** — "Minimise on close" toggle in Settings; closing the window hides it to the tray instead of quitting the app; quit is still available via the tray menu
+
 ## [0.5.2] — 2026-05-15
 
 ### Added

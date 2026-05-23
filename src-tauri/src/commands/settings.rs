@@ -62,6 +62,32 @@ pub fn set_sgdb_key<R: tauri::Runtime>(app: AppHandle<R>, key: Option<String>) -
     store.save().map_err(|e| e.to_string())
 }
 
+#[tauri::command]
+pub fn get_minimise_on_close<R: tauri::Runtime>(app: AppHandle<R>) -> bool {
+    let Ok(store) = app.store(SETTINGS_FILE) else { return false };
+    store.get("minimise_on_close").and_then(|v| v.as_bool()).unwrap_or(false)
+}
+
+#[tauri::command]
+pub fn set_minimise_on_close<R: tauri::Runtime>(app: AppHandle<R>, enable: bool) -> Result<(), String> {
+    let store = app.store(SETTINGS_FILE).map_err(|e| e.to_string())?;
+    store.set("minimise_on_close", serde_json::Value::Bool(enable));
+    store.save().map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub fn get_start_minimised_to_tray<R: tauri::Runtime>(app: AppHandle<R>) -> bool {
+    let Ok(store) = app.store(SETTINGS_FILE) else { return false };
+    store.get("start_minimised_to_tray").and_then(|v| v.as_bool()).unwrap_or(false)
+}
+
+#[tauri::command]
+pub fn set_start_minimised_to_tray<R: tauri::Runtime>(app: AppHandle<R>, enable: bool) -> Result<(), String> {
+    let store = app.store(SETTINGS_FILE).map_err(|e| e.to_string())?;
+    store.set("start_minimised_to_tray", serde_json::Value::Bool(enable));
+    store.save().map_err(|e| e.to_string())
+}
+
 fn open_in_file_manager(dir: &std::path::Path) -> Result<(), String> {
     #[cfg(target_os = "windows")]
     {
