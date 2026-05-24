@@ -61,6 +61,7 @@ jobs:
           $version = "${{ github.ref_name }}"
           $zip = "Payload-Board-${version}-portable-x64.zip"
           Compress-Archive -Path "src-tauri\target\release\payload-board.exe" -DestinationPath $zip
+          gh release delete-asset $version $zip --yes 2>$null
           gh release upload $version $zip
 
   build-macos:
