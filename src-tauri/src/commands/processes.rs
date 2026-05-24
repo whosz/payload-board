@@ -468,7 +468,7 @@ fn spawn_minimised(exe: &str, args: &[String], working_dir: Option<&str>) -> Res
             CreateProcessW, PROCESS_INFORMATION, STARTUPINFOW, STARTF_USESHOWWINDOW,
         };
         use windows::Win32::UI::WindowsAndMessaging::SW_SHOWMINIMIZED;
-        use windows::core::PWSTR;
+        use windows::core::{PCWSTR, PWSTR};
 
         let cmd_line = if args.is_empty() {
             format!("\"{}\"", exe)
@@ -488,10 +488,13 @@ fn spawn_minimised(exe: &str, args: &[String], working_dir: Option<&str>) -> Res
         let mut pi = PROCESS_INFORMATION::default();
 
         unsafe {
-            let wd_ptr = wd_wide.as_ref().map(|v| windows::core::PCWSTR(v.as_ptr()));
+            let wd_ptr = match wd_wide.as_ref() {
+                Some(v) => PCWSTR(v.as_ptr()),
+                None => PCWSTR::null(),
+            };
             CreateProcessW(
-                None,
-                Some(PWSTR(cmd_wide.as_mut_ptr())),
+                PCWSTR::null(),
+                PWSTR(cmd_wide.as_mut_ptr()),
                 None, None, false,
                 Default::default(),
                 None,
