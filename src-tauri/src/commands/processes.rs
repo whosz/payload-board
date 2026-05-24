@@ -502,9 +502,19 @@ fn spawn_minimised(exe: &str, args: &[String], working_dir: Option<&str>) -> Res
                 &si,
                 &mut pi,
             ).map_err(|e| e.to_string())?;
+            let pid = pi.dwProcessId;
             let _ = CloseHandle(pi.hProcess);
             let _ = CloseHandle(pi.hThread);
-            Ok(pi.dwProcessId)
+
+            // SW_SHOWMINIMIZED is a hint many apps ignore — sweep windows post-launch
+            std::thread::spawn(move || {
+                std::thread::sleep(std::time::Duration::from_millis(800));
+                minimise_process_windows(pid);
+                std::thread::sleep(std::time::Duration::from_millis(1500));
+                minimise_process_windows(pid);
+            });
+
+            Ok(pid)
         }
     }
     #[cfg(not(windows))]
@@ -525,6 +535,26 @@ fn spawn_minimised(exe: &str, args: &[String], working_dir: Option<&str>) -> Res
         std::mem::forget(child);
         Ok(pid)
     }
+}
+
+#[cfg(windows)]
+unsafe fn minimise_process_windows(pid: u32) {
+    use windows::Win32::Foundation::{BOOL, HWND, LPARAM};
+    use windows::Win32::UI::WindowsAndMessaging::{
+        EnumWindows, GetWindowThreadProcessId, IsWindowVisible, ShowWindow, SW_MINIMIZE,
+    };
+
+    unsafe extern "system" fn callback(hwnd: HWND, lparam: LPARAM) -> BOOL {
+        let target_pid = lparam.0 as u32;
+        let mut window_pid: u32 = 0;
+        GetWindowThreadProcessId(hwnd, Some(&mut window_pid));
+        if window_pid == target_pid && IsWindowVisible(hwnd).as_bool() {
+            let _ = ShowWindow(hwnd, SW_MINIMIZE);
+        }
+        BOOL(1)
+    }
+
+    let _ = EnumWindows(Some(callback), LPARAM(pid as isize));
 }
 
 // ── apply_priority ────────────────────────────────────────────────────────────
