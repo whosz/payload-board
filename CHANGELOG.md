@@ -5,12 +5,17 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
-## [0.5.3] — 2026-05-23
+## [0.5.3] — 2026-05-24
 
 ### Added
 - **Start minimised to tray** — system tray icon is always present; "Start minimised to tray" toggle in Settings hides the main window on launch
 - **Launch minimised** — per-app toggle in the App Editor; launches the process with `SW_SHOWMINIMIZED` on Windows; hidden on Linux and macOS
 - **Minimise on close** — "Minimise on close" toggle in Settings; closing the window hides it to the tray instead of quitting the app; quit is still available via the tray menu
+- **MS Store apps in installed apps picker** — `Get-StartApps` scan runs alongside the registry scan; Store/MSIX apps now appear in the picker (name auto-fills; exe path left blank for the user to set)
+
+### Fixed
+- **Launch minimised not working** — `SW_SHOWMINIMIZED` is a hint many apps ignore; added a post-launch `EnumWindows` sweep at 800 ms and 2.3 s to force-minimise any visible windows owned by the new process
+- **Local background images showing as broken** — enabled Tauri asset protocol (`assetProtocol` + `protocol-asset` feature) so `convertFileSrc` can serve local files
 
 ## [0.5.2] — 2026-05-15
 
