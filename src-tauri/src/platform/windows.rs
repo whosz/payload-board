@@ -41,16 +41,6 @@ impl PlatformAdapter for WindowsAdapter {
 
     fn list_installed_apps(&self) -> Vec<InstalledApp> {
         let mut apps = list_registry_apps();
-
-        // Merge in Start menu apps (covers MS Store / MSIX apps missing from registry)
-        let existing: std::collections::HashSet<String> =
-            apps.iter().map(|a| a.name.to_lowercase()).collect();
-        for app in list_start_menu_apps() {
-            if !existing.contains(&app.name.to_lowercase()) {
-                apps.push(app);
-            }
-        }
-
         apps.sort_by(|a, b| a.name.to_lowercase().cmp(&b.name.to_lowercase()));
         apps.dedup_by(|a, b| a.name.to_lowercase() == b.name.to_lowercase());
         apps
@@ -111,59 +101,6 @@ fn list_registry_apps() -> Vec<InstalledApp> {
     }
 
     apps
-}
-
-/// Uses PowerShell `Get-StartApps` to enumerate Start menu entries, which includes
-/// MS Store / MSIX apps that don't appear in the registry uninstall keys.
-fn list_start_menu_apps() -> Vec<InstalledApp> {
-    let Ok(output) = std::process::Command::new("powershell")
-        .args([
-            "-NoProfile",
-            "-NonInteractive",
-            "-Command",
-            "Get-StartApps | ConvertTo-Json -Compress",
-        ])
-        .output()
-    else {
-        return vec![];
-    };
-
-    if !output.status.success() { return vec![]; }
-    let Ok(json) = String::from_utf8(output.stdout) else { return vec![] };
-
-    // ConvertTo-Json returns an array or a single object when there's only one entry
-    let items: Vec<serde_json::Value> =
-        if let Ok(arr) = serde_json::from_str::<Vec<serde_json::Value>>(&json) {
-            arr
-        } else if let Ok(obj) = serde_json::from_str::<serde_json::Value>(&json) {
-            vec![obj]
-        } else {
-            return vec![];
-        };
-
-    items.iter().filter_map(|item| {
-        let name = item["Name"].as_str()?.trim().to_string();
-        let app_id = item["AppID"].as_str()?;
-        if name.is_empty() { return None; }
-
-        // Store/MSIX apps have AppIDs like "PackageFamilyName!AppId".
-        // Traditional apps have AppIDs that are direct .exe paths.
-        let exe_path = if app_id.contains('!') {
-            // No direct exe — user gets the name auto-filled; exe field left blank
-            None
-        } else {
-            let lower = app_id.to_lowercase();
-            if (lower.ends_with(".exe") || lower.ends_with(".bat"))
-                && std::path::Path::new(app_id).exists()
-            {
-                Some(app_id.to_string())
-            } else {
-                None
-            }
-        };
-
-        Some(InstalledApp { name, exe_path })
-    }).collect()
 }
 
 fn titlecase(s: &str) -> String {
