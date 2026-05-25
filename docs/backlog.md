@@ -23,6 +23,7 @@ Lower-priority ideas and Phase 6 nice-to-haves. Promote to a feature file when r
 - [x] **Autostart** — `tauri-plugin-autostart` (cross-platform); option per profile or global
 - [x] **Detect already running** — on sequence start, check if process is already up; skip it rather than double-launching
 - [x] **Browse installed apps list** — Windows (registry), macOS (`/Applications`), Linux (`.desktop` files); currently Windows-only in v0.4.0
+- [ ] **MS Store apps in installed apps picker** — `Get-StartApps` scan alongside registry; reverted due to latency and missing exe paths for Store apps
 - [x] **macOS & Linux installers** — add macOS (.dmg / .app bundle) and Linux (.deb / .AppImage) build targets to CI; currently Windows-only (NSIS + MSI)
 - [x] **Clear errors button** — resets all crashed app states at once; appears in actions bar when any app has crashed (v0.5.2)
 - [x] **Collapsible sidebar** — chevron toggle in Profiles header; equal margins when collapsed (v0.5.2)
