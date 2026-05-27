@@ -1,0 +1,223 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
+
+@import "tailwindcss";
+
+/* ─── shadcn CSS variable bridge (HSL triplets for Tailwind utilities) ── */
+:root {
+  --background: 253 31% 6%;
+  --foreground: 248 20% 93%;
+  --card: 250 35% 10%;
+  --card-foreground: 248 20% 93%;
+  --popover: 250 35% 10%;
+  --popover-foreground: 248 20% 93%;
+  --primary: 40 98% 55%;
+  --primary-foreground: 253 31% 6%;
+  --secondary: 252 28% 15%;
+  --secondary-foreground: 248 20% 93%;
+  --destructive: 0 100% 65%;
+  --destructive-foreground: 248 20% 93%;
+  --input: 252 28% 15%;
+  --ring: 40 98% 55%;
+  --radius: 0.75rem;
+}
+
+/* ─── Design Tokens (defined after shadcn bridge so they win the cascade) ── */
+:root {
+  --bg:         #0d0b14;
+  --surface:    #151228;
+  --surface-2:  #1c1832;
+  --surface-3:  #231e3a;
+  --border:     rgba(180,140,255,0.09);
+  --border-2:   rgba(180,140,255,0.16);
+  --text:       #eeeef2;
+  --text-2:     #a09ab8;
+  --muted:      #635d7a;
+  --accent:     #fdb31e;
+  --accent-dim: rgba(253, 179, 30, 0.15);
+  --accent-glow:rgba(253, 179, 30, 0.35);
+  --accent-2:   #ff9854;
+  --danger:     #ff4d4d;
+  --danger-dim: rgba(255, 77, 77, 0.15);
+
+  --ease-snap:   cubic-bezier(0.19, 1, 0.22, 1);
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-quick:  cubic-bezier(0.07, 0.3, 0.1, 0.9);
+}
+
+/* ─── Base ──────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ─── Typography ────────────────────────────────────────────────── */
+h1, h2, h3, h4 {
+  line-height: 1.15;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* ─── Gradient text utility ─────────────────────────────────────── */
+.gradient-text {
+  background: linear-gradient(135deg, #ffffff 0%, #a0a0b0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-accent {
+  background: linear-gradient(135deg, #fdb31e 0%, #ff9854 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── Scroll reveal ─────────────────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.8s var(--ease-snap), transform 0.8s var(--ease-snap);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+
+/* ─── Word-by-word hero animation ───────────────────────────────── */
+@keyframes wordIn {
+  from { opacity: 0; transform: translateY(110%); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.hero-word {
+  display: inline-block;
+  overflow: hidden;
+  opacity: 0;
+  animation: wordIn 0.7s var(--ease-snap) forwards;
+}
+
+/* ─── Nav ────────────────────────────────────────────────────────── */
+.nav-blur {
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  background: rgba(13, 11, 20, 0.85);
+  border-bottom: 1px solid var(--border);
+}
+
+/* ─── App mockup ─────────────────────────────────────────────────── */
+@keyframes tileGlow {
+  0%   { box-shadow: none; border-color: rgba(255,255,255,0.07); }
+  50%  { box-shadow: 0 0 20px var(--accent-glow), inset 0 0 20px rgba(253,179,30,0.05); border-color: rgba(253,179,30,0.4); }
+  100% { box-shadow: 0 0 12px var(--accent-dim), inset 0 0 10px rgba(253,179,30,0.03); border-color: rgba(253,179,30,0.25); }
+}
+
+@keyframes statusCount {
+  from { opacity: 0; transform: scale(0.7); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulseRed {
+  0%, 100% { box-shadow: 0 0 6px rgba(255,77,77,0.6); }
+  50%       { box-shadow: 0 0 16px rgba(255,77,77,0.9); }
+}
+
+.tile-launch {
+  animation: tileGlow 1.2s var(--ease-spring) forwards;
+}
+
+/* ─── Feature cards ─────────────────────────────────────────────── */
+.feature-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.75rem;
+  transition: border-color 0.2s ease, transform 0.2s var(--ease-spring), box-shadow 0.2s ease;
+}
+.feature-card:hover {
+  border-color: var(--border-2);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+}
+
+/* ─── Pill button ────────────────────────────────────────────────── */
+.btn-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.5rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s var(--ease-spring);
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+}
+.btn-pill-accent {
+  background: var(--accent);
+  color: #000;
+}
+.btn-pill-accent:hover {
+  background: #ffbf2e;
+  box-shadow: 0 0 24px var(--accent-glow);
+  transform: translateY(-1px);
+}
+.btn-pill-ghost {
+  background: transparent;
+  color: var(--text-2);
+  border: 1px solid var(--border-2);
+}
+.btn-pill-ghost:hover {
+  border-color: rgba(255,255,255,0.3);
+  color: var(--text);
+  background: rgba(255,255,255,0.05);
+}
+
+/* ─── Section spacing ────────────────────────────────────────────── */
+.section {
+  padding: clamp(5rem, 10vw, 8rem) 0;
+}
+
+.container {
+  width: min(1200px, calc(100% - clamp(2rem, 5vw, 6rem)));
+  margin: 0 auto;
+}
+
+/* ─── Glow ring ─────────────────────────────────────────────────── */
+.glow-ring {
+  position: relative;
+}
+.glow-ring::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+.glow-ring:hover::before { opacity: 0.5; }
+
+/* ─── Mockup window shadow ──────────────────────────────────────── */
+.window-shadow {
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.06),
+    0 40px 80px rgba(0,0,0,0.7),
+    0 20px 40px rgba(0,0,0,0.5);
+}
