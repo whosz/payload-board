@@ -7,7 +7,7 @@ import tailwindcss from '@tailwindcss/vite';
 // https://astro.build/config
 export default defineConfig({
   site: 'https://whosz.github.io',
-  base: '/payload-board',
+  base: '/payload-board/',
   integrations: [react()],
 
   vite: {
