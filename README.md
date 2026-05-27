@@ -1,5 +1,7 @@
 # Payload Board
 
+![Payload Board](docs/assets/screenshot.png)
+
 A desktop app for managing sets of applications (profiles) — launch them in sequence, monitor their status in real time, and close everything with one click. Built for the "dark cockpit" aesthetic: functional data, no fluff.
 
 Inspired by the pain of managing a dozen simracing apps that all had to be started in the right order before a session and closed one by one afterwards. Payload Board automates that.
