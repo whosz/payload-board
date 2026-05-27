@@ -5,6 +5,11 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.5.4] — 2026-05-27
+
+### Changed
+- **Theme colors** — updated purple and grey theme color tokens to match Figma designs; panels and tiles are darker and more muted (`bg-surface`, `bg-elevated`, `tile-gradient`, `note-bg`, button hovers)
+
 ## [0.5.3] — 2026-05-24
 
 ### Added
