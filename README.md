@@ -9,7 +9,7 @@ Inspired by the pain of managing a dozen simracing apps that all had to be start
 ## What it does
 
 1. You create a named **profile** (e.g. `Racing`, `Work`, `Stream`).
-2. You add **apps** to the profile — each with a launch order and optional delay.
+2. You add **apps** to the profile — each with a launch order and optional CLI arguments.
 3. You click **RUN SEQUENCE** → apps start one by one in your configured order.
 4. The dashboard shows a live tile per app with its current status.
 5. You can stop / restart / force-kill individual apps from their tile.
@@ -18,24 +18,51 @@ Inspired by the pain of managing a dozen simracing apps that all had to be start
 
 ## Features
 
+**Profiles & apps**
 - Named profiles with emoji icon and description
-- Multiple app entries per profile with launch order, delay (ms), and CLI arguments
-- Per-process controls: start, stop, restart, open folder
-- Status LED per tile: live (cyan glow) / stopped / crashed (red pulse with error message)
+- Multiple app entries per profile with launch order and CLI arguments
+- Per-app process priority: Low / Normal / High
+- Per-app "Launch minimised" toggle (Windows only)
 - Tile and list view — switch between grid of cards or compact rows
+- A→Z / Z→A sort
+- Confirm dialogs before removing apps or deleting profiles
+
+**Session management**
+- **RUN SEQUENCE** disabled while a session is active
+- Detect already-running processes — adopts existing process instead of double-launching
+- Clear all errors at once — button appears when any app has crashed
+- Per-process controls: start, stop, restart, open folder
+
+**Status & monitoring**
+- Status LED per tile: live (cyan glow) / stopped / crashed (red pulse + error message)
+- Status bar: total / alive / crashed counts
+
+**System tray**
+- Tray icon always present with Show / Quit menu; left-click to restore
+- **Start minimised to tray** — hide main window on launch (toggle in Settings)
+- **Minimise on close** — close button hides to tray instead of quitting (toggle in Settings)
+- **Launch on startup** — register as a Windows / macOS / Linux autostart entry (toggle in Settings)
+
+**Artwork & appearance**
 - SteamGridDB integration — search and assign game artwork as tile backgrounds; API key in Settings
 - Local background image per app — pick any image file as a tile background
-- Detect already-running processes — adopts existing process instead of double-launching
-- Browse installed apps (Windows registry; macOS and Linux via `.app` / `.desktop` files)
-- Custom icon per app (image file picker)
-- A→Z / Z→A sort, or manual order
-- Confirm dialogs before removing apps or deleting profiles
-- Settings panel: theme selector (Purple / Grey), SteamGridDB API key, config directory, reset all data
+- Auto-fetch tile art when adding an app by name (if SteamGridDB API key is set)
+- Theme selector: Purple / Grey (Settings → Appearance)
+
+**Sidebar**
+- Collapsible sidebar — chevron toggle in the Profiles header
+
+**App discovery**
+- Browse installed apps: Windows (registry), macOS (`/Applications`), Linux (`.desktop` files)
+
+**Storage**
 - Persistent profiles (JSON, stored in platform app data dir)
+- Custom config directory — change or reset in Settings
+- Reset all data option in Settings
 
 ## Installation
 
-### Windows (ready to download)
+### Windows
 
 Download the latest release from [GitHub Releases](https://github.com/whosz/payload-board/releases):
 
@@ -48,11 +75,13 @@ Download the latest release from [GitHub Releases](https://github.com/whosz/payl
 **Requirements:** Windows 10 or 11 (64-bit).  
 Windows may show a SmartScreen warning on first run — click "More info → Run anyway".
 
-### macOS / Linux (build from source)
+### macOS / Linux
 
-Pre-built binaries are not provided for macOS or Linux. You need to build the app yourself.
+Pre-built `.dmg` (macOS) and `.deb` / `.AppImage` (Linux) are available on the [Releases](https://github.com/whosz/payload-board/releases) page.
 
-**Prerequisites — all platforms:**
+Or build from source:
+
+**Prerequisites:**
 - [Node.js](https://nodejs.org) v18+
 - [Rust](https://rustup.rs) stable toolchain
 
@@ -76,10 +105,11 @@ First Rust compile takes 5–10 minutes. Subsequent builds are fast.
 ## Usage
 
 1. **Create a profile** — click `+ NEW PROFILE` in the sidebar, enter a name and optionally an emoji and description.
-2. **Add apps** — select the profile, click `Add App`, browse to the executable or pick from the installed apps list. Set the launch delay and any CLI arguments if needed.
-3. **Configure order** — apps launch in the order they appear; sort A→Z or drag to reorder.
+2. **Add apps** — select the profile, click `Add App`, browse to the executable or pick from the installed apps list. Set any CLI arguments and process priority if needed.
+3. **Configure order** — apps launch in the order they appear; sort A→Z or rearrange manually.
 4. **Run** — click `RUN SEQUENCE`. Watch the tiles turn live. The button is disabled while a session is active.
 5. **End session** — click `END SESSION`. All profile apps receive a graceful close signal; any that don't exit within 5 s are force-killed.
+6. **Tray** — the app lives in the system tray. Close the window to minimise it (if "Minimise on close" is enabled), or use Quit from the tray menu to exit fully.
 
 ## FAQ
 
@@ -87,7 +117,7 @@ First Rust compile takes 5–10 minutes. Subsequent builds are fast.
 Payload Board monitors and controls other processes. Using Electron would add ~150 MB RAM and meaningful CPU overhead to the very app that manages resource usage. Tauri's Rust backend uses ~5 MB RAM.
 
 **Does it work on Linux / macOS?**
-Yes, but you need to build it yourself — see the Installation section above. The "Browse installed apps" feature is Windows-only (uses the Windows registry).
+Yes — pre-built binaries are available on the Releases page. The "Browse installed apps" feature works on all three platforms (registry on Windows, `/Applications` on macOS, `.desktop` files on Linux).
 
 **Can I import / export profiles?**
 Not yet. Profiles are stored as plain JSON in your app data directory:
@@ -95,8 +125,10 @@ Not yet. Profiles are stored as plain JSON in your app data directory:
 - macOS: `~/Library/Application Support/com.payload-board/`
 - Linux: `~/.config/com.payload-board/`
 
+You can also change the storage location in Settings → Storage.
+
 **Steam launches a helper that exits immediately — how does Payload Board track the real process?**
-After `start_app`, Payload Board scans the process list for 10 seconds looking for a process matching the executable's filename. The first match is assigned as the tracked PID.
+After launch, Payload Board scans the process list for 10 seconds looking for a process matching the executable's filename. The first match is assigned as the tracked PID.
 
 ## Tech stack
 
@@ -110,5 +142,5 @@ After `start_app`, Payload Board scans the process list for 10 seconds looking f
 | Styling tokens | CSS custom properties (`--color-*`); Purple / Grey themes via `[data-theme]` |
 | Components | shadcn/ui (heavily customised) |
 | Fonts | Exo (headers/labels) + Inter (body/buttons) |
-| Icons | FontAwesome 6 Free (Solid + Regular) |
+| Icons | FontAwesome 6 Free |
 | Persistence | `tauri-plugin-store` (JSON) |
