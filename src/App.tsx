@@ -19,7 +19,8 @@ import { useProcessStatus } from './hooks/useProcessStatus';
 import { startApp, stopApp, restartApp, openPath, stopAll, scanRunningApps } from './ipc/processes';
 import type { AppEntry } from './types';
 
-type Theme = 'purple' | 'grey';
+type Theme = 'dark' | 'grey' | 'light';
+const THEMES: Theme[] = ['dark', 'grey', 'light'];
 
 interface Toast {
   id: number;
@@ -68,7 +69,7 @@ export default function App() {
   }, []);
 
   const [theme, setTheme] = useState<Theme>(() =>
-    (localStorage.getItem('theme') as Theme) ?? 'purple'
+    THEMES.find(t => t === localStorage.getItem('theme')) ?? 'dark'
   );
 
   useEffect(() => {

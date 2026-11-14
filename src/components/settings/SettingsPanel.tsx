@@ -22,7 +22,7 @@ import {
   setMinimiseOnClose,
 } from '../../ipc/settings';
 
-type Theme = 'purple' | 'grey';
+type Theme = 'dark' | 'grey' | 'light';
 
 interface SettingsPanelProps {
   open: boolean;
@@ -52,8 +52,9 @@ function SectionLabel({ children, crit }: { children: React.ReactNode; crit?: bo
 }
 
 const THEMES: { value: Theme; label: string }[] = [
-  { value: 'purple', label: 'Purple' },
+  { value: 'dark', label: 'Dark' },
   { value: 'grey', label: 'Grey' },
+  { value: 'light', label: 'Light' },
 ];
 
 export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset }: SettingsPanelProps) {
