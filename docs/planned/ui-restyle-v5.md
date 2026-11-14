@@ -1,0 +1,83 @@
+# UI Restyle v5 — "Rig" look on the current layout
+
+**Priority: highest.** Supersedes the Figma-driven approach in `ui-redesign.md` for visuals; keep that file for onboarding and logo work.
+
+## Goal
+
+New look and feel only. **Layout, components and behaviour stay as they are**: sidebar with profiles, header with RUN SEQUENCE / END SESSION, toolbar, tile grid, status bar. No new features.
+
+Mockup (private artifact, v1–v5 side by side): https://claude.ai/artifact/RbuTCyfJ4tbEv2CKCpy2Fh — **v5 is the target.**
+
+## Decisions
+
+| Topic | Decision |
+|-------|----------|
+| Direction | Graphite + one orange accent (Teenage Engineering-style restraint), hardware-instrument details. Deliberately *not* close to the Fanatec app (v3 rejected) and *not* full neon PCB (v1 rejected as over-engineered) |
+| Layout | Unchanged from the current app |
+| Cables, knobs, sequencer, draggable windows | **Out of scope** (v1 only) |
+| Fonts | Big Shoulders 800 (headings), Barlow Semi Condensed 500–700 (UI text), IBM Plex Mono 600 (micro labels) |
+| Per-app colour | Only in the tile background glow and track outline. Never on controls |
+| Status colour | Live `#3ee08f`, crashed `#ff2e4d`, stopped grey. Always paired with a text label |
+| Tile background | SVG track outline per app, glow + grain, no image files. Real artwork (SteamGridDB / local) still overrides it |
+| Replicate | Not needed now. Revisit only for a background texture or sample cover art |
+
+## Tokens (all in `src/globals.css`, no hardcoded values in components)
+
+```
+--color-bg-base      #121211     --color-bg-desk     #0e0e0d
+--color-bg-surface   #161615     --color-bg-elevated #20201e
+--color-border       #2e2d29     --color-border-strong #3b3a36
+--color-text-primary #ecebe6     --color-text-muted  #9a9892
+--color-accent       #ff6a13     --color-status-live #3ee08f
+--color-status-crit  #ff2e4d     --color-error-text  #ff9aa9
+--font-display 'Big Shoulders'   --font-body 'Barlow Semi Condensed'
+--font-mono 'IBM Plex Mono'
+```
+
+Themes: dark (default), grey, light desk. Accent stays the same across themes. Replaces the current purple / grey themes.
+
+## Accessibility (WCAG 2.2 AA) — acceptance criteria
+
+- [ ] Text contrast ≥ 4.5:1 (micro labels `#9a9892` ≈ 6:1; accent with dark text ≈ 6.5:1)
+- [ ] Micro labels ≥ 11 px
+- [ ] Click targets ≥ 24 px (SC 2.5.8); icon buttons 32 px, text buttons 36 px
+- [ ] One button scale: text buttons 36 px tall, square toggles 36×36, tile icon buttons 32 px
+- [ ] Visible focus ring (`:focus-visible`, 2 px accent, 2 px offset) on every control
+- [ ] Status never conveyed by colour alone (LIVE / CRASHED / STOPPED text next to the LED)
+- [ ] Decorative SVG `aria-hidden`; icon-only buttons have `aria-label`
+- [ ] `aria-pressed` on view toggle, `aria-current` on the active profile, real `disabled` on RUN SEQUENCE
+- [ ] `prefers-reduced-motion`: no moving dot, no pulsing LED
+- [ ] The segment strip on tiles is decorative (2 px, 45 % opacity, `aria-hidden`)
+
+## Implementation phases
+
+| # | Scope | Files | Est. |
+|---|-------|-------|------|
+| 1 | Tokens, fonts, themes (dark / grey / light), focus ring, reduced motion. **Bundle fonts locally** with `@fontsource` (Big Shoulders, Barlow Semi Condensed, IBM Plex Mono) instead of the Google Fonts `@import` in `globals.css` — a desktop app must not depend on the network for its typeface | `globals.css`, `index.html`, `App.tsx` (theme state) | 15 min |
+| 2 | Tile: track-outline background, status chip, segment strip, 32 px actions | `AppTile.tsx`, new `TileBackdrop.tsx` | 45 min |
+| 3 | Sidebar, header, toolbar, status bar with segment counters | `ProfileList.tsx`, `App.tsx`, `StatusBar.tsx` | 30 min |
+| 4 | List view, dialogs, inputs, selects, settings | `AppListRow.tsx`, `ui/*`, `editor/*`, `SettingsPanel.tsx` | 45 min |
+| 5 | Visual QA against the mockup + a11y pass (keyboard, contrast) | — | 20 min |
+| | **Total** | | **~2.5 h** + 1–2 feedback rounds |
+
+Work on a branch (`feat/ui-restyle-v5`), one commit per phase, ship as v0.6.0.
+
+## Out of scope / later
+
+- Own title bar, left icon rail (only worth it once there are more screens)
+- Onboarding and logo integration — stay in `ui-redesign.md`
+- Replicate-generated textures
+
+## Inspiration (sources)
+
+- Teenage Engineering — constraints as aesthetic: https://blakecrosley.com/de/guides/design/teenage-engineering
+- Teenage Engineering — design perspective: https://designwanted.com/teenage-engineering-creating-design-perspective
+- LED flag panels and segmented displays in GT cars: https://www.patreon.com/posts/146689166
+- Broadcast-style pit wall cards and panels: https://github.com/AbhinavPabbaraju/f1-pit-wall
+- Telemetry dashboard research for sim racers: https://essay.utwente.nl/essays/95989
+
+## Follow-up work (done in the same session as this plan)
+
+1. Check ponytail is installed → **yes** (`ponytail@ponytail`, enabled).
+2. Optimise skills / agents and split work between models → `docs/planned/model-routing.md`.
+3. Optimise the app code → after the tooling work, before phase 1 above.

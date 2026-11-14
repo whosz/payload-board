@@ -18,7 +18,9 @@ docs/
 │   ├── tray-autostart.md       ← system tray icon + launch at startup
 │   ├── export-import.md        ← export/import profiles as JSON
 │   ├── session-logs.md         ← per-session launch/crash log
-│   └── ui-redesign.md          ← Figma-driven full redesign
+│   ├── ui-restyle-v5.md        ← ★ TOP PRIORITY: new look on the current layout (mockup v5)
+│   ├── model-routing.md        ← which model does what, token rules, security finding
+│   └── ui-redesign.md          ← Figma-driven redesign (onboarding + logo remain)
 ├── in-progress/                ← currently being worked on
 └── done/                       ← shipped
     ├── profiles.md             ← profile CRUD, emoji, edit (v0.4.0)
