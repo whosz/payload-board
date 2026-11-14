@@ -25,7 +25,7 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
     <div style={{
       fontFamily: 'var(--font-body)',
-      fontSize: 10,
+      fontSize: 11,
       fontWeight: 500,
       color: 'var(--color-text-muted)',
       marginBottom: 6,
@@ -63,7 +63,7 @@ export function ProfileEditor({ open, onClose, onSave, initial }: ProfileEditorP
         style={{
           background: 'var(--color-bg-base)',
           border: '1px solid var(--color-border-divider)',
-          borderRadius: 8,
+          borderRadius: 2,
           boxShadow: 'none',
           maxWidth: 480,
           padding: '16px',
@@ -111,15 +111,15 @@ export function ProfileEditor({ open, onClose, onSave, initial }: ProfileEditorP
               width: 40,
               height: 32,
               background: 'var(--color-bg-base)',
-              border: '1px solid rgba(176,169,197,0.3)',
-              borderRadius: 8,
+              border: '1px solid var(--color-border-default)',
+              borderRadius: 2,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: 18,
               flexShrink: 0,
             }}>
-              {emoji || <span style={{ color: 'var(--color-text-muted)', fontSize: 10, fontFamily: 'var(--font-body)' }}>—</span>}
+              {emoji || <span style={{ color: 'var(--color-text-muted)', fontSize: 11, fontFamily: 'var(--font-body)' }}>—</span>}
             </div>
             {emoji && (
               <Button variant="ghost" size="sm" onClick={() => setEmoji('')}>
@@ -132,8 +132,8 @@ export function ProfileEditor({ open, onClose, onSave, initial }: ProfileEditorP
             className="flex flex-wrap gap-0.5 p-2"
             style={{
               background: 'var(--color-bg-base)',
-              border: '1px solid rgba(176,169,197,0.3)',
-              borderRadius: 8,
+              border: '1px solid var(--color-border-default)',
+              borderRadius: 2,
               maxHeight: 98,
               overflowY: 'auto',
             }}
@@ -144,7 +144,7 @@ export function ProfileEditor({ open, onClose, onSave, initial }: ProfileEditorP
                 onClick={() => setEmoji(e)}
                 style={{
                   background: emoji === e ? 'var(--color-bg-elevated)' : 'none',
-                  border: emoji === e ? '1px solid rgba(92,89,241,0.6)' : '1px solid transparent',
+                  border: emoji === e ? '1px solid var(--color-accent)' : '1px solid transparent',
                   cursor: 'pointer',
                   fontSize: 16,
                   padding: '2px 4px',

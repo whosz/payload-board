@@ -21,6 +21,7 @@
   --color-bg-surface:     #161615;
   --color-bg-elevated:    #20201e;
   --color-bg-hover:       #262624;
+  --color-desk-vignette:  rgba(0,0,0,0.35);
 
   --color-border-divider: #2e2d29;
   --color-border-subtle:  #2e2d29;
@@ -140,6 +141,8 @@
   --color-text-secondary: #d2d0c9;
   --color-text-muted:     #aeaca5;
   --color-text-disabled:  #85837c;
+  --color-status-crit:    #ff5a72;
+  --color-btn-destructive-border: rgba(255,90,114,0.7);
   --color-tile-gradient:  #343432;
   --color-note-bg:        #2a2a28;
   --color-btn-default-hover: #3b3b38;
@@ -150,6 +153,7 @@
 }
 /* ── Light theme ── */
 [data-theme="light"] {
+  --color-desk-vignette:  rgba(0,0,0,0.06);
   --color-bg-base:        #e9e8e3;
   --color-bg-desk:        #d8d7d1;
   --color-bg-surface:     #dddcd6;
@@ -162,10 +166,10 @@
   --color-text-secondary: #34332f;
   --color-text-muted:     #55534e;
   --color-text-disabled:  #77756e;
-  --color-accent:         #b03f00;
+  --color-accent:         #a33800;
   --color-accent-fg:      #ffffff;
-  --color-status-live:    #0a7f45;
-  --color-status-crit:    #c4122f;
+  --color-status-live:    #086a3a;
+  --color-status-crit:    #b00f29;
   --color-error-bg:       rgba(196,18,47,0.08);
   --color-error-text:     #a30f27;
   --color-tile-gradient:  #f4f3ef;

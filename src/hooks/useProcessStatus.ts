@@ -10,6 +10,8 @@ export interface ProcessInfo {
   error_message?: string;
 }
 
+export const STATUS_LABEL: Record<ProcessStatus, string> = { running: 'Live', stopping: 'Stopping', stopped: 'Stopped', crashed: 'Crashed' };
+
 type StatusMap = Record<string, ProcessInfo>;
 
 export function useProcessStatus() {

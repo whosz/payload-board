@@ -71,7 +71,7 @@ export function SteamGridPicker({ open, onClose, initialQuery, onSelect }: Steam
 
   const labelStyle: React.CSSProperties = {
     color: 'var(--color-text-muted)',
-    fontSize: 10,
+    fontSize: 11,
     fontFamily: 'monospace',
     textTransform: 'uppercase',
     letterSpacing: '0.06em',

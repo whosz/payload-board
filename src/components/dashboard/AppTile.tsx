@@ -4,7 +4,7 @@ import { AppControls } from './AppControls';
 import { TileBackdrop } from './TileBackdrop';
 import { appColor } from '../../lib/appColor';
 import type { AppEntry } from '../../types';
-import type { ProcessInfo } from '../../hooks/useProcessStatus';
+import { STATUS_LABEL, type ProcessInfo } from '../../hooks/useProcessStatus';
 
 interface AppTileProps {
   app: AppEntry;
@@ -16,8 +16,6 @@ interface AppTileProps {
   onEdit: (app: AppEntry) => void;
   onRemove: (id: string) => void;
 }
-
-const STATUS_LABEL = { running: 'Live', stopping: 'Stopping', stopped: 'Stopped', crashed: 'Crashed' } as const;
 
 const monoLabel = {
   fontFamily: 'var(--font-mono)',
@@ -97,7 +95,7 @@ export function AppTile(props: AppTileProps) {
         {isCrashed && (
           <div style={{
             ...monoLabel, fontSize: 11, position: 'absolute', top: 36, left: 12, right: 12, padding: '5px 8px',
-            color: 'var(--color-error-text)', background: 'var(--color-error-bg)', border: '1px solid var(--color-status-crit)',
+            color: 'var(--color-error-text)', background: 'color-mix(in srgb, var(--color-bg-surface) 88%, var(--color-status-crit) 12%)', border: '1px solid var(--color-status-crit)',
             overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
           }} title={status.error_message}>
             {status.error_message ?? 'Process crashed'}

@@ -37,7 +37,7 @@ function SectionLabel({ children, crit }: { children: React.ReactNode; crit?: bo
     <div
       style={{
         fontFamily: 'var(--font-display)',
-        fontSize: 12,
+        fontSize: 14,
         fontWeight: 700,
         letterSpacing: '1px',
         color: crit ? 'var(--color-status-crit)' : 'var(--color-text-secondary)',
@@ -133,7 +133,7 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset }: 
         style={{
           background: 'var(--color-bg-base)',
           border: '1px solid var(--color-border-divider)',
-          borderRadius: 8,
+          borderRadius: 2,
           boxShadow: 'none',
           maxWidth: 480,
           padding: '16px',
@@ -160,7 +160,7 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset }: 
           {/* APPEARANCE */}
           <section>
             <SectionLabel>Appearance</SectionLabel>
-            <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--color-text-secondary)', marginBottom: 8 }}>
+            <div style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--color-text-secondary)', marginBottom: 8 }}>
               Theme
             </div>
             <div className="flex gap-1.5" style={{ marginBottom: 16 }}>
@@ -178,19 +178,19 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset }: 
             <div className="flex flex-col gap-3">
               <div className="flex items-center gap-3">
                 <Switch checked={autostart} onCheckedChange={v => { setAutostartState(v); setAutostart(v).catch(() => setAutostartState(!v)); }} />
-                <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--color-text-secondary)' }}>
+                <span style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--color-text-secondary)' }}>
                   Launch on startup
                 </span>
               </div>
               <div className="flex items-center gap-3">
                 <Switch checked={startMinimised} onCheckedChange={v => { setStartMinimisedState(v); setStartMinimisedToTray(v).catch(() => setStartMinimisedState(!v)); }} />
-                <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--color-text-secondary)' }}>
+                <span style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--color-text-secondary)' }}>
                   Start minimised to tray
                 </span>
               </div>
               <div className="flex items-center gap-3">
                 <Switch checked={minimiseOnClose} onCheckedChange={v => { setMinimiseOnCloseState(v); setMinimiseOnClose(v).catch(() => setMinimiseOnCloseState(!v)); }} />
-                <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--color-text-secondary)' }}>
+                <span style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--color-text-secondary)' }}>
                   Minimise on close
                 </span>
               </div>
@@ -200,7 +200,7 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset }: 
           {/* STEAMGRIDDB */}
           <section>
             <SectionLabel>SteamGridDB</SectionLabel>
-            <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, fontWeight: 400, lineHeight: '16px', letterSpacing: '0.25px', color: 'var(--color-text-primary)', marginBottom: 8 }}>
+            <div style={{ fontFamily: 'var(--font-body)', fontSize: 14, fontWeight: 400, lineHeight: '16px', letterSpacing: '0.25px', color: 'var(--color-text-primary)', marginBottom: 8 }}>
               API key from steamgriddb.com/api — used to fetch game background artwork for tiles.
             </div>
             <div className="flex gap-2">
@@ -233,7 +233,7 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset }: 
                 color: 'var(--color-text-muted)',
                 background: 'var(--color-bg-elevated)',
                 border: '1px solid var(--color-border-subtle)',
-                borderRadius: 8,
+                borderRadius: 2,
                 padding: '8px 10px',
                 lineHeight: 1.5,
                 wordBreak: 'break-all',
@@ -265,9 +265,9 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset }: 
             ) : (
               <div
                 className="flex flex-col gap-3 p-3"
-                style={{ border: '1px solid var(--color-status-crit)', borderRadius: 8, background: 'var(--color-bg-elevated)' }}
+                style={{ border: '1px solid var(--color-status-crit)', borderRadius: 2, background: 'var(--color-bg-elevated)' }}
               >
-                <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, fontWeight: 400, lineHeight: '16px', letterSpacing: '0.25px', color: 'var(--color-text-primary)' }}>
+                <span style={{ fontFamily: 'var(--font-body)', fontSize: 14, fontWeight: 400, lineHeight: '16px', letterSpacing: '0.25px', color: 'var(--color-text-primary)' }}>
                   This will permanently delete all profiles and apps. Are you sure?
                 </span>
                 <div className="flex gap-2">
@@ -288,10 +288,10 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset }: 
             <div className="flex items-center gap-4">
               <img src="/logo.svg" alt="Payload Board" style={{ width: 48, height: 48, flexShrink: 0 }} />
               <div className="flex flex-col gap-1">
-                <span style={{ fontFamily: 'var(--font-display)', fontSize: 12, fontWeight: 700, letterSpacing: '1px', color: 'var(--color-text-secondary)' }}>
+                <span style={{ fontFamily: 'var(--font-display)', fontSize: 14, fontWeight: 700, letterSpacing: '1px', color: 'var(--color-text-secondary)' }}>
                   Payload Board v{version}
                 </span>
-                <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, fontWeight: 400, lineHeight: '16px', letterSpacing: '0.25px', color: 'var(--color-text-primary)' }}>
+                <span style={{ fontFamily: 'var(--font-body)', fontSize: 14, fontWeight: 400, lineHeight: '16px', letterSpacing: '0.25px', color: 'var(--color-text-primary)' }}>
                   Made by Matt · github.com/whosz/payload-board
                 </span>
               </div>

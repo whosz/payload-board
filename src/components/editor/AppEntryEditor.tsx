@@ -100,7 +100,7 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
           style={{
             background: 'var(--color-bg-base)',
             border: '1px solid var(--color-border-divider)',
-            borderRadius: 8,
+            borderRadius: 2,
             boxShadow: 'none',
             maxWidth: 480,
             padding: '16px',
@@ -138,7 +138,7 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
             />
 
             <div>
-              <div style={{ fontFamily: 'var(--font-body)', fontSize: 10, fontWeight: 500, color: 'var(--color-text-muted)', marginBottom: 4 }}>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginBottom: 6 }}>
                 Executable
               </div>
               <div className="flex gap-2">
@@ -147,8 +147,8 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
                     value={form.executable_path}
                     onChange={e => setForm(f => ({ ...f, executable_path: e.target.value }))}
                     placeholder="/path/to/executable"
-                    className="h-7 w-full min-w-0 rounded-lg border px-2 py-1 outline-none transition-colors bg-[var(--color-bg-base)] border-[rgba(176,169,198,0.3)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:border-[rgba(93,90,242,1)] disabled:pointer-events-none disabled:opacity-50"
-                    style={{ fontFamily: 'var(--font-body)', fontSize: 12, fontWeight: 400 }}
+                    className="h-9 w-full min-w-0 rounded-[2px] border px-2 py-1 outline-none transition-colors bg-[var(--color-bg-base)] border-[var(--color-border-default)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-accent)] disabled:pointer-events-none disabled:opacity-50"
+                    style={{ fontFamily: 'var(--font-body)', fontSize: 14, fontWeight: 400 }}
                   />
                 </div>
                 <Button variant="default" size="default" onClick={handleBrowse} disabled={picking}>
@@ -166,7 +166,7 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
                   checked={!!form.launch_minimised}
                   onCheckedChange={v => setForm(f => ({ ...f, launch_minimised: v || undefined }))}
                 />
-                <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--color-text-secondary)' }}>
+                <span style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--color-text-secondary)' }}>
                   Launch minimised
                 </span>
               </div>
@@ -177,12 +177,12 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
               placeholder="--no-update --windowed"
               value={argsStr}
               onChange={e => setArgsStr(e.target.value)}
-              style={{ fontFamily: 'var(--font-body)', fontSize: 12 }}
+              style={{ fontFamily: 'var(--font-body)', fontSize: 14 }}
             />
 
             {/* Process priority */}
             <div>
-              <div style={{ fontFamily: 'var(--font-body)', fontSize: 10, fontWeight: 500, color: 'var(--color-text-muted)', marginBottom: 4 }}>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginBottom: 6 }}>
                 Process Priority
               </div>
               <div className="flex gap-1.5">
@@ -201,7 +201,7 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
 
             {/* Background art */}
             <div>
-              <div style={{ fontFamily: 'var(--font-body)', fontSize: 10, fontWeight: 500, color: 'var(--color-text-muted)', marginBottom: 4 }}>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginBottom: 6 }}>
                 Background art
               </div>
               <div className="flex items-center gap-2">
@@ -233,7 +233,7 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
                       flexShrink: 0,
                     }}
                   >
-                    <span style={{ color: 'var(--color-text-muted)', fontSize: 9, fontFamily: 'var(--font-body)' }}>
+                    <span style={{ color: 'var(--color-text-muted)', fontSize: 11, fontFamily: 'var(--font-body)' }}>
                       {bgAutoLoading ? '...' : 'none'}
                     </span>
                   </div>

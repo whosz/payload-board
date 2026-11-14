@@ -108,7 +108,7 @@ export function InstalledAppsPicker({ open, onClose, onSelect }: InstalledAppsPi
                 {app.exe_path && (
                   <span
                     className="font-mono truncate"
-                    style={{ color: 'var(--color-text-muted)', fontSize: 10, marginTop: 1 }}
+                    style={{ color: 'var(--color-text-muted)', fontSize: 11, marginTop: 1 }}
                   >
                     {app.exe_path}
                   </span>

@@ -25,7 +25,6 @@ export function Switch({ checked, onCheckedChange, disabled }: SwitchProps) {
         opacity: disabled ? 0.4 : 1,
         transition: 'background 0.18s ease, border-color 0.18s ease',
         flexShrink: 0,
-        outline: 'none',
       }}
     >
       <SwitchPrimitive.Thumb
@@ -33,10 +32,9 @@ export function Switch({ checked, onCheckedChange, disabled }: SwitchProps) {
           display: 'block',
           width: 14,
           height: 14,
-          borderRadius: '50%',
-          background: checked ? 'var(--color-bg-base)' : 'var(--color-text-secondary)',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
-          transform: checked ? 'translateX(15px)' : 'translateX(1px)',
+          borderRadius: 1,
+          background: checked ? 'var(--color-accent-fg)' : 'var(--color-text-secondary)',
+          transform: checked ? 'translateX(21px)' : 'translateX(3px)',
           transition: 'transform 0.18s ease, background 0.18s ease',
           pointerEvents: 'none',
         }}

@@ -7,7 +7,7 @@ import {
   faTriangleExclamation,
 } from '../icons';
 import type { AppEntry } from '../../types';
-import type { ProcessInfo } from '../../hooks/useProcessStatus';
+import { STATUS_LABEL, type ProcessInfo } from '../../hooks/useProcessStatus';
 
 interface AppListRowProps {
   app: AppEntry;
@@ -31,7 +31,7 @@ export function AppListRow({ app, status, onStart, onStop, onRestart, onOpenPath
       style={{
         padding: '8px 16px',
         gap: 16,
-        height: 52,
+        minHeight: 52,
         borderRadius: 2,
         background: hovered ? 'var(--color-row-bg-hover)' : 'var(--color-row-bg)',
         border: `1px solid ${isCrashed ? 'var(--color-status-crit)' : 'var(--color-border-divider)'}`,
@@ -68,11 +68,11 @@ export function AppListRow({ app, status, onStart, onStop, onRestart, onOpenPath
       <div className="flex flex-col justify-center min-w-0 flex-1" style={{ gap: 2 }}>
         <div
           style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: 12,
+            fontFamily: 'var(--font-body)',
+            fontSize: 15,
             fontWeight: 700,
             color: 'var(--color-text-primary)',
-            letterSpacing: '1px',
+            letterSpacing: '0.02em',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
@@ -98,6 +98,13 @@ export function AppListRow({ app, status, onStart, onStop, onRestart, onOpenPath
           </div>
         )}
       </div>
+
+      <span style={{
+        flexShrink: 0, width: 72, fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase',
+        color: isCrashed ? 'var(--color-error-text)' : isRunning ? 'var(--color-text-primary)' : 'var(--color-text-muted)',
+      }}>
+        {STATUS_LABEL[status.status]}
+      </span>
 
       <div className="flex-shrink-0" style={{ width: 240 }}>
         <AppControls app={app} status={status} onStart={onStart} onStop={onStop} onRestart={onRestart} onOpenPath={onOpenPath} onEdit={onEdit} onRemove={onRemove} />

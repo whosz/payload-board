@@ -408,7 +408,7 @@ export default function App() {
           style={{
             margin: '16px 24px 0',
             padding: 16,
-            background: 'radial-gradient(ellipse at 50% 40%, transparent 50%, rgba(0,0,0,0.35) 100%), radial-gradient(var(--color-border-divider) 1px, transparent 1.3px), var(--color-bg-desk)',
+            background: 'radial-gradient(ellipse at 50% 40%, transparent 50%, var(--color-desk-vignette) 100%), radial-gradient(var(--color-border-divider) 1px, transparent 1.3px), var(--color-bg-desk)',
             backgroundSize: '100% 100%, 16px 16px, auto',
             border: '1px solid var(--color-border-divider)',
             borderRadius: 2,
@@ -461,7 +461,7 @@ export default function App() {
               style={{
                 background: 'var(--color-bg-elevated)',
                 border: '1px solid var(--color-status-crit)',
-                borderRadius: 8,
+                borderRadius: 2,
                 padding: '10px 14px',
                 display: 'flex',
                 alignItems: 'flex-start',
@@ -485,8 +485,8 @@ export default function App() {
           showCloseButton={false}
           style={{
             background: 'var(--color-bg-base)',
-            border: '1px solid rgba(251,80,96,0.6)',
-            borderRadius: 8,
+            border: '1px solid var(--color-btn-destructive-border)',
+            borderRadius: 2,
             boxShadow: 'none',
             maxWidth: 295,
             padding: 16,
@@ -522,8 +522,8 @@ export default function App() {
           showCloseButton={false}
           style={{
             background: 'var(--color-bg-base)',
-            border: '1px solid rgba(251,80,96,0.6)',
-            borderRadius: 8,
+            border: '1px solid var(--color-btn-destructive-border)',
+            borderRadius: 2,
             boxShadow: 'none',
             maxWidth: 295,
             padding: 16,

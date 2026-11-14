@@ -9,17 +9,17 @@ function Input({ className, type, style, ...props }: React.ComponentProps<"input
       type={type}
       data-slot="input"
       className={cn(
-        "h-7 w-full min-w-0 rounded-lg border px-2 py-1 outline-none transition-colors",
-        "bg-[var(--color-bg-base)] border-[rgba(176,169,198,0.3)]",
+        "h-9 w-full min-w-0 rounded-[2px] border px-2 py-1 outline-none transition-colors",
+        "bg-[var(--color-bg-base)] border-[var(--color-border-default)]",
         "text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)]",
-        "focus:border-[rgba(93,90,242,1)]",
+        "focus:border-[var(--color-accent)]",
         "disabled:pointer-events-none disabled:opacity-50",
         className
       )}
       style={{
         fontFamily: 'var(--font-body)',
-        fontSize: 12,
-        fontWeight: 400,
+        fontSize: 14,
+        fontWeight: 500,
         ...style,
       }}
       {...props}
@@ -31,11 +31,13 @@ function InputField({ label, ...props }: React.ComponentProps<"input"> & { label
   return (
     <div>
       <div style={{
-        fontFamily: 'var(--font-body)',
-        fontSize: 10,
-        fontWeight: 500,
+        fontFamily: 'var(--font-mono)',
+        fontSize: 11,
+        fontWeight: 600,
+        letterSpacing: '0.12em',
+        textTransform: 'uppercase',
         color: 'var(--color-text-muted)',
-        marginBottom: 4,
+        marginBottom: 6,
       }}>
         {label}
       </div>
