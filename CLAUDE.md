@@ -12,7 +12,7 @@ Tauri 2 (Rust) + React 19 + Tailwind 4 + shadcn/base-ui. Windows-first desktop a
 - Follow ponytail (already enabled): smallest change that works, reuse existing components/tokens.
 - Colours, fonts, radii live in `src/globals.css` tokens only — no hardcoded values in components.
 - Changing the profile JSON shape needs a migration in Rust (`src-tauri`) — ask first.
-- Docs: plans in `docs/planned/`, move to `docs/in-progress/` then `docs/done/`. Current top priority: `docs/planned/ui-restyle-v5.md`.
+- Docs: plans in `docs/planned/`, move to `docs/in-progress/` then `docs/done/`. Current top priority: `docs/in-progress/ui-restyle-v5.md`.
 
 ## Models (see `docs/planned/model-routing.md`)
 

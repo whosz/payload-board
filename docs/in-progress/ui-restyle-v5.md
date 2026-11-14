@@ -1,6 +1,6 @@
 # UI Restyle v5 — "Rig" look on the current layout
 
-**Priority: highest.** Supersedes the Figma-driven approach in `ui-redesign.md` for visuals; keep that file for onboarding and logo work.
+**Status: in progress on branch `feat/ui-restyle-v5` (phases 1–4 implemented, phase 5 = manual QA in the real Tauri app).** Priority: highest. Supersedes the Figma-driven approach in `ui-redesign.md` for visuals; keep that file for onboarding and logo work.
 
 ## Goal
 
@@ -38,16 +38,16 @@ Themes: dark (default), grey, light desk. Accent stays the same across themes. R
 
 ## Accessibility (WCAG 2.2 AA) — acceptance criteria
 
-- [ ] Text contrast ≥ 4.5:1 (micro labels `#9a9892` ≈ 6:1; accent with dark text ≈ 6.5:1)
-- [ ] Micro labels ≥ 11 px
-- [ ] Click targets ≥ 24 px (SC 2.5.8); icon buttons 32 px, text buttons 36 px
-- [ ] One button scale: text buttons 36 px tall, square toggles 36×36, tile icon buttons 32 px
-- [ ] Visible focus ring (`:focus-visible`, 2 px accent, 2 px offset) on every control
-- [ ] Status never conveyed by colour alone (LIVE / CRASHED / STOPPED text next to the LED)
-- [ ] Decorative SVG `aria-hidden`; icon-only buttons have `aria-label`
-- [ ] `aria-pressed` on view toggle, `aria-current` on the active profile, real `disabled` on RUN SEQUENCE
-- [ ] `prefers-reduced-motion`: no moving dot, no pulsing LED
-- [ ] The segment strip on tiles is decorative (2 px, 45 % opacity, `aria-hidden`)
+- [x] Text contrast ≥ 4.5:1 (checked for all three themes; grey `crit` and light `accent`/`live`/`crit` were adjusted to pass)
+- [x] Micro labels ≥ 11 px
+- [x] Click targets ≥ 24 px (SC 2.5.8); icon buttons 32 px, text buttons 36 px
+- [x] One button scale: text buttons 36 px tall, square toggles 36×36, tile icon buttons 32 px
+- [x] Visible focus ring (`:focus-visible`, 2 px accent, 2 px offset) on every control
+- [x] Status never conveyed by colour alone (LIVE / CRASHED / STOPPED text next to the LED)
+- [x] Decorative SVG `aria-hidden`; icon-only buttons have `aria-label`
+- [x] `aria-pressed` on view toggle, `aria-current` on the active profile, real `disabled` on RUN SEQUENCE
+- [x] `prefers-reduced-motion`: no moving dot, no pulsing LED
+- [x] The segment strip on tiles is decorative (2 px, 45 % opacity, `aria-hidden`)
 
 ## Implementation phases
 
@@ -81,3 +81,12 @@ Work on a branch (`feat/ui-restyle-v5`), one commit per phase, ship as v0.6.0.
 1. Check ponytail is installed → **yes** (`ponytail@ponytail`, enabled).
 2. Optimise skills / agents and split work between models → `docs/planned/model-routing.md`.
 3. Optimise the app code → after the tooling work, before phase 1 above.
+
+## Implementation notes (phases 1–4 done)
+
+- Token names from v0.5 were kept (values changed), plus `--color-accent`, `--color-accent-fg`, `--color-bg-desk`, `--color-desk-vignette`. Three undefined tokens that components already used (`border-default`, `bg-hover`, `accent-laser`) are now defined.
+- Themes are `dark` / `grey` / `light`; any stored `purple` value falls back to `dark`.
+- New: `lib/appColor.ts` (stable per-app colour from `order`), `TileBackdrop.tsx` (track outline), `AppControls.tsx` (shared by tile and list row, replaces two duplicated button groups).
+- Fonts are bundled via `@fontsource` (works offline).
+- Verified with a mocked Tauri backend in headless Chromium (dark / grey / light, grid / list, settings and add-app dialogs). **Not yet verified in the real Tauri window** — do that before merging (phase 5): keyboard-only pass, Windows font rendering, SteamGridDB artwork over the new gradient.
+- Not restyled yet: `DesignReference.tsx` (dev-only); `SteamGridPicker` / `InstalledAppsPicker` only got the shared radius/colour replacements.
