@@ -18,6 +18,7 @@ Tauri 2 (Rust) + React 19 + Tailwind 4 + shadcn/base-ui. Windows-first desktop a
 
 - Search / exploration: Haiku (`Explore` agent). Implementation: Sonnet. Opus only for architecture or data-format decisions.
 - Don't spawn agents for work 1–3 tool calls can do. Read line ranges, not whole files.
+- Agent roles, file ownership and phase gates for the v6 work: `docs/in-progress/agent-workflow.md`.
 
 ## Accessibility baseline
 

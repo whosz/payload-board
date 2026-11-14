@@ -64,6 +64,7 @@ Work on a branch (`feat/ui-restyle-v5`), one commit per phase, ship as v0.6.0.
 
 ## Out of scope / later
 
+- **Next: [ui-big-picture-palette.md](ui-big-picture-palette.md)** — Big Picture layout + Command Palette on top of this restyle.
 - Own title bar, left icon rail (only worth it once there are more screens)
 - Onboarding and logo integration — stay in `ui-redesign.md`
 - Replicate-generated textures

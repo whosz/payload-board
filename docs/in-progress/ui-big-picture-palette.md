@@ -1,0 +1,139 @@
+# Big Picture layout + Command Palette (v6)
+
+**Status:** planned (all decisions D1–D6 and 4b confirmed 2026-11-14), starts after v5 is QA'd in the real Tauri window. Execution plan for agents: [agent-workflow.md](agent-workflow.md). Stack on `feat/ui-restyle-v5` (or on `main` once v5 is merged).
+**Builds on:** [ui-restyle-v5.md](ui-restyle-v5.md) (tokens, themes, tiles, controls).
+
+## Goal
+
+Turn the dashboard into a "cockpit" screen that is readable from ~2 m and fully drivable from the keyboard, **without changing what the app does**: profiles, apps, sequence, process control stay as they are.
+
+- **D — Big Picture** becomes the default view: big profile hero with one contextual primary action, tile carousel underneath.
+- **C — Command Palette** is added on top: `Ctrl+K`, later a global shortcut that works over a fullscreen game.
+- B (Deck pad) and A (Timeline) are **not** in scope; A survives as a small launch-order strip in the hero.
+
+Concepts (static mockups, dark theme): ![all concepts](../assets/concepts/sheet.png)
+[D — Big Picture](../assets/concepts/D-big-picture.png) · [C — Command palette](../assets/concepts/C-command-palette.png)
+
+## Why this direction (research, directional only — mostly reviews and blogs, no user studies)
+
+| Pattern | Source type | What we take |
+|---------|-------------|--------------|
+| Fullscreen, controller/distance-first mode | Playnite Fullscreen, Steam Big Picture | Hero + carousel + key hints |
+| Profiles as sets of big uniform keys | Stream Deck reviews | Large targets, one obvious action |
+| Ordered start with dependencies | RaceLab Tools Manager, SimLauncher | Launch-order strip, step progress |
+| Keyboard-first command palette | Raycast / Alfred | One list for actions + apps + profiles |
+| At-a-glance status | Dashboard UX guides (Smashing, Cloudscape) | ≤ 4–6 top-level items, status never by colour alone |
+
+## Constraints found in the repo
+
+- Window: default 1200×800, **min 900×600** (`src-tauri/tauri.conf.json`). Concept D needs ~730 px of height → hero needs a **compact mode** below ~700 px (name 64 px, no stats row spacing, carousel 240 px).
+- `src-tauri` has only the `tray-icon` feature: **no** `global-shortcut` or `notification` plugin yet (Cargo.toml, capabilities/default.json must be extended).
+- `Profile.color_accent` exists in `types.ts` but is unused — free hook for per-profile tint.
+- The running sequence is a JS loop with `setTimeout` in `App.tsx` (`handleRunSequence`): no shared state, no cancel, and a hidden WebView2 window may throttle timers — **risky for global shortcuts**. Decision D1 below moves it to Rust.
+- Changing the profile JSON needs a Rust migration → every new field must be optional with `#[serde(default)]`. **Ask before** phases 5 and 2b.
+- All new tokens go to `:root` / `[data-theme]`, never `@theme inline` (see v5 notes).
+
+## Decisions
+
+| # | Decision | Status |
+|---|----------|--------|
+| D1 | **Sequencer moves to Rust** (`run_sequence`, `cancel_sequence`, events `sequence_progress`). Frontend becomes a thin `useSequence` client. Needed for cancel, hero states, global shortcuts with a hidden window, and later auto-restart. Alternative (keep JS loop) is ~3 h cheaper but fragile | **confirmed** |
+| D2 | **All shortcuts are user-configurable in Settings** (global and in-window), with conflict/invalid detection, reset to default and an "Enable global shortcuts" master switch (they can clash with game binds) | confirmed |
+| D3 | **Shortcuts work globally** (OS-level, window hidden or unfocused). Actions without UI (run / end) work anywhere with a toast as feedback; palette needs the window → 4a shows it, **4b is an overlay over games (confirmed, in core scope)** | confirmed |
+| D4 | Default shortcuts: palette `Ctrl+Shift+Space` (global), run sequence `Ctrl+Alt+R`, end session `Ctrl+Alt+E`, in-window palette `Ctrl+K`. **Global End session needs a second press within 2 s** (toast "Press again to end session") so a stray key can't kill a race | confirmed |
+| D5 | **Hero**: height-based, not scroll-based. ≥ 700 px window height → full hero (~330 px). < 700 px → slim 72 px sticky hero bar (name, live/crashed counts, the same contextual primary button); carousel gets the remaining height. Predictable, no scroll jank, works at the 900×600 minimum | decided |
+| D6 | Palette default in-window shortcut `Ctrl+K`; also `Ctrl+P` alias | confirmed |
+
+## Phases
+
+| # | Scope | Main files | Est. |
+|---|-------|-----------|------|
+| 0 | QA v5 in the real Tauri window (fonts on Windows, SteamGridDB art, keyboard-only pass) — **prerequisite** | — | 30 min |
+| S | **Rust sequencer** + events + thin `useSequence` client (D1) | `src-tauri/src/sequencer.rs`, `commands/`, `hooks/useSequence.ts` | 3 h |
+| 1 | **Big Picture layout**, hero states, keyboard focus | `Hero.tsx`, `AppCarousel.tsx`, `ProfileTabs.tsx`, `App.tsx` | 3.5 h |
+| 2 | Profile accent and cover | `ProfileEditor.tsx`, hero | 1 h |
+| 3 | **Command Palette** (in-window) + action registry | `CommandPalette.tsx`, `lib/actions.ts` | 3 h |
+| 4 | **Shortcuts**: global registration, storage, conflict handling, Settings UI (record key), master switch | `src-tauri/src/shortcuts.rs`, `SettingsPanel.tsx` / `ShortcutsSection.tsx` | 4 h |
+| 4b | **Palette overlay over games** (spike first, see below) | second Tauri window | 3 h |
+| 5 | Crash toast + auto-restart | notification plugin, Rust, settings | 2 h |
+| 6 | Mini mode (400–480 px) | layout variant | 2 h |
+
+**Core (0, S, 1, 2, 3, 4, 4b): ~18 h** plus 1–2 feedback rounds. With 5 and 6: ~22 h. (Revised twice vs. chat: global shortcuts need new plugins and a Rust sequencer.) Wall-clock can be shorter with parallel agents, token cost higher — see [agent-workflow.md](agent-workflow.md).
+
+### Phase S — Rust sequencer
+- [ ] `run_sequence(profile_id)`: iterate enabled apps in order, skip running ones, honour `launch_delay_ms` (tokio sleep), emit `sequence_progress { profile_id, state, step, total, app_id? }`
+- [ ] `cancel_sequence(profile_id)`; one sequence per profile at a time; errors become `process_status_changed` with `crashed` + message (same as today)
+- [ ] Frontend `useSequence`: `idle | launching(step,total) | running | crashed`, `run()`, `cancel()`; `handleRunSequence` in `App.tsx` removed
+- [ ] Behaviour identical to today for a plain run (manual test list)
+- [ ] Wait strategies (`wait_for_window`, `wait_seconds`) stay out of scope here (still in `planned/sequencer.md`)
+
+### Phase 1 — Big Picture layout
+
+- [ ] Consume `useSequence` from phase S (hero states: idle / launching / running / crashed)
+- [ ] `Hero.tsx`: profile name (Big Shoulders), stats (apps / live / crashed), launch-order strip, **one contextual primary button**:
+  - idle → RUN SEQUENCE · launching → step progress + CANCEL · running → END SESSION + session time · crashed → red banner + "Restart <app>"
+- [ ] Hero per D5: full ≥ 700 px height, slim 72 px sticky bar below (no scroll-driven behaviour)
+- [ ] `AppCarousel.tsx`: horizontal strip; auto-switch to wrapped grid when > 7 apps (or window too narrow)
+- [ ] Tile: taller variant (224×300) reusing `TileBackdrop`, `AppControls` appears for the focused tile only
+- [ ] Roving focus (`tabindex`), arrows move, `Enter` start/stop, `E` edit, `R` restart, `Del` remove (with the existing confirm dialog)
+- [ ] Key-hint footer replaces the old status bar counters (counters move into the hero); hints hide when a dialog is open
+- [ ] Keep list view as an alternative (view toggle stays); sidebar becomes top tabs (`ProfileList` → `ProfileTabs`), sidebar collapse logic removed
+- [ ] Reduced motion: no glow pulse, no carousel easing
+
+### Phase 2 — Profile accent and cover
+- [ ] 2a: use `color_accent` (already in type) as hero tint; picker in `ProfileEditor` (5 presets + default accent)
+- [ ] 2b: optional profile cover image (reuse SteamGridDB / local picker). **New optional field → Rust migration, ask first.** Fallback: big first letter
+
+### Phase 3 — Command Palette (in-window)
+- [ ] `CommandPalette.tsx` on the existing base-ui `Dialog`; `Ctrl+K` / `Ctrl+P` to open, `Esc` to close
+- [ ] Sections: Actions (Run sequence, End session, Add app…), Apps (start/stop/restart/open folder/edit), Profiles (`> Work Stuff`), Recent
+- [ ] Filter: simple scored substring match (no new dependency); `↑↓`, `Enter`, `Tab` for details panel
+- [ ] A11y: combobox/listbox pattern (`role`, `aria-activedescendant`, live region for result count); focus returns to the opener
+- [ ] Details panel from existing `AppEntry` fields (path, args, delay, wait, priority)
+- [ ] Also wire the in-app shortcuts from `planned/hotkeys.md` (`Ctrl+R`, `Ctrl+.`, `Ctrl+N`) — same action registry feeds palette and shortcuts
+
+### Phase 4 — Shortcuts (global + configurable)
+- [ ] **Action registry** (`lib/actions.ts`, shared with the palette): `id`, `title`, `scope: 'global' | 'window'`, `defaultAccelerator`, `run(ctx)`. Actions: `palette`, `run_sequence`, `end_session`, `add_app`, `new_profile`, `settings`
+- [ ] Rust `shortcuts.rs` with `tauri-plugin-global-shortcut`: register from stored settings at startup; on trigger emit `shortcut_triggered { action }` (palette: show + focus main window first); `run`/`end` call the Rust sequencer / `stop_all` directly so they work with the window hidden
+- [ ] Commands: `get_shortcuts`, `set_shortcut(action, accelerator)`, `reset_shortcut(action)`, `set_global_shortcuts_enabled(bool)`; errors typed `Invalid | Conflict | Taken` (OS refused registration)
+- [ ] Storage in the existing settings store; accelerator format = Tauri (`CommandOrControl+Shift+Space`)
+- [ ] **Settings → Shortcuts** section: one row per action (label, current keys, scope badge, Change = press-to-record, Reset, Clear), master switch "Enable global shortcuts", inline error for conflicts/invalid, shows which are global vs window-only
+- [ ] Global End session needs a second press within 2 s (D4); toast confirms every global action
+- [ ] In-window shortcuts (`Ctrl+K`, `Ctrl+R`, `Ctrl+.`, `Ctrl+N`, …) read the same registry, so changing them in Settings takes effect immediately; guard against firing while a dialog is open
+- [ ] 4b **spike first (~30 min, Windows, user-run)**: small frameless always-on-top window triggered by the global shortcut over (a) borderless-windowed and (b) exclusive-fullscreen sim. Genuine exclusive fullscreen (DirectX) usually blocks any overlay; if (b) fails, 4b ships for borderless/windowed games only and exclusive-fullscreen users get a toast + the run/end shortcuts (both already work anywhere)
+- [ ] 4b build: palette in its own frameless, always-on-top, non-focus-stealing-where-possible window (`WS_EX_NOACTIVATE`-style behaviour via Tauri window flags), state shared via Tauri events, closes on `Esc` / selection / focus loss, returns focus to the game
+- [ ] Risk to verify early: re-registering after a failed attempt; shortcut still firing after the window is minimised to tray
+
+### Phase 5 — Crash toast + auto-restart (ask before touching data format)
+- [ ] `tauri-plugin-notification`: system toast on crash when the window is hidden
+- [ ] Optional auto-restart: per-app `restart_on_crash` + `max_retries` (optional fields, `#[serde(default)]`), global toggle in Settings; Rust side owns the retry counter and emits the existing `process_status_changed` event
+
+### Phase 6 — Mini mode
+- [ ] Below ~520 px width: status + RUN/END only; reachable by resizing (no separate window yet)
+
+## Acceptance criteria
+
+- [ ] Full flow without a mouse: open palette → start an app → close → run/stop sequence
+- [ ] Works at 900×600 and 1200×800, three themes
+- [ ] Every shortcut can be changed, reset and disabled in Settings; invalid/conflicting keys show a clear message and never leave the app without a working palette shortcut
+- [ ] Global run/end work with the window hidden (tray) and while another app has focus
+- [ ] WCAG 2.2 AA as in v5 (contrast, 24 px targets, visible focus, status not by colour alone, reduced motion) + palette ARIA pattern
+- [ ] No regression in existing process control and sequence behaviour (manual test list below)
+- [ ] `npm run build` clean; verified in the real Tauri window, not only in the browser mock
+
+**Manual test list:** global run / end with window hidden · change a shortcut and use it · conflict with an existing shortcut · run sequence with delays · cancel mid-sequence · stop one app · crash an app (kill process) · END SESSION with confirm · add/edit/remove app · profile switch · settings dialogs · tray minimise/restore.
+
+## Not now
+
+- Gamepad/wheel navigation (Gamepad API works in the webview, but wheel/button-box inputs may clash with the game)
+- Per-tile CPU/RAM sparklines (planned in `planned/monitoring.md`, would add noise to the hero)
+- Sounds
+- Deck pad and full Timeline views (revisit after this ships)
+
+## Open questions
+
+None blocking. Watch item: the 4b spike result decides whether the overlay covers exclusive-fullscreen games or only borderless/windowed ones.
+
+## Suggested branches / commits
+
+`feat/big-picture` from `feat/ui-restyle-v5`; one commit per phase; ship as v0.7.0 (v0.6.0 = restyle).
