@@ -18,7 +18,7 @@ Mockup (private artifact, v1–v5 side by side): https://claude.ai/artifact/RbuT
 | Fonts | Big Shoulders 800 (headings), Barlow Semi Condensed 500–700 (UI text), IBM Plex Mono 600 (micro labels) |
 | Per-app colour | Only in the tile background glow and track outline. Never on controls |
 | Status colour | Live `#3ee08f`, crashed `#ff2e4d`, stopped grey. Always paired with a text label |
-| Tile background | SVG track outline per app, glow + grain, no image files. Real artwork (SteamGridDB / local) still overrides it |
+| Tile background | first letter of the app name, outlined in the app colour (glow + dashed echo + grain), no image files. Real artwork (SteamGridDB / local) still overrides it |
 | Replicate | Not needed now. Revisit only for a background texture or sample cover art |
 
 ## Tokens (all in `src/globals.css`, no hardcoded values in components)
@@ -54,7 +54,7 @@ Themes: dark (default), grey, light desk. Accent stays the same across themes. R
 | # | Scope | Files | Est. |
 |---|-------|-------|------|
 | 1 | Tokens, fonts, themes (dark / grey / light), focus ring, reduced motion. **Bundle fonts locally** with `@fontsource` (Big Shoulders, Barlow Semi Condensed, IBM Plex Mono) instead of the Google Fonts `@import` in `globals.css` — a desktop app must not depend on the network for its typeface | `globals.css`, `index.html`, `App.tsx` (theme state) | 15 min |
-| 2 | Tile: track-outline background, status chip, segment strip, 32 px actions | `AppTile.tsx`, new `TileBackdrop.tsx` | 45 min |
+| 2 | Tile: first-letter background, status chip, segment strip, 32 px actions | `AppTile.tsx`, new `TileBackdrop.tsx` | 45 min |
 | 3 | Sidebar, header, toolbar, status bar with segment counters | `ProfileList.tsx`, `App.tsx`, `StatusBar.tsx` | 30 min |
 | 4 | List view, dialogs, inputs, selects, settings | `AppListRow.tsx`, `ui/*`, `editor/*`, `SettingsPanel.tsx` | 45 min |
 | 5 | Visual QA against the mockup + a11y pass (keyboard, contrast) | — | 20 min |
@@ -86,7 +86,7 @@ Work on a branch (`feat/ui-restyle-v5`), one commit per phase, ship as v0.6.0.
 
 - Token names from v0.5 were kept (values changed), plus `--color-accent`, `--color-accent-fg`, `--color-bg-desk`, `--color-desk-vignette`. Three undefined tokens that components already used (`border-default`, `bg-hover`, `accent-laser`) are now defined.
 - Themes are `dark` / `grey` / `light`; any stored `purple` value falls back to `dark`.
-- New: `lib/appColor.ts` (stable per-app colour from `order`), `TileBackdrop.tsx` (track outline), `AppControls.tsx` (shared by tile and list row, replaces two duplicated button groups).
+- New: `lib/appColor.ts` (stable per-app colour from `order`), `TileBackdrop.tsx` (outlined first letter), `AppControls.tsx` (shared by tile and list row, replaces two duplicated button groups).
 - Fonts are bundled via `@fontsource` (works offline).
 - Verified with a mocked Tauri backend in headless Chromium (dark / grey / light, grid / list, settings and add-app dialogs). **Not yet verified in the real Tauri window** — do that before merging (phase 5): keyboard-only pass, Windows font rendering, SteamGridDB artwork over the new gradient.
 - Not restyled yet: `DesignReference.tsx` (dev-only); `SteamGridPicker` / `InstalledAppsPicker` only got the shared radius/colour replacements.

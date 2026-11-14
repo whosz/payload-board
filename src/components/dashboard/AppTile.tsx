@@ -64,7 +64,7 @@ export function AppTile(props: AppTileProps) {
             style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: hovered ? 1 : 0.6, transition: 'opacity 0.15s ease' }}
           />
         ) : (
-          <TileBackdrop color={color} order={app.order} state={isRunning ? 'live' : isCrashed ? 'crashed' : 'idle'} />
+          <TileBackdrop color={color} name={app.name} state={isRunning ? 'live' : isCrashed ? 'crashed' : 'idle'} />
         )}
         <div aria-hidden="true" style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, transparent 42%, color-mix(in srgb, var(--color-bg-surface) 92%, transparent) 100%)' }} />
 
