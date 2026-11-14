@@ -23,7 +23,6 @@
   --color-bg-surface:     #161615;
   --color-bg-elevated:    #20201e;
   --color-bg-hover:       #262624;
-  --color-desk-vignette:  rgba(0,0,0,0.35);
 
   --color-border-divider: #2e2d29;
   --color-border-subtle:  #2e2d29;
@@ -80,6 +79,17 @@
 }
 
 :root {
+  --color-desk-vignette:  rgba(0,0,0,0.35);
+
+  /* Per-app colours + tile backdrop effects (overridden in the light theme) */
+  --app-color-0: #19e3ff; --app-color-1: #ff4fa3; --app-color-2: #ffc21a; --app-color-3: #9b75ff; --app-color-4: #b6ff1a;
+  --tile-outline: rgba(0,0,0,0.55);
+  --tile-glow: 70%;
+  --tile-letter-fill: 0%;
+  --tile-grain: 0.09;
+  --tile-echo: 0.25;
+  --tile-strip: 0.45;
+
   --background:             var(--color-bg-base);
   --foreground:             var(--color-text-primary);
   --card:                   var(--color-bg-elevated);
@@ -153,40 +163,44 @@
   --background: #232321;
   --input:      #232321;
 }
-/* ── Light theme ── */
+/* ── Light theme: warm paper panels, white tiles, darker app colours, no glow/grain ── */
 [data-theme="light"] {
-  --color-desk-vignette:  rgba(0,0,0,0.06);
-  --color-bg-base:        #e9e8e3;
-  --color-bg-desk:        #d8d7d1;
-  --color-bg-surface:     #dddcd6;
-  --color-bg-elevated:    #f4f3ef;
+  --color-bg-base:        #ebeae4;
+  --color-bg-desk:        #e1dfd7;
+  --color-bg-surface:     #f6f5f1;
+  --color-bg-elevated:    #ffffff;
   --color-bg-hover:       #ffffff;
-  --color-border-divider: #b9b7ae;
-  --color-border-subtle:  #b9b7ae;
-  --color-border-default: #8f8d84;
-  --color-text-primary:   #131312;
+  --color-desk-vignette:  transparent;
+  --color-border-divider: #cdcbc1;
+  --color-border-subtle:  #cdcbc1;
+  --color-border-default: #85837a;
+  --color-text-primary:   #141413;
   --color-text-secondary: #34332f;
-  --color-text-muted:     #55534e;
+  --color-text-muted:     #57554f;
   --color-text-disabled:  #77756e;
-  --color-accent:         #a33800;
+  --color-accent:         #c2410c;
   --color-accent-fg:      #ffffff;
+  --color-accent-border:  #c2410c;
   --color-status-live:    #086a3a;
   --color-status-crit:    #b00f29;
-  --color-error-bg:       rgba(196,18,47,0.08);
-  --color-error-text:     #a30f27;
-  --color-tile-gradient:  #f4f3ef;
-  --color-tile-shadow:    rgba(0,0,0,0.06);
-  --color-tile-shadow-hover: rgba(0,0,0,0.12);
-  --color-tile-shadow-error: rgba(196,18,47,0.12);
-  --color-tile-shadow-error-hover: rgba(196,18,47,0.2);
-  --color-note-bg:        #dddcd6;
+  --color-error-bg:       rgba(176,15,41,0.08);
+  --color-error-text:     #9a0d24;
+  --color-tile-gradient:  #ffffff;
+  --color-note-bg:        #f6f5f1;
   --color-btn-default-hover: #ffffff;
   --color-btn-fill-hover: #ffffff;
-  --color-btn-destructive-border: rgba(196,18,47,0.7);
-  --color-btn-destructive-border-hover: rgba(196,18,47,1);
+  --color-btn-destructive-border: rgba(176,15,41,0.7);
+  --color-btn-destructive-border-hover: rgba(176,15,41,1);
   --tile-placeholder-url: url('/tile-placeholder-white.svg');
-  --background: #e9e8e3;
-  --input:      #e9e8e3;
+  --app-color-0: #00809a; --app-color-1: #d4177a; --app-color-2: #b86e00; --app-color-3: #6d40e0; --app-color-4: #4f8a00;
+  --tile-outline: transparent;
+  --tile-glow: 0%;
+  --tile-letter-fill: 22%;
+  --tile-grain: 0;
+  --tile-echo: 0;
+  --tile-strip: 0.85;
+  --background: #ebeae4;
+  --input:      #ffffff;
 }
 
 /* ── Accessibility ── */

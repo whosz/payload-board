@@ -87,6 +87,7 @@ Work on a branch (`feat/ui-restyle-v5`), one commit per phase, ship as v0.6.0.
 - Token names from v0.5 were kept (values changed), plus `--color-accent`, `--color-accent-fg`, `--color-bg-desk`, `--color-desk-vignette`. Three undefined tokens that components already used (`border-default`, `bg-hover`, `accent-laser`) are now defined.
 - Themes are `dark` / `grey` / `light`; any stored `purple` value falls back to `dark`.
 - New: `lib/appColor.ts` (stable per-app colour from `order`), `TileBackdrop.tsx` (outlined first letter), `AppControls.tsx` (shared by tile and list row, replaces two duplicated button groups).
+- Light theme is a separate design, not an inverted dark: warm paper panels, white tiles, darker per-app colours (`--app-color-N`), no glow/grain (`--tile-*` tokens). New tokens must live in `:root` / `[data-theme]`, **not** in `@theme inline` — Tailwind 4 drops unused theme variables from there.
 - Fonts are bundled via `@fontsource` (works offline).
 - Verified with a mocked Tauri backend in headless Chromium (dark / grey / light, grid / list, settings and add-app dialogs). **Not yet verified in the real Tauri window** — do that before merging (phase 5): keyboard-only pass, Windows font rendering, SteamGridDB artwork over the new gradient.
 - Not restyled yet: `DesignReference.tsx` (dev-only); `SteamGridPicker` / `InstalledAppsPicker` only got the shared radius/colour replacements.

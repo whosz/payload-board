@@ -117,7 +117,7 @@ export function AppTile(props: AppTileProps) {
       </div>
 
       {/* decorative signal strip */}
-      <div aria-hidden="true" style={{ height: 2, margin: '0 12px', opacity: 0.45, display: 'grid', gridTemplateColumns: 'repeat(12, minmax(0, 1fr))', gap: 4 }}>
+      <div aria-hidden="true" style={{ height: 2, margin: '0 12px', opacity: 'var(--tile-strip)', display: 'grid', gridTemplateColumns: 'repeat(12, minmax(0, 1fr))', gap: 4 }}>
         {Array.from({ length: 12 }, (_, i) => (
           <span key={i} style={{ background: isRunning ? color : isCrashed && i < 4 ? 'var(--color-status-crit)' : 'var(--color-border-divider)' }} />
         ))}
