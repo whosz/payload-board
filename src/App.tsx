@@ -212,9 +212,8 @@ export default function App() {
           width: sidebarOpen ? 266 : 0,
           transition: 'width 0.2s ease',
           background: 'var(--color-bg-surface)',
-          backdropFilter: 'blur(24px)',
-          WebkitBackdropFilter: 'blur(24px)',
-          borderRadius: 16,
+          border: '1px solid var(--color-border-divider)',
+          borderRadius: 2,
         }}
       >
         <ProfileList
@@ -237,24 +236,23 @@ export default function App() {
         className="flex flex-col flex-1 overflow-hidden"
         style={{
           background: 'var(--color-bg-surface)',
-          backdropFilter: 'blur(24px)',
-          WebkitBackdropFilter: 'blur(24px)',
-          borderRadius: 16,
+          border: '1px solid var(--color-border-divider)',
+          borderRadius: 2,
           position: 'relative',
         }}
       >
         {/* Top header */}
         <div
           className="flex items-center justify-between px-6 flex-shrink-0"
-          style={{ minHeight: 64 }}
+          style={{ minHeight: 80 }}
         >
           <div className="flex items-center gap-3 min-w-0 mr-4">
             {!sidebarOpen && (
               <button
                 onClick={() => setSidebarOpen(true)}
                 title="Show sidebar"
+                aria-label="Show sidebar"
                 className="tile-btn"
-                style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', lineHeight: 0, width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
               >
                 <Icon icon={faChevronRight} size={10} />
               </button>
@@ -263,11 +261,12 @@ export default function App() {
             <span
               style={{
                 fontFamily: 'var(--font-display)',
-                fontSize: 20,
-                fontWeight: 600,
+                fontSize: 36,
+                fontWeight: 800,
+                textTransform: 'uppercase',
                 color: 'var(--color-text-primary)',
-                lineHeight: '22px',
-                letterSpacing: '1.5px',
+                lineHeight: 1,
+                letterSpacing: '0.06em',
               }}
             >
               {activeProfile?.name ?? 'No Profile'}
@@ -346,10 +345,10 @@ export default function App() {
                       right: 0,
                       background: 'var(--color-bg-base)',
                       border: '1px solid var(--color-border-divider)',
-                      borderRadius: 8,
+                      borderRadius: 2,
                       overflow: 'hidden',
                       zIndex: 100,
-                      minWidth: 120,
+                      minWidth: 140,
                     }}
                   >
                     {(['manual', 'az', 'za'] as const).map(opt => (
@@ -360,11 +359,12 @@ export default function App() {
                           display: 'block',
                           width: '100%',
                           textAlign: 'left',
-                          padding: '8px 14px',
+                          minHeight: 36,
+                          padding: '0 14px',
                           background: sortOrder === opt ? 'var(--color-bg-elevated)' : 'transparent',
                           color: sortOrder === opt ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
                           fontFamily: 'var(--font-body)',
-                          fontSize: 11,
+                          fontSize: 13,
                           fontWeight: 600,
                           border: 'none',
                           cursor: 'pointer',
@@ -383,26 +383,40 @@ export default function App() {
                 size="icon"
                 onClick={() => setViewMode('grid')}
                 title="Grid view"
+                aria-label="Grid view"
+                aria-pressed={viewMode === 'grid'}
               >
-                <Icon icon={faTableCellsLarge} size={11} />
+                <Icon icon={faTableCellsLarge} size={12} color={viewMode === 'grid' ? 'var(--color-accent-fg)' : undefined} />
               </Button>
               <Button
                 variant={viewMode === 'list' ? 'fill' : 'outline'}
                 size="icon"
                 onClick={() => setViewMode('list')}
                 title="List view"
+                aria-label="List view"
+                aria-pressed={viewMode === 'list'}
               >
-                <Icon icon={faList} size={11} />
+                <Icon icon={faList} size={12} color={viewMode === 'list' ? 'var(--color-accent-fg)' : undefined} />
               </Button>
             </div>
           </div>
         )}
 
         {/* App grid / list */}
-        <div className="flex-1 overflow-auto px-6 pb-4 pt-4">
+        <div
+          className="flex-1 overflow-auto px-6 pb-4 pt-4"
+          style={{
+            margin: '16px 24px 0',
+            padding: 16,
+            background: 'radial-gradient(ellipse at 50% 40%, transparent 50%, rgba(0,0,0,0.35) 100%), radial-gradient(var(--color-border-divider) 1px, transparent 1.3px), var(--color-bg-desk)',
+            backgroundSize: '100% 100%, 16px 16px, auto',
+            border: '1px solid var(--color-border-divider)',
+            borderRadius: 2,
+          }}
+        >
           {!activeProfile ? (
             <div className="flex flex-col items-center justify-center h-full gap-4" style={{ color: 'var(--color-text-muted)' }}>
-              <span style={{ fontFamily: 'var(--font-display)', fontSize: 10, fontWeight: 600, letterSpacing: '1.5px', lineHeight: '16px', textTransform: 'uppercase', color: 'var(--color-text-secondary)' }}>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-text-secondary)' }}>
                 No profile selected
               </span>
               <Button variant="cta" size="lg" onClick={() => setProfileEditorOpen(true)}>
@@ -412,7 +426,7 @@ export default function App() {
             </div>
           ) : sortedApps.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full gap-4" style={{ color: 'var(--color-text-muted)' }}>
-              <span style={{ fontFamily: 'var(--font-display)', fontSize: 10, fontWeight: 600, letterSpacing: '1.5px', lineHeight: '16px', textTransform: 'uppercase', color: 'var(--color-text-secondary)' }}>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-text-secondary)' }}>
                 No apps in this profile
               </span>
               <Button variant="cta" size="lg" onClick={() => setAppEditorOpen(true)}>
