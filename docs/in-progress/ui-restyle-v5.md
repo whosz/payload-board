@@ -15,8 +15,8 @@ Mockup (private artifact, v1–v5 side by side): https://claude.ai/artifact/RbuT
 | Direction | Graphite + one orange accent (Teenage Engineering-style restraint), hardware-instrument details. Deliberately *not* close to the Fanatec app (v3 rejected) and *not* full neon PCB (v1 rejected as over-engineered) |
 | Layout | Unchanged from the current app |
 | Cables, knobs, sequencer, draggable windows | **Out of scope** (v1 only) |
-| Fonts | Big Shoulders 800 (headings), Barlow Semi Condensed 500–700 (UI text), IBM Plex Mono 600 (micro labels) |
-| Per-app colour | Only in the tile background glow and track outline. Never on controls |
+| Fonts | Big Shoulders 800 (headings), Barlow Semi Condensed 500–700 (UI text), IBM Plex Mono 600 (micro labels), Racing Sans One (tile letter only; chosen over Kanit / Saira italic and Exo 2 / Teko, whose variable outlines show overlapping contours) |
+| Per-app colour | Only in the tile background glow and outlined letter. Never on controls |
 | Status colour | Live `#3ee08f`, crashed `#ff2e4d`, stopped grey. Always paired with a text label |
 | Tile background | first letter of the app name, outlined in the app colour (glow + dashed echo + grain), no image files. Real artwork (SteamGridDB / local) still overrides it |
 | Replicate | Not needed now. Revisit only for a background texture or sample cover art |
@@ -53,7 +53,7 @@ Themes: dark (default), grey, light desk. Accent stays the same across themes. R
 
 | # | Scope | Files | Est. |
 |---|-------|-------|------|
-| 1 | Tokens, fonts, themes (dark / grey / light), focus ring, reduced motion. **Bundle fonts locally** with `@fontsource` (Big Shoulders, Barlow Semi Condensed, IBM Plex Mono) instead of the Google Fonts `@import` in `globals.css` — a desktop app must not depend on the network for its typeface | `globals.css`, `index.html`, `App.tsx` (theme state) | 15 min |
+| 1 | Tokens, fonts, themes (dark / grey / light), focus ring, reduced motion. **Bundle fonts locally** with `@fontsource` (Big Shoulders, Barlow Semi Condensed, IBM Plex Mono, Racing Sans One) instead of the Google Fonts `@import` in `globals.css` — a desktop app must not depend on the network for its typeface | `globals.css`, `index.html`, `App.tsx` (theme state) | 15 min |
 | 2 | Tile: first-letter background, status chip, segment strip, 32 px actions | `AppTile.tsx`, new `TileBackdrop.tsx` | 45 min |
 | 3 | Sidebar, header, toolbar, status bar with segment counters | `ProfileList.tsx`, `App.tsx`, `StatusBar.tsx` | 30 min |
 | 4 | List view, dialogs, inputs, selects, settings | `AppListRow.tsx`, `ui/*`, `editor/*`, `SettingsPanel.tsx` | 45 min |

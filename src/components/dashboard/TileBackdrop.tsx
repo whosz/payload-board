@@ -28,8 +28,8 @@ export function TileBackdrop({ color, name, state }: Props) {
           { stroke, strokeWidth: 1.3 },
           { stroke, strokeOpacity: 0.25, strokeWidth: 5, strokeDasharray: '1 4' },
         ].map((st, i) => (
-          <text key={i} x="96" y="108" textAnchor="end" fill="none" strokeLinejoin="round"
-            style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 100 }} {...st}>
+          <text key={i} x="92" y="108" textAnchor="end" fill="none" strokeLinejoin="round"
+            style={{ fontFamily: 'var(--font-letter)', fontWeight: 400, fontSize: 128 }} {...st}>
             {letter}
           </text>
         ))}
