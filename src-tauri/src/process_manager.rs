@@ -28,6 +28,8 @@ pub struct StatusEvent {
     pub entry_id: String,
     pub pid: Option<u32>,
     pub status: ProcessStatus,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub error_message: Option<String>,
 }
 
 pub fn new_process_map() -> ProcessMap {
@@ -46,6 +48,20 @@ pub fn emit_status<R: tauri::Runtime>(
             entry_id: entry_id.to_string(),
             pid,
             status,
+            error_message: None,
+        },
+    );
+}
+
+/// Same as `emit_status` but carries a human-readable error (shown on the tile).
+pub fn emit_error<R: tauri::Runtime>(app: &AppHandle<R>, entry_id: &str, message: String) {
+    let _ = app.emit(
+        "process_status_changed",
+        StatusEvent {
+            entry_id: entry_id.to_string(),
+            pid: None,
+            status: ProcessStatus::Crashed,
+            error_message: Some(message),
         },
     );
 }

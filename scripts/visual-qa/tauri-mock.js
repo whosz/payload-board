@@ -10,12 +10,26 @@ export function installTauriMock({ profiles, theme }) {
     convertFileSrc: p => p,
     invoke: async (cmd, args) => {
       if (cmd === 'list_profiles') return profiles;
+      if (cmd === 'run_sequence') { window.__simulateSequence(profiles, args.profileId); return null; }
+      if (cmd === 'cancel_sequence') { window.__cancelled = true; return null; }
       if (cmd === 'plugin:event|listen') {
         (window.__listeners = window.__listeners || []).push({ event: args.event, handler: cbs[args.handler] });
         return 1;
       }
       return null;
     },
+  };
+  // Minimal stand-in for the Rust sequencer: one app every 700 ms, cancellable.
+  window.__simulateSequence = async (list, profileId) => {
+    const apps = (list.find(p => p.id === profileId) || { apps: [] }).apps.filter(a => a.enabled);
+    window.__cancelled = false;
+    for (let i = 0; i < apps.length; i++) {
+      if (window.__cancelled) return window.__emit('sequence_progress', { profile_id: profileId, state: 'cancelled', step: i, total: apps.length });
+      window.__emit('sequence_progress', { profile_id: profileId, state: 'launching', step: i + 1, total: apps.length, app_id: apps[i].id });
+      window.__emit('process_status_changed', { entry_id: apps[i].id, pid: i + 1, status: 'running' });
+      await new Promise(r => setTimeout(r, 700));
+    }
+    window.__emit('sequence_progress', { profile_id: profileId, state: 'done', step: apps.length, total: apps.length });
   };
   window.__emit = (event, payload) =>
     (window.__listeners || []).filter(l => l.event === event).forEach(l => l.handler({ event, payload, id: 0 }));

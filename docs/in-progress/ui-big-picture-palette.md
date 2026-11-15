@@ -61,11 +61,12 @@ Concepts (static mockups, dark theme): ![all concepts](../assets/concepts/sheet.
 **Core (0, S, 1, 2, 3, 4): ~15 h** plus 1–2 feedback rounds. With 5 and 6: ~19 h. (4b would add ~3 h + a Windows spike.) (Revised twice vs. chat: global shortcuts need new plugins and a Rust sequencer.) Wall-clock can be shorter with parallel agents, token cost higher — see [agent-workflow.md](agent-workflow.md).
 
 ### Phase S — Rust sequencer
-- [ ] `run_sequence(profile_id)`: iterate enabled apps in order, skip running ones, honour `launch_delay_ms` (tokio sleep), emit `sequence_progress { profile_id, state, step, total, app_id? }`
-- [ ] `cancel_sequence(profile_id)`; one sequence per profile at a time; errors become `process_status_changed` with `crashed` + message (same as today)
-- [ ] Frontend `useSequence`: `idle | launching(step,total) | running | crashed`, `run()`, `cancel()`; `handleRunSequence` in `App.tsx` removed
-- [ ] Behaviour identical to today for a plain run (manual test list)
+- [x] `run_sequence(profile_id)`: iterate enabled apps in order, skip running ones, honour `launch_delay_ms` (tokio sleep), emit `sequence_progress { profile_id, state, step, total, app_id? }`
+- [x] `cancel_sequence(profile_id)`; one sequence per profile at a time; errors become `process_status_changed` with `crashed` + message (same as today)
+- [x] Frontend `useSequence`: `idle | launching(step,total) | running | crashed`, `run()`, `cancel()`; `handleRunSequence` in `App.tsx` removed
+- [x] Behaviour identical (**one change:** launch order is now `order`, so the A→Z/Z→A sort no longer reorders the launch; list sorting is display-only) to today for a plain run (manual test list)
 - [ ] Wait strategies (`wait_for_window`, `wait_seconds`) stay out of scope here (still in `planned/sequencer.md`)
+- Done on `feat/big-picture`: Rust tests for ordering and cancellable sleep pass; `start_app_inner` extracted from the `start_app` command; `process_status_changed` now carries optional `error_message`. Windows-only check pending: sequence with delays and cancel in the real app.
 
 ### Phase 1 — Big Picture layout
 

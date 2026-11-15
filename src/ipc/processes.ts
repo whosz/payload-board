@@ -23,3 +23,11 @@ export function stopAll(profileId: string): Promise<void> {
 export function scanRunningApps(profileId: string): Promise<void> {
   return invoke('scan_running_apps', { profileId });
 }
+
+export function runSequence(profileId: string): Promise<void> {
+  return invoke('run_sequence', { profileId });
+}
+
+export function cancelSequence(profileId: string): Promise<void> {
+  return invoke('cancel_sequence', { profileId });
+}

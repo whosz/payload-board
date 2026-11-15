@@ -1,6 +1,7 @@
 mod commands;
 mod platform;
 mod process_manager;
+mod sequencer;
 mod store;
 
 use commands::apps::{list_installed_apps, pick_executable, pick_icon_file};
@@ -13,6 +14,7 @@ use commands::settings::{
 };
 use commands::steamgriddb::{sgdb_auto_bg, sgdb_grids, sgdb_search};
 use process_manager::{check_crashed_processes, new_process_map, ProcessMap};
+use sequencer::{cancel_sequence, new_sequence_map, run_sequence};
 use store::SETTINGS_FILE;
 use tauri::Manager;
 use tauri_plugin_store::StoreExt;
@@ -23,6 +25,7 @@ pub fn run() {
 
     tauri::Builder::default()
         .manage(process_map)
+        .manage(new_sequence_map())
         .plugin(tauri_plugin_autostart::init(tauri_plugin_autostart::MacosLauncher::LaunchAgent, None))
         .plugin(tauri_plugin_store::Builder::default().build())
         .plugin(tauri_plugin_dialog::init())
@@ -109,6 +112,8 @@ pub fn run() {
             restart_app,
             open_path,
             stop_all,
+            run_sequence,
+            cancel_sequence,
             scan_running_apps,
             get_data_dir,
             get_profiles_dir,

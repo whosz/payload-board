@@ -17,6 +17,7 @@ import { faPlay, faPowerOff, faPlus, faXmark, faList, faTableCellsLarge, faChevr
 import { useProfiles } from './hooks/useProfiles';
 import { useProcessStatus } from './hooks/useProcessStatus';
 import { startApp, stopApp, restartApp, openPath, stopAll, scanRunningApps } from './ipc/processes';
+import { useSequence } from './hooks/useSequence';
 import type { AppEntry } from './types';
 
 type Theme = 'dark' | 'grey' | 'light';
@@ -89,26 +90,13 @@ export default function App() {
     setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 6000);
   }, []);
 
+  const sequence = useSequence(activeProfileId, (appId, message) => {
+    const name = activeProfile?.apps.find(a => a.id === appId)?.name ?? 'App';
+    pushError(`Start failed — ${name}: ${message}`);
+  });
+
   const dismissToast = (id: number) =>
     setToasts(prev => prev.filter(t => t.id !== id));
-
-  const handleRunSequence = async () => {
-    if (!activeProfileId) return;
-    for (const app of sortedApps) {
-      if (!app.enabled) continue;
-      if (getStatus(app.id).status === 'running') continue;
-      try {
-        await startApp(activeProfileId, app.id);
-      } catch (e) {
-        const msg = String(e);
-        pushError(`Start failed — ${app.name}: ${msg}`);
-        setErrorStatus(app.id, msg);
-      }
-      if (app.launch_delay_ms > 0) {
-        await new Promise(resolve => setTimeout(resolve, app.launch_delay_ms));
-      }
-    }
-  };
 
   const handleSaveApp = async (entry: Omit<AppEntry, 'id' | 'order'>) => {
     if (!activeProfileId) return;
@@ -275,15 +263,22 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-2">
-            <Button
-              variant="cta"
-              size="lg"
-              disabled={!activeProfile || sortedApps.length === 0 || runningCount > 0}
-              onClick={handleRunSequence}
-            >
-              <Icon icon={faPlay} size={12} active />
-              Run sequence
-            </Button>
+            {sequence.launching ? (
+              <Button variant="cta" size="lg" onClick={() => sequence.cancel().catch(e => pushError(`Cancel failed: ${e}`))}>
+                <Icon icon={faXmark} size={12} />
+                Cancel {sequence.step}/{sequence.total}
+              </Button>
+            ) : (
+              <Button
+                variant="cta"
+                size="lg"
+                disabled={!activeProfile || sortedApps.length === 0 || runningCount > 0}
+                onClick={() => sequence.run().catch(e => pushError(`Run sequence failed: ${e}`))}
+              >
+                <Icon icon={faPlay} size={12} active />
+                Run sequence
+              </Button>
+            )}
             <Button
               variant="destructive"
               size="lg"
