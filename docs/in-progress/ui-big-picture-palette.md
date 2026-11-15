@@ -1,6 +1,6 @@
 # Big Picture layout + Command Palette (v6)
 
-**Status:** planned (all decisions D1–D6 and 4b confirmed 2026-11-14), starts after v5 is QA'd in the real Tauri window. Execution plan for agents: [agent-workflow.md](agent-workflow.md). Stack on `feat/ui-restyle-v5` (or on `main` once v5 is merged).
+**Status:** planned (decisions D1–D6 confirmed 2026-11-14; 4b overlay deferred), starts after v5 is QA'd in the real Tauri window. Execution plan for agents: [agent-workflow.md](agent-workflow.md). Stack on `feat/ui-restyle-v5` (or on `main` once v5 is merged).
 **Builds on:** [ui-restyle-v5.md](ui-restyle-v5.md) (tokens, themes, tiles, controls).
 
 ## Goal
@@ -39,7 +39,7 @@ Concepts (static mockups, dark theme): ![all concepts](../assets/concepts/sheet.
 |---|----------|--------|
 | D1 | **Sequencer moves to Rust** (`run_sequence`, `cancel_sequence`, events `sequence_progress`). Frontend becomes a thin `useSequence` client. Needed for cancel, hero states, global shortcuts with a hidden window, and later auto-restart. Alternative (keep JS loop) is ~3 h cheaper but fragile | **confirmed** |
 | D2 | **All shortcuts are user-configurable in Settings** (global and in-window), with conflict/invalid detection, reset to default and an "Enable global shortcuts" master switch (they can clash with game binds) | confirmed |
-| D3 | **Shortcuts work globally** (OS-level, window hidden or unfocused). Actions without UI (run / end) work anywhere with a toast as feedback; palette needs the window → 4a shows it, **4b is an overlay over games (confirmed, in core scope)** | confirmed |
+| D3 | **Shortcuts work globally** (OS-level, window hidden or unfocused). Actions without UI (run / end) work anywhere with a toast as feedback; palette needs the window → the shortcut shows and focuses the window (4a). **Overlay over games (4b) is deferred** — removed from scope for now | confirmed |
 | D4 | Default shortcuts: palette `Ctrl+Shift+Space` (global), run sequence `Ctrl+Alt+R`, end session `Ctrl+Alt+E`, in-window palette `Ctrl+K`. **Global End session needs a second press within 2 s** (toast "Press again to end session") so a stray key can't kill a race | confirmed |
 | D5 | **Hero**: height-based, not scroll-based. ≥ 700 px window height → full hero (~330 px). < 700 px → slim 72 px sticky hero bar (name, live/crashed counts, the same contextual primary button); carousel gets the remaining height. Predictable, no scroll jank, works at the 900×600 minimum | decided |
 | D6 | Palette default in-window shortcut `Ctrl+K`; also `Ctrl+P` alias | confirmed |
@@ -54,11 +54,11 @@ Concepts (static mockups, dark theme): ![all concepts](../assets/concepts/sheet.
 | 2 | Profile accent and cover | `ProfileEditor.tsx`, hero | 1 h |
 | 3 | **Command Palette** (in-window) + action registry | `CommandPalette.tsx`, `lib/actions.ts` | 3 h |
 | 4 | **Shortcuts**: global registration, storage, conflict handling, Settings UI (record key), master switch | `src-tauri/src/shortcuts.rs`, `SettingsPanel.tsx` / `ShortcutsSection.tsx` | 4 h |
-| 4b | **Palette overlay over games** (spike first, see below) | second Tauri window | 3 h |
+| 4b | ~~Palette overlay over games~~ — **deferred** (see Not now) | — | — |
 | 5 | Crash toast + auto-restart | notification plugin, Rust, settings | 2 h |
 | 6 | Mini mode (400–480 px) | layout variant | 2 h |
 
-**Core (0, S, 1, 2, 3, 4, 4b): ~18 h** plus 1–2 feedback rounds. With 5 and 6: ~22 h. (Revised twice vs. chat: global shortcuts need new plugins and a Rust sequencer.) Wall-clock can be shorter with parallel agents, token cost higher — see [agent-workflow.md](agent-workflow.md).
+**Core (0, S, 1, 2, 3, 4): ~15 h** plus 1–2 feedback rounds. With 5 and 6: ~19 h. (4b would add ~3 h + a Windows spike.) (Revised twice vs. chat: global shortcuts need new plugins and a Rust sequencer.) Wall-clock can be shorter with parallel agents, token cost higher — see [agent-workflow.md](agent-workflow.md).
 
 ### Phase S — Rust sequencer
 - [ ] `run_sequence(profile_id)`: iterate enabled apps in order, skip running ones, honour `launch_delay_ms` (tokio sleep), emit `sequence_progress { profile_id, state, step, total, app_id? }`
@@ -73,9 +73,10 @@ Concepts (static mockups, dark theme): ![all concepts](../assets/concepts/sheet.
 - [ ] `Hero.tsx`: profile name (Big Shoulders), stats (apps / live / crashed), launch-order strip, **one contextual primary button**:
   - idle → RUN SEQUENCE · launching → step progress + CANCEL · running → END SESSION + session time · crashed → red banner + "Restart <app>"
 - [ ] Hero per D5: full ≥ 700 px height, slim 72 px sticky bar below (no scroll-driven behaviour)
-- [ ] `AppCarousel.tsx`: horizontal strip; auto-switch to wrapped grid when > 7 apps (or window too narrow)
+- [ ] `AppCarousel.tsx` (measured: at 900×600 the current grid fits one column): horizontal strip; auto-switch to wrapped grid when > 7 apps (or window too narrow)
 - [ ] Tile: taller variant (224×300) reusing `TileBackdrop`, `AppControls` appears for the focused tile only
 - [ ] Roving focus (`tabindex`), arrows move, `Enter` start/stop, `E` edit, `R` restart, `Del` remove (with the existing confirm dialog)
+- [ ] Fix the control-border contrast gap (`--color-border-control`, see ui-restyle-v5.md known gaps) while touching inputs and the Settings screen
 - [ ] Key-hint footer replaces the old status bar counters (counters move into the hero); hints hide when a dialog is open
 - [ ] Keep list view as an alternative (view toggle stays); sidebar becomes top tabs (`ProfileList` → `ProfileTabs`), sidebar collapse logic removed
 - [ ] Reduced motion: no glow pulse, no carousel easing
@@ -100,8 +101,6 @@ Concepts (static mockups, dark theme): ![all concepts](../assets/concepts/sheet.
 - [ ] **Settings → Shortcuts** section: one row per action (label, current keys, scope badge, Change = press-to-record, Reset, Clear), master switch "Enable global shortcuts", inline error for conflicts/invalid, shows which are global vs window-only
 - [ ] Global End session needs a second press within 2 s (D4); toast confirms every global action
 - [ ] In-window shortcuts (`Ctrl+K`, `Ctrl+R`, `Ctrl+.`, `Ctrl+N`, …) read the same registry, so changing them in Settings takes effect immediately; guard against firing while a dialog is open
-- [ ] 4b **spike first (~30 min, Windows, user-run)**: small frameless always-on-top window triggered by the global shortcut over (a) borderless-windowed and (b) exclusive-fullscreen sim. Genuine exclusive fullscreen (DirectX) usually blocks any overlay; if (b) fails, 4b ships for borderless/windowed games only and exclusive-fullscreen users get a toast + the run/end shortcuts (both already work anywhere)
-- [ ] 4b build: palette in its own frameless, always-on-top, non-focus-stealing-where-possible window (`WS_EX_NOACTIVATE`-style behaviour via Tauri window flags), state shared via Tauri events, closes on `Esc` / selection / focus loss, returns focus to the game
 - [ ] Risk to verify early: re-registering after a failed attempt; shortcut still firing after the window is minimised to tray
 
 ### Phase 5 — Crash toast + auto-restart (ask before touching data format)
@@ -125,6 +124,7 @@ Concepts (static mockups, dark theme): ![all concepts](../assets/concepts/sheet.
 
 ## Not now
 
+- **Palette overlay over games (4b)** — deferred by decision. If revived: 30-min Windows spike first (frameless always-on-top window over borderless-windowed vs exclusive-fullscreen; true exclusive fullscreen usually blocks overlays), then a separate frameless window with state via Tauri events. Until then the palette shortcut brings the main window to the front; run/end shortcuts work anywhere.
 - Gamepad/wheel navigation (Gamepad API works in the webview, but wheel/button-box inputs may clash with the game)
 - Per-tile CPU/RAM sparklines (planned in `planned/monitoring.md`, would add noise to the hero)
 - Sounds
@@ -132,7 +132,7 @@ Concepts (static mockups, dark theme): ![all concepts](../assets/concepts/sheet.
 
 ## Open questions
 
-None blocking. Watch item: the 4b spike result decides whether the overlay covers exclusive-fullscreen games or only borderless/windowed ones.
+None. (4b deferred.)
 
 ## Suggested branches / commits
 

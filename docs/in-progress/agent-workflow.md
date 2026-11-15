@@ -39,7 +39,6 @@ Custom agents are defined as files (spec in section 9). `Explore` and `Plan` are
  2   orchestrator inline (small)                               ─► gate
  3+4 ui-dev (registry, palette, Settings UI)  ∥  rust-dev (shortcuts.rs, commands, store)
                                     ─► integration (orchestrator) ─► gate
- 4b  user: Windows spike (borderless vs exclusive fullscreen) ─► rust-dev ∥ ui-dev (overlay window) ─► gate
  5   rust-dev ∥ ui-dev (toast, settings)   [data-format ask first]  ─► gate
  6   ui-dev                                                         ─► gate
 ```
@@ -140,14 +139,16 @@ Report (≤ 15 lines): done / not done · files changed · commands + results ·
 - Fonts and tile art render correctly; 900×600 and 1200×800 both fine
 - Tray minimise/restore, autostart, start-minimised unaffected
 
-## 9. Setup steps before the first phase (need your OK — they touch the repo)
+## 9. Setup steps before the first phase — **A1–A4 done** (2026-11-14)
 
-| Step | What | Why |
-|------|------|-----|
-| A1 | `.gitignore`: change `.claude/` to `.claude/*` + `!.claude/agents/` | `.claude/` is ignored wholesale (it can hold tokens), so agent definitions would not be versioned. Agents contain no secrets |
-| A2 | Create `.claude/agents/{rust-dev,ui-dev,qa-visual,reviewer}.md` (frontmatter: `name`, `description`, `model`, `tools`; body = rules from sections 5–6) | Makes the roles reusable and cheap to invoke |
-| A3 | Move the headless QA harness from the session scratchpad to `scripts/visual-qa/` (Tauri `invoke` mock + Playwright script) and add `playwright-core` as a **devDependency** | `qa-visual` needs a repeatable tool; today it only exists in a temp folder |
-| A4 | Remove the Figma token entries from the Claude settings allow lists (see `model-routing.md`) | Cleartext secret; agents inherit those permissions |
+| Step | What | Status |
+|------|------|--------|
+| A1 | `.gitignore`: `.claude/` → `.claude/*` + `!.claude/agents/` (settings files stay ignored; verified with `git check-ignore`) | done |
+| A2 | `.claude/agents/{rust-dev,ui-dev,qa-visual,reviewer}.md` | done |
+| A3 | Visual QA harness in `scripts/visual-qa/` (`tauri-mock.js`, `shoot.mjs`, `contrast.mjs`), `playwright-core` devDependency, npm scripts `qa:shots` and `qa:contrast` | done |
+| A4 | Figma token entries removed from the `permissions.allow` lists (global, project, project-local). **You still need to revoke the token in Figma** — it remains in old session logs under `~/.claude/projects/` (other projects) | done, revoke pending |
+
+How the QA tooling is used: `npm run qa:contrast` (exit code 1 on failures) and `npm run qa:shots -- --out docs/assets/qa --themes dark,grey,light --sizes 1280x800,900x600 --views grid,list,settings,add [--tab 12]`. It starts Vite itself, mocks the Tauri backend in the browser and stops the server afterwards. It cannot see Windows-only behaviour.
 
 Agent definition sketch (A2):
 

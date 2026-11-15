@@ -92,3 +92,8 @@ Work on a branch (`feat/ui-restyle-v5`), one commit per phase, ship as v0.6.0.
 - Fonts are bundled via `@fontsource` (works offline).
 - Verified with a mocked Tauri backend in headless Chromium (dark / grey / light, grid / list, settings and add-app dialogs). **Not yet verified in the real Tauri window** — do that before merging (phase 5): keyboard-only pass, Windows font rendering, SteamGridDB artwork over the new gradient.
 - Not restyled yet: `DesignReference.tsx` (dev-only); `SteamGridPicker` / `InstalledAppsPicker` only got the shared radius/colour replacements.
+
+## Known gaps found by `npm run qa:contrast` / `qa:shots` (not fixed yet)
+
+- **Control borders fail WCAG 1.4.11 (3:1)**: `--color-border-default` vs `--color-bg-surface` is 1.59 in dark and 2.05 in grey (light passes at 3.48). Fine for buttons with a text label, but text inputs, selects and switches are identified by their border. Fix: add a stronger `--color-border-control` (≥ 3:1) used by `Input`, `Select`, `Switch`.
+- **900×600 (minimum window)**: with the sidebar open only one tile column fits and half the desk is empty. Addressed by the Big Picture layout in [ui-big-picture-palette.md](ui-big-picture-palette.md) (phase 1); until then collapsing the sidebar helps.
