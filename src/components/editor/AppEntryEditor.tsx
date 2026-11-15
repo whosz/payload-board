@@ -147,7 +147,7 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
                     value={form.executable_path}
                     onChange={e => setForm(f => ({ ...f, executable_path: e.target.value }))}
                     placeholder="/path/to/executable"
-                    className="h-9 w-full min-w-0 rounded-[2px] border px-2 py-1 outline-none transition-colors bg-[var(--color-bg-base)] border-[var(--color-border-default)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-accent)] disabled:pointer-events-none disabled:opacity-50"
+                    className="h-9 w-full min-w-0 rounded-[2px] border px-2 py-1 outline-none transition-colors bg-[var(--color-bg-base)] border-[var(--color-border-control)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-accent)] disabled:pointer-events-none disabled:opacity-50"
                     style={{ fontFamily: 'var(--font-body)', fontSize: 14, fontWeight: 400 }}
                   />
                 </div>

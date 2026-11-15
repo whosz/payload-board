@@ -10,7 +10,7 @@ function Input({ className, type, style, ...props }: React.ComponentProps<"input
       data-slot="input"
       className={cn(
         "h-9 w-full min-w-0 rounded-[2px] border px-2 py-1 outline-none transition-colors",
-        "bg-[var(--color-bg-base)] border-[var(--color-border-default)]",
+        "bg-[var(--color-bg-base)] border-[var(--color-border-control)]",
         "text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)]",
         "focus:border-[var(--color-accent)]",
         "disabled:pointer-events-none disabled:opacity-50",

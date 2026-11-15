@@ -70,17 +70,20 @@ Concepts (static mockups, dark theme): ![all concepts](../assets/concepts/sheet.
 
 ### Phase 1 — Big Picture layout
 
-- [ ] Consume `useSequence` from phase S (hero states: idle / launching / running / crashed)
-- [ ] `Hero.tsx`: profile name (Big Shoulders), stats (apps / live / crashed), launch-order strip, **one contextual primary button**:
+- [x] Consume `useSequence` from phase S (hero states: idle / launching / running / crashed)
+- [x] `Hero.tsx`: profile name (Big Shoulders), stats (apps / live / crashed), launch-order strip, **one contextual primary button**:
   - idle → RUN SEQUENCE · launching → step progress + CANCEL · running → END SESSION + session time · crashed → red banner + "Restart <app>"
-- [ ] Hero per D5: full ≥ 700 px height, slim 72 px sticky bar below (no scroll-driven behaviour)
-- [ ] `AppCarousel.tsx` (measured: at 900×600 the current grid fits one column): horizontal strip; auto-switch to wrapped grid when > 7 apps (or window too narrow)
-- [ ] Tile: taller variant (224×300) reusing `TileBackdrop`, `AppControls` appears for the focused tile only
-- [ ] Roving focus (`tabindex`), arrows move, `Enter` start/stop, `E` edit, `R` restart, `Del` remove (with the existing confirm dialog)
-- [ ] Fix the control-border contrast gap (`--color-border-control`, see ui-restyle-v5.md known gaps) while touching inputs and the Settings screen
-- [ ] Key-hint footer replaces the old status bar counters (counters move into the hero); hints hide when a dialog is open
-- [ ] Keep list view as an alternative (view toggle stays); sidebar becomes top tabs (`ProfileList` → `ProfileTabs`), sidebar collapse logic removed
-- [ ] Reduced motion: no glow pulse, no carousel easing
+- [x] Hero per D5: full ≥ 700 px height, slim 72 px sticky bar below (no scroll-driven behaviour)
+- [x] `AppCarousel.tsx` (measured: at 900×600 the current grid fits one column): horizontal strip; auto-switch to wrapped grid when > 7 apps (or window too narrow)
+- [x] Tile: taller variant (224×300) reusing `TileBackdrop`, `AppControls` appears for the focused tile only
+- [x] Roving focus (`tabindex`), arrows move, `Enter` start/stop, `E` edit, `R` restart, `Del` remove (with the existing confirm dialog)
+- [x] Fix the control-border contrast gap (`--color-border-control`, see ui-restyle-v5.md known gaps) while touching inputs and the Settings screen
+- [x] Key-hint footer replaces the old status bar counters (counters move into the hero); hints hide when a dialog is open
+- [x] Keep list view as an alternative (view toggle stays); sidebar becomes top tabs (`ProfileList` → `ProfileTabs`), sidebar collapse logic removed
+- [x] Reduced motion: handled by the global `prefers-reduced-motion` rule (transitions and animations effectively off)
+- Done on `feat/big-picture`: `ProfileTabs`, `Hero` (idle / launching / running / crashed), `AppCarousel` + `PosterTile` (roving focus, wraps above 7 apps), `AppsToolbar`, `KeyHints`, `useSessionSeconds`, `lib/appArt.ts`. Compact hero below 760 px window height (single row, crash banner hidden — the tile still shows the error). Control-border contrast fixed (`--color-border-control`, ≥ 3:1 in all themes; `qa:contrast` passes). `Switch` restyled for real (it was still round before).
+- `ProfileList.tsx`, `StatusBar.tsx`, `AppTile.tsx` are no longer used by the app; they are kept only because the dev-only `DesignReference.tsx` imports them. Delete all four together when that page goes.
+- Verified in headless Chromium with the Tauri mock (hero states, 1280×800 and 900×600, three themes, keyboard focus). **Not yet verified in the real Tauri window / on Windows:** sequence with delays and cancel, roving-focus keys in WebView2.
 
 ### Phase 2 — Profile accent and cover
 - [ ] 2a: use `color_accent` (already in type) as hero tint; picker in `ProfileEditor` (5 presets + default accent)

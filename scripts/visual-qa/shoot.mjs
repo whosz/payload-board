@@ -1,5 +1,5 @@
 // Headless visual QA with a mocked Tauri backend (no Rust needed).
-// Usage: npm run qa:shots -- --out docs/assets/qa --themes dark,grey,light --sizes 1280x800,900x600 --views grid,list,settings,add [--tab 12] [--url http://localhost:1420]
+// Usage: npm run qa:shots -- --out docs/assets/qa --themes dark,grey,light --sizes 1280x800,900x600 --views grid,list,settings,add [--scenario mixed|idle|launching] [--tab 12] [--url http://localhost:1420]
 // Browser: set CHROMIUM_PATH, or it uses the newest Playwright headless shell in ~/.cache/ms-playwright.
 import { chromium } from 'playwright-core';
 import { spawn } from 'node:child_process';
@@ -15,6 +15,8 @@ const themes = arg('themes', 'dark,grey,light').split(',');
 const sizes = arg('sizes', '1280x800').split(',').map(s => s.split('x').map(Number));
 const views = arg('views', 'grid').split(',');
 const tabs = Number(arg('tab', 0));
+// mixed = 3 live + 1 crashed (default) | idle = nothing running | launching = idle, then click Run sequence
+const scenario = arg('scenario', 'mixed');
 let url = arg('url', '');
 
 function findBrowser() {
@@ -57,13 +59,14 @@ try {
     await page.addInitScript(installTauriMock, { profiles: PROFILES, theme });
     await page.goto(url);
     await page.waitForTimeout(800);
-    await page.evaluate(s => s.forEach(p => window.__emit('process_status_changed', p)), STATUSES);
+    if (scenario === 'mixed') await page.evaluate(s => s.forEach(p => window.__emit('process_status_changed', p)), STATUSES);
+    if (scenario === 'launching') { await page.getByRole('button', { name: /run sequence/i }).click(); await page.waitForTimeout(1500); }
     if (view === 'list') await page.getByLabel('List view').click();
-    if (view === 'settings') await page.getByText('Settings', { exact: true }).first().click();
+    if (view === 'settings') await page.getByLabel('Settings').first().click();
     if (view === 'add') await page.getByText('Add app').first().click();
     if (tabs) for (let i = 0; i < tabs; i++) await page.keyboard.press('Tab');
     await page.waitForTimeout(400);
-    const file = join(out, `${theme}-${w}x${h}-${view}${tabs ? '-tab' + tabs : ''}.png`);
+    const file = join(out, `${theme}-${w}x${h}-${view}${scenario !== 'mixed' ? '-' + scenario : ''}${tabs ? '-tab' + tabs : ''}.png`);
     await page.screenshot({ path: file });
     console.log(file);
     await page.close();
