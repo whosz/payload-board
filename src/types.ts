@@ -22,6 +22,8 @@ export interface Profile {
   id: string;
   name: string;
   color_accent?: string;
+  /** hero background image: remote URL or local file path */
+  cover_url?: string;
   emoji?: string;
   apps: AppEntry[];
   created_at: string;

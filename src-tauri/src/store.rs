@@ -32,6 +32,8 @@ pub struct Profile {
     pub color_accent: Option<String>,
     pub emoji: Option<String>,
     pub description: Option<String>,
+    /// optional hero background (remote URL or local file path); absent in older profile files
+    pub cover_url: Option<String>,
     pub apps: Vec<AppEntry>,
     pub created_at: String,
     pub updated_at: String,

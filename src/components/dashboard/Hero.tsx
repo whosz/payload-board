@@ -2,6 +2,7 @@ import { Button } from '../ui/button';
 import { Icon } from '../icons/Icon';
 import { faPlay, faPowerOff, faPlus, faXmark, faPen, faTrash } from '../icons';
 import { appColor } from '../../lib/appColor';
+import { artworkUrl } from '../../lib/appArt';
 import { formatClock } from '../../hooks/useSessionSeconds';
 import type { Profile } from '../../types';
 import type { ProcessStatus } from '../../hooks/useProcessStatus';
@@ -34,14 +35,21 @@ export function Hero(p: Props) {
   const live = p.appStates.filter(a => a.status === 'running').length;
   const letter = (p.profile.name.match(/[\p{L}\p{N}]/u)?.[0] ?? '·').toUpperCase();
   const first = p.crashed[0];
+  const cover = artworkUrl(p.profile.cover_url);
 
   return (
     <section className="hero" aria-label={`Profile ${p.profile.name}`}>
-      <svg className="hero__letter" aria-hidden="true" viewBox="0 0 100 120" preserveAspectRatio="xMaxYMid meet"
+      {cover && (
+        <>
+          <img src={cover} alt="" aria-hidden="true" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.5 }} />
+          <div aria-hidden="true" style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, var(--color-bg-base) 0%, color-mix(in srgb, var(--color-bg-base) 78%, transparent) 50%, color-mix(in srgb, var(--color-bg-base) 25%, transparent) 100%)' }} />
+        </>
+      )}
+      {!cover && <svg className="hero__letter" aria-hidden="true" viewBox="0 0 100 120" preserveAspectRatio="xMaxYMid meet"
         style={{ position: 'absolute', right: 40, top: -10, height: '125%', width: 'auto', opacity: 0.55 }}>
         <text x="96" y="108" textAnchor="end" fill="none" stroke="var(--color-accent)" strokeWidth="0.9"
           style={{ fontFamily: 'var(--font-letter)', fontSize: 130 }}>{letter}</text>
-      </svg>
+      </svg>}
 
       <div style={{ position: 'relative' }}>
         <div className="hero__label" style={{ ...mono, color: 'var(--color-accent)', marginBottom: 8 }}>Active profile</div>

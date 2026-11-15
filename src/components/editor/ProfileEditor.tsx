@@ -3,6 +3,9 @@ import { Dialog, DialogContent, ModalHeader, ModalFooter } from '../ui/dialog';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { ACCENT_PRESETS } from '../../lib/accent';
+import { artworkUrl } from '../../lib/appArt';
+import { pickIconFile } from '../../ipc/profiles';
+import { SteamGridPicker } from './SteamGridPicker';
 import type { Profile } from '../../types';
 
 const EMOJI_LIST = [
@@ -16,8 +19,8 @@ const EMOJI_LIST = [
 interface ProfileEditorProps {
   open: boolean;
   onClose: () => void;
-  onSave: (fields: { name: string; emoji?: string; color_accent?: string }) => void;
-  initial?: Partial<Pick<Profile, 'name' | 'emoji' | 'color_accent'>>;
+  onSave: (fields: { name: string; emoji?: string; color_accent?: string; cover_url?: string }) => void;
+  initial?: Partial<Pick<Profile, 'name' | 'emoji' | 'color_accent' | 'cover_url'>>;
 }
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
@@ -41,6 +44,8 @@ export function ProfileEditor({ open, onClose, onSave, initial }: ProfileEditorP
   const [name, setName] = useState(initial?.name ?? '');
   const [emoji, setEmoji] = useState(initial?.emoji ?? '');
   const [accent, setAccent] = useState(initial?.color_accent ?? '');
+  const [cover, setCover] = useState(initial?.cover_url ?? '');
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -48,6 +53,7 @@ export function ProfileEditor({ open, onClose, onSave, initial }: ProfileEditorP
     setName(initial?.name ?? '');
     setEmoji(initial?.emoji ?? '');
     setAccent(initial?.color_accent ?? '');
+    setCover(initial?.cover_url ?? '');
   }, [open]);
 
   const handleSave = () => {
@@ -56,6 +62,7 @@ export function ProfileEditor({ open, onClose, onSave, initial }: ProfileEditorP
         name: name.trim(),
         emoji: emoji || undefined,
         color_accent: accent || undefined,
+        cover_url: cover || undefined,
       });
     }
   };
@@ -109,6 +116,23 @@ export function ProfileEditor({ open, onClose, onSave, initial }: ProfileEditorP
                 }}
               />
             ))}
+          </div>
+        </div>
+
+        {/* Cover image */}
+        <div>
+          <FieldLabel>Cover image</FieldLabel>
+          <div className="flex items-center" style={{ gap: 8 }}>
+            <div style={{
+              width: 96, height: 54, flexShrink: 0, border: '1px solid var(--color-border-control)', borderRadius: 2,
+              background: cover ? `center / cover no-repeat url("${artworkUrl(cover)}")` : 'var(--color-bg-base)',
+              display: 'grid', placeItems: 'center', color: 'var(--color-text-muted)', fontSize: 11, fontFamily: 'var(--font-mono)',
+            }} role="img" aria-label={cover ? 'Cover preview' : 'No cover'}>
+              {cover ? null : 'none'}
+            </div>
+            <Button variant="default" size="sm" onClick={() => setPickerOpen(true)}>SteamGridDB…</Button>
+            <Button variant="default" size="sm" onClick={async () => { try { setCover(await pickIconFile()); } catch { /* cancelled */ } }}>Local image…</Button>
+            {cover && <Button variant="ghost" size="sm" onClick={() => setCover('')}>Clear</Button>}
           </div>
         </div>
 
@@ -179,6 +203,7 @@ export function ProfileEditor({ open, onClose, onSave, initial }: ProfileEditorP
           </Button>
         </ModalFooter>
       </DialogContent>
+      <SteamGridPicker open={pickerOpen} onClose={() => setPickerOpen(false)} initialQuery={name} onSelect={url => { setCover(url); setPickerOpen(false); }} />
     </Dialog>
   );
 }

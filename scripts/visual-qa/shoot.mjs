@@ -1,5 +1,5 @@
 // Headless visual QA with a mocked Tauri backend (no Rust needed).
-// Usage: npm run qa:shots -- --out docs/assets/qa --themes dark,grey,light --sizes 1280x800,900x600 --views grid,list,settings,add,installed,sgdb,profile,confirm,hover,palette,palette-search [--scenario mixed|idle|launching|accent [--accent #19e3ff]] [--tab 12] [--url http://localhost:1420]
+// Usage: npm run qa:shots -- --out docs/assets/qa --themes dark,grey,light --sizes 1280x800,900x600 --views grid,list,settings,add,installed,sgdb,profile,confirm,hover,palette,palette-search [--scenario mixed|idle|launching|accent [--accent #19e3ff]|cover] [--tab 12] [--url http://localhost:1420]
 // Browser: set CHROMIUM_PATH, or it uses the newest Playwright headless shell in ~/.cache/ms-playwright.
 import { chromium } from 'playwright-core';
 import { mkdirSync } from 'node:fs';
@@ -30,11 +30,13 @@ try {
   for (const theme of themes) for (const [w, h] of sizes) for (const view of views) {
     const page = await browser.newPage({ viewport: { width: w, height: h } });
     page.on('pageerror', e => { if (!/unregisterListener/.test(e.message)) console.log('PAGEERROR', e.message); });
-    const profiles = scenario === 'accent' ? PROFILES.map((p, i) => (i === 0 ? { ...p, color_accent: accentColor } : p)) : PROFILES;
+    const COVER = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="400"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0b3d5c"/><stop offset=".6" stop-color="#c2410c"/><stop offset="1" stop-color="#ffd166"/></linearGradient></defs><rect width="1200" height="400" fill="url(#g)"/><path d="M0 300 C300 220 600 360 1200 200 L1200 400 L0 400Z" fill="#111" opacity=".55"/></svg>');
+    const profiles = scenario === 'accent' ? PROFILES.map((p, i) => (i === 0 ? { ...p, color_accent: accentColor } : p))
+      : scenario === 'cover' ? PROFILES.map((p, i) => (i === 0 ? { ...p, cover_url: COVER } : p)) : PROFILES;
     await page.addInitScript(installTauriMock, { profiles, theme });
     await page.goto(url);
     await page.waitForTimeout(800);
-    if (scenario === 'mixed' || scenario === 'accent') await page.evaluate(s => s.forEach(p => window.__emit('process_status_changed', p)), STATUSES);
+    if (scenario === 'mixed' || scenario === 'accent' || scenario === 'cover') await page.evaluate(s => s.forEach(p => window.__emit('process_status_changed', p)), STATUSES);
     if (scenario === 'launching') { await page.getByRole('button', { name: /run sequence/i }).click(); await page.waitForTimeout(1500); }
     if (view === 'list') await page.getByLabel('List view').click();
     if (view === 'settings') await page.getByLabel('Settings').first().click();

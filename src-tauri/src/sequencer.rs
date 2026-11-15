@@ -184,7 +184,7 @@ mod tests {
     #[test]
     fn plan_skips_disabled_and_sorts_by_order_keeping_ties_stable() {
         let profile = Profile {
-            id: "p".into(), name: "p".into(), color_accent: None, emoji: None, description: None,
+            id: "p".into(), name: "p".into(), color_accent: None, emoji: None, description: None, cover_url: None,
             apps: vec![app("c", 2, true), app("off", 0, false), app("a", 0, true), app("b", 0, true)],
             created_at: String::new(), updated_at: String::new(),
         };

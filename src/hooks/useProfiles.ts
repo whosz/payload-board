@@ -30,7 +30,7 @@ export function useProfiles() {
   useEffect(() => { reload(); }, [reload]);
 
   const createProfile = useCallback(async (
-    fields: { name: string; emoji?: string; color_accent?: string },
+    fields: { name: string; emoji?: string; color_accent?: string; cover_url?: string },
   ): Promise<Profile> => {
     const now = new Date().toISOString();
     const profile: Profile = {
@@ -38,6 +38,7 @@ export function useProfiles() {
       name: fields.name,
       emoji: fields.emoji,
       color_accent: fields.color_accent,
+      cover_url: fields.cover_url,
       apps: [],
       created_at: now,
       updated_at: now,
