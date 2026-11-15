@@ -13,7 +13,8 @@ dist-ssr
 *.local
 
 # Claude Code local settings (may contain tokens)
-.claude/
+.claude/*
+!.claude/agents/
 
 # Rust / Tauri
 src-tauri/target/

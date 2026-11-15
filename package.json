@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "qa:shots": "node scripts/visual-qa/shoot.mjs",
+    "qa:contrast": "node scripts/visual-qa/contrast.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",
@@ -38,6 +40,7 @@
     "@types/react-dom": "^19.1.6",
     "@types/uuid": "^11.0.0",
     "@vitejs/plugin-react": "^4.6.0",
+    "playwright-core": "^1.65.1",
     "tailwindcss": "^4.2.4",
     "typescript": "~5.8.3",
     "vite": "^7.0.4"
