@@ -23,6 +23,7 @@ import { useProcessStatus } from './hooks/useProcessStatus';
 import { startApp, stopApp, restartApp, openPath, stopAll, scanRunningApps } from './ipc/processes';
 import { useSequence } from './hooks/useSequence';
 import { useSessionSeconds } from './hooks/useSessionSeconds';
+import { applyAccent } from './lib/accent';
 import type { AppEntry } from './types';
 
 type Theme = 'dark' | 'grey' | 'light';
@@ -81,6 +82,8 @@ export default function App() {
     document.documentElement.dataset.theme = theme;
     localStorage.setItem('theme', theme);
   }, [theme]);
+
+  useEffect(() => { applyAccent(activeProfile?.color_accent, theme); }, [activeProfile?.color_accent, theme]);
 
   useEffect(() => {
     if (activeProfileId) {

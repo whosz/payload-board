@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, ModalHeader, ModalFooter } from '../ui/dialog';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
+import { ACCENT_PRESETS } from '../../lib/accent';
 import type { Profile } from '../../types';
 
 const EMOJI_LIST = [
@@ -15,16 +16,18 @@ const EMOJI_LIST = [
 interface ProfileEditorProps {
   open: boolean;
   onClose: () => void;
-  onSave: (fields: { name: string; emoji?: string }) => void;
-  initial?: Partial<Pick<Profile, 'name' | 'emoji'>>;
+  onSave: (fields: { name: string; emoji?: string; color_accent?: string }) => void;
+  initial?: Partial<Pick<Profile, 'name' | 'emoji' | 'color_accent'>>;
 }
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
     <div style={{
-      fontFamily: 'var(--font-body)',
+      fontFamily: 'var(--font-mono)',
       fontSize: 11,
-      fontWeight: 500,
+      fontWeight: 600,
+      letterSpacing: '0.12em',
+      textTransform: 'uppercase',
       color: 'var(--color-text-muted)',
       marginBottom: 6,
     }}>
@@ -37,12 +40,14 @@ export function ProfileEditor({ open, onClose, onSave, initial }: ProfileEditorP
   const [isEditing, setIsEditing] = useState(Boolean(initial?.name));
   const [name, setName] = useState(initial?.name ?? '');
   const [emoji, setEmoji] = useState(initial?.emoji ?? '');
+  const [accent, setAccent] = useState(initial?.color_accent ?? '');
 
   useEffect(() => {
     if (!open) return;
     setIsEditing(Boolean(initial?.name));
     setName(initial?.name ?? '');
     setEmoji(initial?.emoji ?? '');
+    setAccent(initial?.color_accent ?? '');
   }, [open]);
 
   const handleSave = () => {
@@ -50,6 +55,7 @@ export function ProfileEditor({ open, onClose, onSave, initial }: ProfileEditorP
       onSave({
         name: name.trim(),
         emoji: emoji || undefined,
+        color_accent: accent || undefined,
       });
     }
   };
@@ -69,6 +75,41 @@ export function ProfileEditor({ open, onClose, onSave, initial }: ProfileEditorP
             onKeyDown={e => e.key === 'Enter' && handleSave()}
             autoFocus
           />
+        </div>
+
+        {/* Accent colour */}
+        <div>
+          <FieldLabel>Accent colour</FieldLabel>
+          <div className="flex items-center flex-wrap" style={{ gap: 8 }} role="group" aria-label="Accent colour">
+            <button
+              onClick={() => setAccent('')}
+              aria-label="Default accent"
+              aria-pressed={!accent}
+              title="Default"
+              style={{
+                width: 32, height: 32, borderRadius: 2, cursor: 'pointer', background: 'var(--color-bg-elevated)',
+                border: `2px solid ${!accent ? 'var(--color-text-primary)' : 'var(--color-border-control)'}`,
+                color: 'var(--color-text-muted)', fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600,
+              }}
+            >
+              A
+            </button>
+            {ACCENT_PRESETS.map(p => (
+              <button
+                key={p.color}
+                onClick={() => setAccent(p.color)}
+                aria-label={p.name}
+                aria-pressed={accent === p.color}
+                title={p.name}
+                style={{
+                  width: 32, height: 32, borderRadius: 2, cursor: 'pointer', background: p.color,
+                  border: `2px solid ${accent === p.color ? 'var(--color-text-primary)' : 'transparent'}`,
+                  outlineOffset: -4,
+                  boxShadow: accent === p.color ? 'inset 0 0 0 2px var(--color-bg-surface)' : 'none',
+                }}
+              />
+            ))}
+          </div>
         </div>
 
         {/* Icon (emoji) */}

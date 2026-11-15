@@ -1,5 +1,5 @@
 // Headless visual QA with a mocked Tauri backend (no Rust needed).
-// Usage: npm run qa:shots -- --out docs/assets/qa --themes dark,grey,light --sizes 1280x800,900x600 --views grid,list,settings,add,installed,sgdb,profile,confirm,hover [--scenario mixed|idle|launching] [--tab 12] [--url http://localhost:1420]
+// Usage: npm run qa:shots -- --out docs/assets/qa --themes dark,grey,light --sizes 1280x800,900x600 --views grid,list,settings,add,installed,sgdb,profile,confirm,hover [--scenario mixed|idle|launching|accent [--accent #19e3ff]] [--tab 12] [--url http://localhost:1420]
 // Browser: set CHROMIUM_PATH, or it uses the newest Playwright headless shell in ~/.cache/ms-playwright.
 import { chromium } from 'playwright-core';
 import { spawn } from 'node:child_process';
@@ -17,6 +17,7 @@ const views = arg('views', 'grid').split(',');
 const tabs = Number(arg('tab', 0));
 // mixed = 3 live + 1 crashed (default) | idle = nothing running | launching = idle, then click Run sequence
 const scenario = arg('scenario', 'mixed');
+const accentColor = arg('accent', '#19e3ff'); // used by --scenario accent
 let url = arg('url', '');
 
 function findBrowser() {
@@ -56,10 +57,11 @@ try {
   for (const theme of themes) for (const [w, h] of sizes) for (const view of views) {
     const page = await browser.newPage({ viewport: { width: w, height: h } });
     page.on('pageerror', e => { if (!/unregisterListener/.test(e.message)) console.log('PAGEERROR', e.message); });
-    await page.addInitScript(installTauriMock, { profiles: PROFILES, theme });
+    const profiles = scenario === 'accent' ? PROFILES.map((p, i) => (i === 0 ? { ...p, color_accent: accentColor } : p)) : PROFILES;
+    await page.addInitScript(installTauriMock, { profiles, theme });
     await page.goto(url);
     await page.waitForTimeout(800);
-    if (scenario === 'mixed') await page.evaluate(s => s.forEach(p => window.__emit('process_status_changed', p)), STATUSES);
+    if (scenario === 'mixed' || scenario === 'accent') await page.evaluate(s => s.forEach(p => window.__emit('process_status_changed', p)), STATUSES);
     if (scenario === 'launching') { await page.getByRole('button', { name: /run sequence/i }).click(); await page.waitForTimeout(1500); }
     if (view === 'list') await page.getByLabel('List view').click();
     if (view === 'settings') await page.getByLabel('Settings').first().click();

@@ -87,8 +87,9 @@ Concepts (static mockups, dark theme): ![all concepts](../assets/concepts/sheet.
 - Verified in headless Chromium with the Tauri mock (hero states, 1280×800 and 900×600, three themes, keyboard focus). **Not yet verified in the real Tauri window / on Windows:** sequence with delays and cancel, roving-focus keys in WebView2.
 
 ### Phase 2 — Profile accent and cover
-- [ ] 2a: use `color_accent` (already in type) as hero tint; picker in `ProfileEditor` (5 presets + default accent)
+- [x] 2a: use `color_accent` (already in type) as hero tint; picker in `ProfileEditor` (5 presets + default accent)
 - [ ] 2b: optional profile cover image (reuse SteamGridDB / local picker). **New optional field → Rust migration, ask first.** Fallback: big first letter
+- Done: `lib/accent.ts` (presets, readable text colour, darkening in the light theme), colour picker in `ProfileEditor`, accent applied on `<html>` so tabs, hero, focus ring and buttons follow the active profile. **2b (cover image) is NOT done** — it adds a new optional profile field, so it waits for your OK.
 
 ### Phase 3 — Command Palette (in-window)
 - [ ] `CommandPalette.tsx` on the existing base-ui `Dialog`; `Ctrl+K` / `Ctrl+P` to open, `Esc` to close
