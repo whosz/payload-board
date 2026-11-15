@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react';
 import { convertFileSrc } from '@tauri-apps/api/core';
-import { Dialog, DialogContent } from '../ui/dialog';
+import { Dialog, DialogContent, ModalHeader, ModalFooter } from '../ui/dialog';
 import { Button } from '../ui/button';
 import { InputField } from '../ui/input';
 import { Switch } from '../ui/switch';
-import { Icon } from '../icons/Icon';
-import { faXmark } from '../icons';
 import { pickExecutable, pickIconFile } from '../../ipc/profiles';
 import { sgdbAutoBg } from '../../ipc/steamgriddb';
 import { InstalledAppsPicker } from './InstalledAppsPicker';
@@ -95,37 +93,8 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
   return (
     <>
       <Dialog open={open} onOpenChange={v => !v && onClose()}>
-        <DialogContent
-          showCloseButton={false}
-          style={{
-            background: 'var(--color-bg-base)',
-            border: '1px solid var(--color-border-divider)',
-            borderRadius: 2,
-            boxShadow: 'none',
-            maxWidth: 480,
-            padding: '16px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 16,
-          }}
-        >
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <span style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: 16,
-              fontWeight: 600,
-              color: 'var(--color-text-primary)',
-            }}>
-              {isEditing ? 'Edit Application' : 'Add Application'}
-            </span>
-            <button
-              onClick={onClose}
-              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', lineHeight: 0 }}
-            >
-              <Icon icon={faXmark} size={14} />
-            </button>
-          </div>
+        <DialogContent>
+        <ModalHeader title={isEditing ? 'Edit Application' : 'Add Application'} />
 
           {/* Fields */}
           <div className="flex flex-col gap-3">
@@ -254,10 +223,7 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
           </div>
 
           {/* Footer */}
-          <div
-            className="flex items-center justify-end gap-2 pt-3"
-            style={{ borderTop: '1px solid var(--color-border-divider)' }}
-          >
+          <ModalFooter>
             <Button variant="ghost" size="default" onClick={onClose}>
               Cancel
             </Button>
@@ -269,7 +235,7 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
             >
               {isEditing ? 'Save' : 'Add App'}
             </Button>
-          </div>
+          </ModalFooter>
         </DialogContent>
       </Dialog>
 

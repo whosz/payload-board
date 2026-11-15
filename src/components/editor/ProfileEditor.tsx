@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent } from '../ui/dialog';
+import { Dialog, DialogContent, ModalHeader, ModalFooter } from '../ui/dialog';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
-import { Icon } from '../icons/Icon';
-import { faXmark } from '../icons';
 import type { Profile } from '../../types';
 
 const EMOJI_LIST = [
@@ -58,37 +56,8 @@ export function ProfileEditor({ open, onClose, onSave, initial }: ProfileEditorP
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent
-        showCloseButton={false}
-        style={{
-          background: 'var(--color-bg-base)',
-          border: '1px solid var(--color-border-divider)',
-          borderRadius: 2,
-          boxShadow: 'none',
-          maxWidth: 480,
-          padding: '16px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 16,
-        }}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <span style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: 16,
-            fontWeight: 600,
-            color: 'var(--color-text-primary)',
-          }}>
-            {isEditing ? 'Edit Profile' : 'New Profile'}
-          </span>
-          <button
-            onClick={onClose}
-            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', lineHeight: 0 }}
-          >
-            <Icon icon={faXmark} size={14} />
-          </button>
-        </div>
+      <DialogContent>
+        <ModalHeader title={isEditing ? 'Edit Profile' : 'New Profile'} />
 
         {/* Name */}
         <div>
@@ -160,17 +129,14 @@ export function ProfileEditor({ open, onClose, onSave, initial }: ProfileEditorP
         </div>
 
         {/* Footer */}
-        <div
-          className="flex items-center justify-end gap-2 pt-3"
-          style={{ borderTop: '1px solid var(--color-border-divider)' }}
-        >
+        <ModalFooter>
           <Button variant="ghost" size="default" onClick={onClose}>
             Cancel
           </Button>
           <Button variant="fill" size="default" onClick={handleSave} disabled={!name.trim()}>
             Save
           </Button>
-        </div>
+        </ModalFooter>
       </DialogContent>
     </Dialog>
   );

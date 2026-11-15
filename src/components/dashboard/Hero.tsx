@@ -45,7 +45,7 @@ export function Hero(p: Props) {
 
       <div style={{ position: 'relative' }}>
         <div className="hero__label" style={{ ...mono, color: 'var(--color-accent)', marginBottom: 8 }}>Active profile</div>
-        <div className="flex items-center" style={{ gap: 6 }}>
+        <div className="hero__title flex items-center" style={{ gap: 6 }}>
           <h1 className="hero__name">{p.profile.name}</h1>
           <button onClick={p.onEditProfile} title="Edit profile" aria-label="Edit profile" className="tile-btn"><Icon icon={faPen} size={14} /></button>
           <button onClick={p.onDeleteProfile} title="Delete profile" aria-label="Delete profile" className="tile-btn"><Icon icon={faTrash} size={14} crit /></button>

@@ -10,6 +10,7 @@ export function installTauriMock({ profiles, theme }) {
     convertFileSrc: p => p,
     invoke: async (cmd, args) => {
       if (cmd === 'list_profiles') return profiles;
+      if (cmd === 'list_installed_apps') return ['Discord', 'SimHub', 'Steam', 'Trading Paints', 'Visual Studio Code'].map(n => ({ name: n, exe_path: 'C:/' + n + '.exe' }));
       if (cmd === 'run_sequence') { window.__simulateSequence(profiles, args.profileId); return null; }
       if (cmd === 'cancel_sequence') { window.__cancelled = true; return null; }
       if (cmd === 'plugin:event|listen') {

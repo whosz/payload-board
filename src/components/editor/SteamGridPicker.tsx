@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
+  ModalHeader,
 } from '../ui/dialog';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -80,25 +79,8 @@ export function SteamGridPicker({ open, onClose, initialQuery, onSelect }: Steam
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent
-        style={{
-          background: 'var(--color-bg-elevated)',
-          border: '1px solid var(--color-border-default)',
-          boxShadow: 'none',
-          maxWidth: 600,
-          maxHeight: '85vh',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
-        <DialogHeader>
-          <DialogTitle
-            className="font-mono uppercase tracking-wider text-sm"
-            style={{ color: 'var(--color-text-primary)' }}
-          >
-            SteamGridDB — Background Art
-          </DialogTitle>
-        </DialogHeader>
+      <DialogContent width={600}>
+        <ModalHeader title="SteamGridDB — Background Art" />
 
         {/* Search */}
         <div className="flex gap-2 mb-1">

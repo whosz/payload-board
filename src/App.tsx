@@ -13,6 +13,8 @@ import { SettingsPanel } from './components/settings/SettingsPanel';
 import {
   Dialog,
   DialogContent,
+  ModalFooter,
+  ModalHeader,
 } from './components/ui/dialog';
 import { Icon } from './components/icons/Icon';
 import { faPlus, faXmark } from './components/icons';
@@ -294,24 +296,13 @@ export default function App() {
 
       {/* ── Confirm delete profile ── */}
       <Dialog open={confirmDeleteId !== null} onOpenChange={v => { if (!v) setConfirmDeleteId(null); }}>
-        <DialogContent
-          showCloseButton={false}
-          style={{
-            background: 'var(--color-bg-base)',
-            border: '1px solid var(--color-btn-destructive-border)',
-            borderRadius: 2,
-            boxShadow: 'none',
-            maxWidth: 295,
-            padding: 16,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 16,
-          }}
-        >
-          <p style={{ color: 'var(--color-text-primary)', fontSize: 12, fontFamily: 'var(--font-body)', fontWeight: 400, lineHeight: '16px', letterSpacing: '0.25px', margin: 0 }}>
-            This will permanently delete <strong style={{ fontWeight: 600 }}>{profileToDelete?.name}</strong> and all its apps. Are you sure?
+        <DialogContent width={420} tone="danger">
+          <ModalHeader title="Delete profile" />
+          <p style={{ color: 'var(--color-text-secondary)', fontSize: 15, lineHeight: 1.4, margin: 0 }}>
+            This will permanently delete <strong style={{ color: 'var(--color-text-primary)', fontWeight: 700 }}>{profileToDelete?.name}</strong> and all its apps. Are you sure?
           </p>
-          <div className="flex items-center" style={{ gap: 12 }}>
+          <ModalFooter>
+            <Button variant="ghost" size="default" onClick={() => setConfirmDeleteId(null)}>Cancel</Button>
             <Button
               variant="destructive"
               size="default"
@@ -324,31 +315,19 @@ export default function App() {
             >
               Yes, delete everything
             </Button>
-            <Button variant="default" size="default" onClick={() => setConfirmDeleteId(null)}>Cancel</Button>
-          </div>
+          </ModalFooter>
         </DialogContent>
       </Dialog>
 
       {/* ── Confirm remove app ── */}
       <Dialog open={confirmRemoveApp !== null} onOpenChange={v => { if (!v) setConfirmRemoveApp(null); }}>
-        <DialogContent
-          showCloseButton={false}
-          style={{
-            background: 'var(--color-bg-base)',
-            border: '1px solid var(--color-btn-destructive-border)',
-            borderRadius: 2,
-            boxShadow: 'none',
-            maxWidth: 295,
-            padding: 16,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 16,
-          }}
-        >
-          <p style={{ color: 'var(--color-text-primary)', fontSize: 12, fontFamily: 'var(--font-body)', fontWeight: 400, lineHeight: '16px', letterSpacing: '0.25px', margin: 0 }}>
-            This will permanently remove <strong style={{ fontWeight: 600 }}>{confirmRemoveApp?.name}</strong> from this profile. Are you sure?
+        <DialogContent width={420} tone="danger">
+          <ModalHeader title="Remove app" />
+          <p style={{ color: 'var(--color-text-secondary)', fontSize: 15, lineHeight: 1.4, margin: 0 }}>
+            This will permanently remove <strong style={{ color: 'var(--color-text-primary)', fontWeight: 700 }}>{confirmRemoveApp?.name}</strong> from this profile. Are you sure?
           </p>
-          <div className="flex items-center" style={{ gap: 12 }}>
+          <ModalFooter>
+            <Button variant="ghost" size="default" onClick={() => setConfirmRemoveApp(null)}>Cancel</Button>
             <Button
               variant="destructive"
               size="default"
@@ -361,8 +340,7 @@ export default function App() {
             >
               Yes, remove it
             </Button>
-            <Button variant="default" size="default" onClick={() => setConfirmRemoveApp(null)}>Cancel</Button>
-          </div>
+          </ModalFooter>
         </DialogContent>
       </Dialog>
 

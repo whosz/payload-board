@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react';
 import { getVersion } from '@tauri-apps/api/app';
-import { Dialog, DialogContent } from '../ui/dialog';
+import { Dialog, DialogContent, ModalHeader } from '../ui/dialog';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Switch } from '../ui/switch';
-import { Icon } from '../icons/Icon';
-import { faXmark } from '../icons';
 import {
   getProfilesDir,
   pickConfigDir,
@@ -36,11 +34,12 @@ function SectionLabel({ children, crit }: { children: React.ReactNode; crit?: bo
   return (
     <div
       style={{
-        fontFamily: 'var(--font-display)',
-        fontSize: 14,
-        fontWeight: 700,
-        letterSpacing: '1px',
-        color: crit ? 'var(--color-status-crit)' : 'var(--color-text-secondary)',
+        fontFamily: 'var(--font-mono)',
+        fontSize: 11,
+        fontWeight: 600,
+        letterSpacing: '0.12em',
+        textTransform: 'uppercase',
+        color: crit ? 'var(--color-status-crit)' : 'var(--color-text-muted)',
         borderBottom: `1px solid ${crit ? 'var(--color-status-crit)' : 'var(--color-border-divider)'}`,
         paddingBottom: 8,
         marginBottom: 12,
@@ -128,32 +127,8 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset }: 
 
   return (
     <Dialog open={open} onOpenChange={v => { if (!v) { setConfirmReset(false); onClose(); } }}>
-      <DialogContent
-        showCloseButton={false}
-        style={{
-          background: 'var(--color-bg-base)',
-          border: '1px solid var(--color-border-divider)',
-          borderRadius: 2,
-          boxShadow: 'none',
-          maxWidth: 480,
-          padding: '16px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 16,
-        }}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <span style={{ fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 600, color: 'var(--color-text-primary)' }}>
-            Settings
-          </span>
-          <button
-            onClick={onClose}
-            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', lineHeight: 0 }}
-          >
-            <Icon icon={faXmark} size={14} />
-          </button>
-        </div>
+      <DialogContent>
+        <ModalHeader title="Settings" />
 
         <div className="flex flex-col gap-6">
 
