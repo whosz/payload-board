@@ -10,6 +10,8 @@ export function installTauriMock({ profiles, theme }) {
     convertFileSrc: p => p,
     invoke: async (cmd, args) => {
       if (cmd === 'list_profiles') return profiles;
+      if (cmd === 'get_bool_setting') return true;
+      if (cmd === 'set_bool_setting') return null;
       if (cmd === 'get_shortcuts') return window.__shortcuts.snapshot();
       if (cmd === 'set_shortcut') return window.__shortcuts.set(args.action, args.accelerator);
       if (cmd === 'reset_shortcut') { delete window.__shortcuts.overrides[args.action]; return window.__shortcuts.snapshot(); }

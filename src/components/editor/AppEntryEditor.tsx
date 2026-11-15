@@ -168,6 +168,38 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
               </div>
             </div>
 
+            {/* Restart on crash */}
+            <div>
+              <div className="flex items-center gap-3">
+                <Switch
+                  aria-label="Restart if it crashes"
+                  checked={!!form.restart_on_crash}
+                  onCheckedChange={v => setForm(f => ({ ...f, restart_on_crash: v || undefined }))}
+                />
+                <span style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--color-text-secondary)' }}>
+                  Restart if it crashes
+                </span>
+              </div>
+              {form.restart_on_crash && (
+                <div className="flex items-center gap-1.5" style={{ marginTop: 10 }} role="group" aria-label="Maximum restart attempts">
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginRight: 6 }}>
+                    Max attempts
+                  </span>
+                  {[1, 2, 3, 5].map(n => (
+                    <Button
+                      key={n}
+                      variant={(form.max_retries ?? 3) === n ? 'fill' : 'default'}
+                      size="default"
+                      aria-pressed={(form.max_retries ?? 3) === n}
+                      onClick={() => setForm(f => ({ ...f, max_retries: n === 3 ? undefined : n }))}
+                    >
+                      {n}
+                    </Button>
+                  ))}
+                </div>
+              )}
+            </div>
+
             {/* Background art */}
             <div>
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginBottom: 6 }}>

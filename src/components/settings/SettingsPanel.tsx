@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { getVersion } from '@tauri-apps/api/app';
 import { Dialog, DialogContent, ModalHeader } from '../ui/dialog';
 import { ShortcutsSection } from './ShortcutsSection';
+import { getBoolSetting, setBoolSetting, type BoolSetting } from '../../ipc/settings';
 import type { ShortcutsApi } from '../../hooks/useShortcuts';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -49,6 +50,35 @@ function SectionLabel({ children, crit }: { children: React.ReactNode; crit?: bo
       }}
     >
       {children}
+    </div>
+  );
+}
+
+function CrashSettings() {
+  const [values, setValues] = useState<Record<BoolSetting, boolean>>({ notify_on_crash: true, auto_restart_enabled: true });
+  useEffect(() => {
+    (['notify_on_crash', 'auto_restart_enabled'] as const).forEach(k =>
+      getBoolSetting(k).then(v => setValues(prev => ({ ...prev, [k]: v }))).catch(() => {}));
+  }, []);
+  const rows: { key: BoolSetting; label: string; hint: string }[] = [
+    { key: 'notify_on_crash', label: 'Notify when an app crashes', hint: 'System notification, only when this window is not in front.' },
+    { key: 'auto_restart_enabled', label: 'Allow auto-restart', hint: 'Master switch. Each app opts in under Restart if it crashes.' },
+  ];
+  return (
+    <div className="flex flex-col gap-3">
+      {rows.map(r => (
+        <div key={r.key} className="flex items-center gap-3">
+          <Switch
+            aria-label={r.label}
+            checked={values[r.key]}
+            onCheckedChange={v => { setValues(prev => ({ ...prev, [r.key]: v })); setBoolSetting(r.key, v).catch(() => setValues(prev => ({ ...prev, [r.key]: !v }))); }}
+          />
+          <div>
+            <div style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--color-text-secondary)' }}>{r.label}</div>
+            <div style={{ fontFamily: 'var(--font-body)', fontSize: 13, color: 'var(--color-text-muted)' }}>{r.hint}</div>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
@@ -176,6 +206,11 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset, sh
           </section>
 
           {/* STEAMGRIDDB */}
+          <section>
+            <SectionLabel>Crashes</SectionLabel>
+            <CrashSettings />
+          </section>
+
           <section>
             <SectionLabel>Shortcuts</SectionLabel>
             <ShortcutsSection api={shortcuts} />

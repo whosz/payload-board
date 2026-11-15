@@ -1,5 +1,5 @@
 // Headless visual QA with a mocked Tauri backend (no Rust needed).
-// Usage: npm run qa:shots -- --out docs/assets/qa --themes dark,grey,light --sizes 1280x800,900x600 --views grid,list,settings,add,installed,sgdb,profile,confirm,hover,palette,palette-search [--scenario mixed|idle|launching|accent [--accent #19e3ff]|cover] [--tab 12] [--url http://localhost:1420]
+// Usage: npm run qa:shots -- --out docs/assets/qa --themes dark,grey,light --sizes 1280x800,900x600 --views grid,list,settings,add,installed,sgdb,profile,confirm,hover,palette,palette-search,restart [--scenario mixed|idle|launching|accent [--accent #19e3ff]|cover] [--tab 12] [--url http://localhost:1420]
 // Browser: set CHROMIUM_PATH, or it uses the newest Playwright headless shell in ~/.cache/ms-playwright.
 import { chromium } from 'playwright-core';
 import { mkdirSync } from 'node:fs';
@@ -40,7 +40,8 @@ try {
     if (scenario === 'launching') { await page.getByRole('button', { name: /run sequence/i }).click(); await page.waitForTimeout(1500); }
     if (view === 'list') await page.getByLabel('List view').click();
     if (view === 'settings') await page.getByLabel('Settings').first().click();
-    if (view === 'add' || view === 'installed' || view === 'sgdb') await page.getByText('Add app').first().click();
+    if (view === 'add' || view === 'installed' || view === 'sgdb' || view === 'restart') await page.getByText('Add app').first().click();
+    if (view === 'restart') await page.getByRole('switch', { name: 'Restart if it crashes' }).click();
     if (view === 'installed') await page.getByRole('button', { name: /installed/i }).click();
     if (view === 'sgdb') await page.getByRole('button', { name: /steamgriddb/i }).click();
     if (view === 'profile') await page.getByLabel('New profile').click();

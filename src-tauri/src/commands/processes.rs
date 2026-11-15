@@ -15,6 +15,8 @@ pub async fn start_app<R: tauri::Runtime>(
     profile_id: String,
     entry_id: String,
 ) -> Result<(), String> {
+    use tauri::Manager;
+    app.state::<crate::crash::RestartState>().reset(&entry_id);
     start_app_inner(&app, &process_map, &profile_id, &entry_id).await
 }
 

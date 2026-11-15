@@ -180,6 +180,9 @@ fn state<R: tauri::Runtime>(app: &AppHandle<R>) -> ShortcutsState {
 // ── global registration ─────────────────────────────────────────────────────
 
 fn feedback<R: tauri::Runtime>(app: &AppHandle<R>, message: &str, kind: &'static str) {
+    if !crate::crash::window_in_front(app) {
+        crate::crash::notify(app, "Payload Board", message);
+    }
     let _ = app.emit("shortcut_feedback", Feedback { message: message.to_string(), kind });
 }
 

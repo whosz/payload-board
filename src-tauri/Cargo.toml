@@ -25,6 +25,7 @@ tokio               = { version = "1", features = ["time"] }
 reqwest             = { version = "0.12", features = ["json"] }
 tauri-plugin-autostart = "2"
 tauri-plugin-global-shortcut = "2"
+tauri-plugin-notification = "2"
 
 [target.'cfg(windows)'.dependencies]
 windows = { version = "0.58", features = [

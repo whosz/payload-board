@@ -118,8 +118,10 @@ Concepts (static mockups, dark theme): ![all concepts](../assets/concepts/sheet.
 - Not built: feedback while the window is hidden is only a toast inside the window — a system notification arrives with phase 5.
 
 ### Phase 5 — Crash toast + auto-restart (ask before touching data format)
-- [ ] `tauri-plugin-notification`: system toast on crash when the window is hidden
-- [ ] Optional auto-restart: per-app `restart_on_crash` + `max_retries` (optional fields, `#[serde(default)]`), global toggle in Settings; Rust side owns the retry counter and emits the existing `process_status_changed` event
+- [x] `tauri-plugin-notification`: system toast on crash when the window is hidden
+- [x] Optional auto-restart: per-app `restart_on_crash` + `max_retries` (optional fields, `#[serde(default)]`), global toggle in Settings; Rust side owns the retry counter and emits the existing `process_status_changed` event
+- Done (data-format change approved): `AppEntry.restart_on_crash` / `max_retries` (Rust `Option`, absent in old files = off). `crash.rs`: system notification on crash only when the window isn't in front (`tauri-plugin-notification`), retry policy (`decide`, unit-tested: default 3 attempts, clamp 1–10, global master switch, per-app opt-in), 2 s delay, budget reset after 60 s of stable running or a manual start, "gave up" notification. Two Settings switches (notify, allow auto-restart; generic allow-listed `get/set_bool_setting`). Shortcut feedback also becomes a system notification when the window is hidden. App editor: "Restart if it crashes" + max attempts (1/2/3/5).
+- **Windows check:** notification appears (and not while the window is focused); a killed app is restarted after ~2 s up to the limit, then "keeps crashing"; manual Start resets the budget.
 
 ### Phase 6 — Mini mode
 - [ ] Below ~520 px width: status + RUN/END only; reachable by resizing (no separate window yet)

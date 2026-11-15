@@ -55,3 +55,13 @@ export function getAutostart(): Promise<boolean> {
 export function setAutostart(enable: boolean): Promise<void> {
   return invoke<void>(enable ? 'plugin:autostart|enable' : 'plugin:autostart|disable');
 }
+
+export type BoolSetting = 'notify_on_crash' | 'auto_restart_enabled';
+
+export function getBoolSetting(key: BoolSetting): Promise<boolean> {
+  return invoke<boolean>('get_bool_setting', { key });
+}
+
+export function setBoolSetting(key: BoolSetting, value: boolean): Promise<void> {
+  return invoke<void>('set_bool_setting', { key, value });
+}

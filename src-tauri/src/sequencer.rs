@@ -178,6 +178,7 @@ mod tests {
             working_dir: None, launch_delay_ms: 0, wait_strategy: "fire_and_forget".into(),
             wait_seconds: None, icon_cache_path: None, background_url: None, enabled, order,
             requires_elevation: None, priority: None, launch_minimised: None,
+            restart_on_crash: None, max_retries: None,
         }
     }
 
