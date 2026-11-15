@@ -136,6 +136,12 @@ Concepts (static mockups, dark theme): ![all concepts](../assets/concepts/sheet.
 - **Translation quality:** written by the assistant, not by native speakers or a professional translator. Terminology chosen for games/launchers (profil/Profil/perfil/profil, sekwencja/Sequenz/secuencia/séquence, skrót/Tastenkürzel/atajo/raccourci). German uses the informal "du", Spanish neutral phrasing, French "vous" and Polish impersonal forms. Worth a native read-through before a release.
 - Profile and app names, executable names and technical error text coming from the OS stay as they are.
 
+## Polish round (after first review)
+
+- App name turns white on hover/focus (poster tiles and list rows). "Add app" tile: accent stroke + accent text + faint accent wash on hover/focus (chosen over just a lighter fill: it matches the focus ring and marks the primary add action).
+- List view redesigned: `AppList` + `AppListRow` (status bar in the app colour, letter/icon, name + executable or error, status text, controls) with roving focus (↑↓ Home End, Enter, E, R, Del) shared with the poster strip via `useRovingApps`; key hints follow the axis.
+- Settings split into tabs: Appearance (theme, language), General (startup/tray, crashes), Shortcuts, Data (SteamGridDB, storage, danger zone), About. Fixed panel height so the dialog doesn't jump. `qa:shots` has `settings-general|shortcuts|data|about` and `hover-tile|hover-add` views.
+
 ## Acceptance criteria
 
 - [ ] Full flow without a mouse: open palette → start an app → close → run/stop sequence

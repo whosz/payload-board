@@ -329,3 +329,43 @@
   .hero__actions > button { flex: 1; justify-content: center; }
   .hero__banner { display: flex !important; flex-wrap: wrap; margin: 0; }
 }
+
+/* ── Settings tabs ── */
+.stabs { display: flex; gap: 2px; margin-top: -6px; border-bottom: 1px solid var(--color-border-divider); overflow-x: auto; }
+.stab {
+  flex: none; padding: 10px 14px; margin-bottom: -1px; background: none; cursor: pointer; white-space: nowrap;
+  border: none; border-bottom: 2px solid transparent;
+  font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--color-text-muted); transition: color 0.12s, border-color 0.12s;
+}
+.stab:hover { color: var(--color-text-primary); }
+.stab[data-active] { color: var(--color-text-primary); border-bottom-color: var(--color-accent); }
+/* fixed height so the dialog doesn't jump between tabs */
+.spanel { height: min(440px, 58vh); overflow-y: auto; padding: 20px 4px 4px 0; outline: none; }
+
+/* ── App name lights up on hover/focus; "Add app" tile ── */
+.poster__name, .lrow__name { transition: color 0.12s; }
+.poster:hover .poster__name, .poster:focus-within .poster__name,
+.lrow:hover .lrow__name, .lrow:focus-within .lrow__name { color: var(--color-text-primary) !important; }
+.poster--add {
+  align-items: center; justify-content: center; gap: 14px; cursor: pointer; background: transparent;
+  border-style: dashed; border-color: var(--color-border-control); color: var(--color-text-secondary);
+  transition: transform 0.15s ease, border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+.poster--add:hover, .poster--add:focus-visible {
+  border-color: var(--color-accent); color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 7%, transparent);
+}
+
+/* ── List view rows ── */
+.lrow {
+  position: relative; display: flex; align-items: center; gap: 16px; min-height: 64px; padding: 6px 12px 6px 20px;
+  background: var(--color-bg-surface); border: 1px solid var(--color-border-divider); border-radius: 2px;
+  box-shadow: inset 4px 0 0 var(--lrow-bar, transparent);
+  transition: background 0.12s, border-color 0.12s;
+}
+.lrow:hover { background: var(--color-bg-elevated); border-color: var(--color-border-default); }
+.lrow:focus-visible { background: var(--color-bg-elevated); border-color: var(--color-accent); }
+.lrow__name { font-size: 18px; font-weight: 700; line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lrow__controls { width: 232px; flex: none; }
+@media (max-width: 760px) { .lrow__step { display: none; } .lrow__controls { width: auto; } .lrow { gap: 10px; padding-left: 14px; } }

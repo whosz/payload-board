@@ -68,7 +68,7 @@ export function PosterTile({ ref, index, tabIndex, onFocusTile, ...p }: Props) {
           </div>
         )}
 
-        <div title={app.name} style={{
+        <div title={app.name} className="poster__name" style={{
           position: 'absolute', left: 14, right: 14, bottom: 12, fontSize: 26, fontWeight: 700, lineHeight: 1.1,
           color: status.status === 'stopped' ? 'var(--color-text-muted)' : 'var(--color-text-primary)',
           overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',

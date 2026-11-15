@@ -53,7 +53,9 @@ try {
   // ── shortcut settings ──
   await page.keyboard.press('Control+Comma');
   await page.waitForTimeout(350);
-  ok('shortcuts: Ctrl+, opens Settings', (await page.getByText('Enable global shortcuts').count()) > 0);
+  ok('settings: Ctrl+, opens Settings with tabs', (await page.getByRole('tab').count()) === 5);
+  await page.getByRole('tab', { name: 'Shortcuts' }).click();
+  ok('settings: Shortcuts tab shows the shortcut list', (await page.getByText('Enable global shortcuts').count()) > 0);
   await page.getByLabel('Change shortcut for Add app').click();
   ok('shortcuts: recording prompt shown', (await page.getByText('Press keys').count()) > 0);
   await page.keyboard.press('Control+Shift+KeyJ');

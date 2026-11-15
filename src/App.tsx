@@ -8,7 +8,7 @@ import { AppsToolbar, type SortOrder, type ViewMode } from './components/dashboa
 import { KeyHints } from './components/dashboard/KeyHints';
 import { CommandPalette } from './components/CommandPalette';
 import { buildPaletteItems } from './lib/palette';
-import { AppListRow } from './components/dashboard/AppListRow';
+import { AppList } from './components/dashboard/AppList';
 import { ProfileEditor } from './components/editor/ProfileEditor';
 import { AppEntryEditor } from './components/editor/AppEntryEditor';
 import { SettingsPanel } from './components/settings/SettingsPanel';
@@ -307,11 +307,10 @@ export default function App() {
                   <KeyHints />
                 </>
               ) : (
-                <div className="flex flex-col flex-1 overflow-auto gap-1.5" style={{ padding: '16px 40px 24px' }}>
-                  {sortedApps.map(app => (
-                    <AppListRow key={app.id} app={app} status={getStatus(app.id)} {...makeHandlers(app)} />
-                  ))}
-                </div>
+                <>
+                  <AppList apps={sortedApps} getStatus={getStatus} makeHandlers={makeHandlers} />
+                  <KeyHints axis="vertical" />
+                </>
               )}
             </>
           )}

@@ -2,9 +2,9 @@
 import { t } from '../../i18n';
 
 /** Footer with the keyboard shortcuts of the tile strip. */
-export function KeyHints() {
+export function KeyHints({ axis = 'horizontal' }: { axis?: 'horizontal' | 'vertical' }) {
   const HINTS: [string, string][] = [
-    ['← →', t('select')], ['Enter', t('start / stop')], ['E', t('edit')], ['R', t('restart')], ['Del', t('remove')],
+    [axis === 'horizontal' ? '← →' : '↑ ↓', t('select')], ['Enter', t('start / stop')], ['E', t('edit')], ['R', t('restart')], ['Del', t('remove')],
   ];
   return (
     <footer

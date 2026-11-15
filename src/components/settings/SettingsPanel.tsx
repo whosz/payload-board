@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getVersion } from '@tauri-apps/api/app';
+import { Tabs as TabsPrimitive } from '@base-ui/react/tabs';
 import { Dialog, DialogContent, ModalHeader } from '../ui/dialog';
 import { ShortcutsSection } from './ShortcutsSection';
 import { getBoolSetting, setBoolSetting, type BoolSetting } from '../../ipc/settings';
@@ -164,11 +165,16 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset, sh
       <DialogContent width={600}>
         <ModalHeader title={t('Settings')} />
 
-        <div className="flex flex-col gap-6">
-
-          {/* APPEARANCE */}
+        <TabsPrimitive.Root defaultValue="appearance">
+          <TabsPrimitive.List className="stabs" aria-label={t('Settings')}>
+            <TabsPrimitive.Tab value="appearance" className="stab">{t('Appearance')}</TabsPrimitive.Tab>
+            <TabsPrimitive.Tab value="general" className="stab">{t('General')}</TabsPrimitive.Tab>
+            <TabsPrimitive.Tab value="shortcuts" className="stab">{t('Shortcuts')}</TabsPrimitive.Tab>
+            <TabsPrimitive.Tab value="data" className="stab">{t('Data')}</TabsPrimitive.Tab>
+            <TabsPrimitive.Tab value="about" className="stab">{t('About')}</TabsPrimitive.Tab>
+          </TabsPrimitive.List>
+          <TabsPrimitive.Panel value="appearance" className="spanel flex flex-col gap-6">
           <section>
-            <SectionLabel>{t('Appearance')}</SectionLabel>
             <div style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--color-text-secondary)', marginBottom: 8 }}>
               {t('Theme')}
             </div>
@@ -202,6 +208,10 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset, sh
                 </Button>
               ))}
             </div>
+          </section>
+          </TabsPrimitive.Panel>
+          <TabsPrimitive.Panel value="general" className="spanel flex flex-col gap-6">
+          <section>
             <div className="flex flex-col gap-3">
               <div className="flex items-center gap-3">
                 <Switch aria-label={t('Launch on startup')} checked={autostart} onCheckedChange={v => { setAutostartState(v); setAutostart(v).catch(() => setAutostartState(!v)); }} />
@@ -224,17 +234,17 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset, sh
             </div>
           </section>
 
-          {/* STEAMGRIDDB */}
           <section>
             <SectionLabel>{t('Crashes')}</SectionLabel>
             <CrashSettings />
           </section>
-
+          </TabsPrimitive.Panel>
+          <TabsPrimitive.Panel value="shortcuts" className="spanel flex flex-col gap-6">
           <section>
-            <SectionLabel>{t('Shortcuts')}</SectionLabel>
             <ShortcutsSection api={shortcuts} />
           </section>
-
+          </TabsPrimitive.Panel>
+          <TabsPrimitive.Panel value="data" className="spanel flex flex-col gap-6">
           <section>
             <SectionLabel>SteamGridDB</SectionLabel>
             <div style={{ fontFamily: 'var(--font-body)', fontSize: 14, fontWeight: 400, lineHeight: '16px', letterSpacing: '0.25px', color: 'var(--color-text-primary)', marginBottom: 8 }}>
@@ -260,7 +270,6 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset, sh
             )}
           </section>
 
-          {/* STORAGE */}
           <section>
             <SectionLabel>{t('Storage')}</SectionLabel>
             <div
@@ -292,7 +301,6 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset, sh
             </div>
           </section>
 
-          {/* DANGER ZONE */}
           <section>
             <SectionLabel crit>{t('Danger zone')}</SectionLabel>
             {!confirmReset ? (
@@ -318,10 +326,9 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset, sh
               </div>
             )}
           </section>
-
-          {/* ABOUT */}
+          </TabsPrimitive.Panel>
+          <TabsPrimitive.Panel value="about" className="spanel flex flex-col gap-6">
           <section>
-            <SectionLabel>{t('About')}</SectionLabel>
             <div className="flex items-center gap-4">
               <img src="/logo.svg" alt="Payload Board" style={{ width: 48, height: 48, flexShrink: 0 }} />
               <div className="flex flex-col gap-1">
@@ -334,8 +341,8 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset, sh
               </div>
             </div>
           </section>
-
-        </div>
+          </TabsPrimitive.Panel>
+        </TabsPrimitive.Root>
       </DialogContent>
     </Dialog>
   );

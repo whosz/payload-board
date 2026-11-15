@@ -1,5 +1,5 @@
 // Headless visual QA with a mocked Tauri backend (no Rust needed).
-// Usage: npm run qa:shots -- --out docs/assets/qa --themes dark,grey,light --sizes 1280x800,900x600 --views grid,list,settings,add,installed,sgdb,profile,confirm,hover,palette,palette-search,restart [--scenario mixed|idle|launching|accent [--accent #19e3ff]|cover] [--lang pl|de|es|fr] [--tab 12] [--url http://localhost:1420]
+// Usage: npm run qa:shots -- --out docs/assets/qa --themes dark,grey,light --sizes 1280x800,900x600 --views grid,list,settings,settings-general,settings-shortcuts,settings-data,settings-about,add,installed,sgdb,profile,confirm,hover,palette,palette-search,restart,hover-tile,hover-add [--scenario mixed|idle|launching|accent [--accent #19e3ff]|cover] [--lang pl|de|es|fr] [--tab 12] [--url http://localhost:1420]
 // Browser: set CHROMIUM_PATH, or it uses the newest Playwright headless shell in ~/.cache/ms-playwright.
 import { chromium } from 'playwright-core';
 import { mkdirSync } from 'node:fs';
@@ -40,7 +40,11 @@ try {
     if (scenario === 'mixed' || scenario === 'accent' || scenario === 'cover') await page.evaluate(s => s.forEach(p => window.__emit('process_status_changed', p)), STATUSES);
     if (scenario === 'launching') { await page.getByRole('button', { name: /run sequence/i }).click(); await page.waitForTimeout(1500); }
     if (view === 'list') await page.locator('button[aria-pressed]').nth(1).click(); // 0 = poster view, 1 = list view
-    if (view === 'settings') await page.locator('header .tile-btn').nth(2).click(); // palette, new profile, settings
+    if (view.startsWith('settings')) {
+      await page.locator('header .tile-btn').nth(2).click(); // palette, new profile, settings
+      const tab = { general: 1, shortcuts: 2, data: 3, about: 4 }[view.split('-')[1]];
+      if (tab) await page.getByRole('tab').nth(tab).click();
+    }
     if (view === 'add' || view === 'installed' || view === 'sgdb' || view === 'restart') await page.locator('.hero__add').click();
     if (view === 'restart') await page.getByRole('switch', { name: 'Restart if it crashes' }).click();
     if (view === 'installed') await page.getByRole('button', { name: /installed/i }).click();
@@ -48,6 +52,8 @@ try {
     if (view === 'profile') await page.locator('header .tile-btn').nth(1).click();
     if (view === 'confirm') await page.getByLabel('Delete profile').click({ force: true });
     if (view === 'palette' || view === 'palette-search') { await page.keyboard.press('Control+k'); if (view === 'palette-search') await page.keyboard.type('rac'); await page.waitForTimeout(300); }
+    if (view === 'hover-tile') await page.locator('.poster').nth(4).hover();
+    if (view === 'hover-add') await page.locator('.poster--add').hover();
     if (view === 'hover') await page.locator('.hero__name').hover();
     if (tabs) for (let i = 0; i < tabs; i++) await page.keyboard.press('Tab');
     await page.waitForTimeout(400);
