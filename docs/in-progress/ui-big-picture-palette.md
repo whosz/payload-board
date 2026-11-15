@@ -101,14 +101,21 @@ Concepts (static mockups, dark theme): ![all concepts](../assets/concepts/sheet.
 - Done: `lib/palette.ts` (items, scoring, ranking: groups ordered by best match, first enabled item preselected), `CommandPalette.tsx`. 10-step keyboard/ARIA check passes in headless Chromium (open, focus, arrows, activedescendant, groups, no results, Enter, Esc, toggle). Not tested with a real screen reader. The palette hotkey is hard-coded for now; phase 4 makes it configurable.
 
 ### Phase 4 — Shortcuts (global + configurable)
-- [ ] **Action registry** (`lib/actions.ts`, shared with the palette): `id`, `title`, `scope: 'global' | 'window'`, `defaultAccelerator`, `run(ctx)`. Actions: `palette`, `run_sequence`, `end_session`, `add_app`, `new_profile`, `settings`
-- [ ] Rust `shortcuts.rs` with `tauri-plugin-global-shortcut`: register from stored settings at startup; on trigger emit `shortcut_triggered { action }` (palette: show + focus main window first); `run`/`end` call the Rust sequencer / `stop_all` directly so they work with the window hidden
-- [ ] Commands: `get_shortcuts`, `set_shortcut(action, accelerator)`, `reset_shortcut(action)`, `set_global_shortcuts_enabled(bool)`; errors typed `Invalid | Conflict | Taken` (OS refused registration)
-- [ ] Storage in the existing settings store; accelerator format = Tauri (`CommandOrControl+Shift+Space`)
-- [ ] **Settings → Shortcuts** section: one row per action (label, current keys, scope badge, Change = press-to-record, Reset, Clear), master switch "Enable global shortcuts", inline error for conflicts/invalid, shows which are global vs window-only
-- [ ] Global End session needs a second press within 2 s (D4); toast confirms every global action
-- [ ] In-window shortcuts (`Ctrl+K`, `Ctrl+R`, `Ctrl+.`, `Ctrl+N`, …) read the same registry, so changing them in Settings takes effect immediately; guard against firing while a dialog is open
-- [ ] Risk to verify early: re-registering after a failed attempt; shortcut still firing after the window is minimised to tray
+- [x] **Action registry** (`lib/actions.ts`, shared with the palette): `id`, `title`, `scope: 'global' | 'window'`, `defaultAccelerator`, `run(ctx)`. Actions: `palette`, `run_sequence`, `end_session`, `add_app`, `new_profile`, `settings`
+- [x] Rust `shortcuts.rs` with `tauri-plugin-global-shortcut`: register from stored settings at startup; on trigger emit `shortcut_triggered { action }` (palette: show + focus main window first); `run`/`end` call the Rust sequencer / `stop_all` directly so they work with the window hidden
+- [x] Commands: `get_shortcuts`, `set_shortcut(action, accelerator)`, `reset_shortcut(action)`, `set_global_shortcuts_enabled(bool)`; errors typed `Invalid | Conflict | Taken` (OS refused registration)
+- [x] Storage in the existing settings store; accelerator format = Tauri (`CommandOrControl+Shift+Space`)
+- [x] **Settings → Shortcuts** section: one row per action (label, current keys, scope badge, Change = press-to-record, Reset, Clear), master switch "Enable global shortcuts", inline error for conflicts/invalid, shows which are global vs window-only
+- [x] Global End session needs a second press within 2 s (D4); toast confirms every global action
+- [x] In-window shortcuts (`Ctrl+K`, `Ctrl+R`, `Ctrl+.`, `Ctrl+N`, …) read the same registry, so changing them in Settings takes effect immediately; guard against firing while a dialog is open
+- [ ] Risk to verify early (Windows): re-registering after a failed attempt; shortcut still firing after the window is minimised to tray
+- Done on `feat/big-picture`:
+  - Rust `shortcuts.rs` (`tauri-plugin-global-shortcut` 2.x): `get_shortcuts`, `set_shortcut` (typed errors `invalid | conflict | taken`, rolls back when the OS refuses), `reset_shortcut`, `set_global_shortcuts_enabled`, `suspend_global_shortcuts` (paused while recording a key), `set_active_profile` (so global run/end know the profile with the window hidden). Persisted in the settings store. Events: `shortcut_triggered`, `shortcut_feedback`. `start_sequence` and `stop_all_inner` extracted so the shortcut handler calls them directly.
+  - Accelerators are `CommandOrControl+Alt+KeyR`-style (`KeyboardEvent.code` names). Defaults: palette anywhere `Ctrl+Shift+Space`, run `Ctrl+Alt+R`, end session `Ctrl+Alt+E` (second press within 2 s), window: palette `Ctrl+K`, add app `Ctrl+N`, new profile `Ctrl+Shift+N`, settings `Ctrl+,`. (`Ctrl+P` alias from D6 dropped: every shortcut is now a single configurable binding.)
+  - Frontend: `lib/shortcuts.ts`, `hooks/useShortcuts.ts` (window handlers; global ones fall back to the window only when OS registration is off or failed), Settings → Shortcuts (`ShortcutsSection`: master switch, press-to-record, Reset/Clear, conflict and invalid messages). `Switch` now takes an `aria-label` (the Settings switches had no accessible name).
+  - 4 Rust tests (defaults parse and are unique, globals need a modifier) + `npm run qa:flows` (17 browser checks: palette and shortcut settings).
+- **Windows checklist (not testable in WSL):** global shortcuts fire with the window hidden to tray and while a game has focus; a taken/invalid key shows an error and the old binding stays; run/end via shortcut (End needs the second press); disabling the master switch frees the keys; palette shortcut brings the window to the front.
+- Not built: feedback while the window is hidden is only a toast inside the window — a system notification arrives with phase 5.
 
 ### Phase 5 — Crash toast + auto-restart (ask before touching data format)
 - [ ] `tauri-plugin-notification`: system toast on crash when the window is hidden

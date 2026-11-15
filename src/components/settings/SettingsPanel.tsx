@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { getVersion } from '@tauri-apps/api/app';
 import { Dialog, DialogContent, ModalHeader } from '../ui/dialog';
+import { ShortcutsSection } from './ShortcutsSection';
+import type { ShortcutsApi } from '../../hooks/useShortcuts';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Switch } from '../ui/switch';
@@ -28,6 +30,7 @@ interface SettingsPanelProps {
   theme: Theme;
   onThemeChange: (t: Theme) => void;
   onReset: () => void;
+  shortcuts: ShortcutsApi;
 }
 
 function SectionLabel({ children, crit }: { children: React.ReactNode; crit?: boolean }) {
@@ -56,7 +59,7 @@ const THEMES: { value: Theme; label: string }[] = [
   { value: 'light', label: 'Light' },
 ];
 
-export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset }: SettingsPanelProps) {
+export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset, shortcuts }: SettingsPanelProps) {
   const [version, setVersion] = useState('...');
   const [profilesDir, setProfilesDirState] = useState('');
   const [confirmReset, setConfirmReset] = useState(false);
@@ -127,7 +130,7 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset }: 
 
   return (
     <Dialog open={open} onOpenChange={v => { if (!v) { setConfirmReset(false); onClose(); } }}>
-      <DialogContent>
+      <DialogContent width={600}>
         <ModalHeader title="Settings" />
 
         <div className="flex flex-col gap-6">
@@ -152,19 +155,19 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset }: 
             </div>
             <div className="flex flex-col gap-3">
               <div className="flex items-center gap-3">
-                <Switch checked={autostart} onCheckedChange={v => { setAutostartState(v); setAutostart(v).catch(() => setAutostartState(!v)); }} />
+                <Switch aria-label="Launch on startup" checked={autostart} onCheckedChange={v => { setAutostartState(v); setAutostart(v).catch(() => setAutostartState(!v)); }} />
                 <span style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--color-text-secondary)' }}>
                   Launch on startup
                 </span>
               </div>
               <div className="flex items-center gap-3">
-                <Switch checked={startMinimised} onCheckedChange={v => { setStartMinimisedState(v); setStartMinimisedToTray(v).catch(() => setStartMinimisedState(!v)); }} />
+                <Switch aria-label="Start minimised to tray" checked={startMinimised} onCheckedChange={v => { setStartMinimisedState(v); setStartMinimisedToTray(v).catch(() => setStartMinimisedState(!v)); }} />
                 <span style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--color-text-secondary)' }}>
                   Start minimised to tray
                 </span>
               </div>
               <div className="flex items-center gap-3">
-                <Switch checked={minimiseOnClose} onCheckedChange={v => { setMinimiseOnCloseState(v); setMinimiseOnClose(v).catch(() => setMinimiseOnCloseState(!v)); }} />
+                <Switch aria-label="Minimise on close" checked={minimiseOnClose} onCheckedChange={v => { setMinimiseOnCloseState(v); setMinimiseOnClose(v).catch(() => setMinimiseOnCloseState(!v)); }} />
                 <span style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--color-text-secondary)' }}>
                   Minimise on close
                 </span>
@@ -173,6 +176,11 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset }: 
           </section>
 
           {/* STEAMGRIDDB */}
+          <section>
+            <SectionLabel>Shortcuts</SectionLabel>
+            <ShortcutsSection api={shortcuts} />
+          </section>
+
           <section>
             <SectionLabel>SteamGridDB</SectionLabel>
             <div style={{ fontFamily: 'var(--font-body)', fontSize: 14, fontWeight: 400, lineHeight: '16px', letterSpacing: '0.25px', color: 'var(--color-text-primary)', marginBottom: 8 }}>

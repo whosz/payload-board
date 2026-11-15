@@ -6,6 +6,7 @@ Tauri 2 (Rust) + React 19 + Tailwind 4 + shadcn/base-ui. Windows-first desktop a
 
 - `npm run dev` — Vite only (port 1420); `npm run tauri dev` — full app
 - `npm run build` — `tsc && vite build` (run before finishing any change)
+- `npm run qa:contrast` (token contrast), `npm run qa:shots`, `npm run qa:flows` (palette + shortcut behaviour checks) — mocked Tauri, headless Chromium; see `scripts/visual-qa/`
 
 ## Working rules
 

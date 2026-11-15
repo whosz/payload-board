@@ -10,6 +10,11 @@ export function installTauriMock({ profiles, theme }) {
     convertFileSrc: p => p,
     invoke: async (cmd, args) => {
       if (cmd === 'list_profiles') return profiles;
+      if (cmd === 'get_shortcuts') return window.__shortcuts.snapshot();
+      if (cmd === 'set_shortcut') return window.__shortcuts.set(args.action, args.accelerator);
+      if (cmd === 'reset_shortcut') { delete window.__shortcuts.overrides[args.action]; return window.__shortcuts.snapshot(); }
+      if (cmd === 'set_global_shortcuts_enabled') { window.__shortcuts.enabled = args.enabled; return window.__shortcuts.snapshot(); }
+      if (cmd === 'set_active_profile' || cmd === 'suspend_global_shortcuts') return null;
       if (cmd === 'list_installed_apps') return ['Discord', 'SimHub', 'Steam', 'Trading Paints', 'Visual Studio Code'].map(n => ({ name: n, exe_path: 'C:/' + n + '.exe' }));
       if (cmd === 'run_sequence') { window.__simulateSequence(profiles, args.profileId); return null; }
       if (cmd === 'cancel_sequence') { window.__cancelled = true; return null; }
@@ -18,6 +23,21 @@ export function installTauriMock({ profiles, theme }) {
         return 1;
       }
       return null;
+    },
+  };
+  // Stand-in for shortcuts.rs: same defaults, conflict and "needs a modifier" rules.
+  const D = { palette_global: ['CommandOrControl+Shift+Space', 'global'], run_sequence: ['CommandOrControl+Alt+KeyR', 'global'], end_session: ['CommandOrControl+Alt+KeyE', 'global'], palette: ['CommandOrControl+KeyK', 'window'], add_app: ['CommandOrControl+KeyN', 'window'], new_profile: ['CommandOrControl+Shift+KeyN', 'window'], settings: ['CommandOrControl+Comma', 'window'] };
+  window.__shortcuts = {
+    overrides: {}, enabled: true,
+    snapshot() { return { global_enabled: this.enabled, entries: Object.keys(D).map(a => ({ action: a, accelerator: a in this.overrides ? this.overrides[a] : D[a][0], default: D[a][0], scope: D[a][1], error: null })) }; },
+    set(action, acc) {
+      if (acc) {
+        if (D[action][1] === 'global' && !acc.includes('+')) throw { kind: 'invalid' };
+        const other = this.snapshot().entries.find(e => e.action !== action && e.accelerator === acc);
+        if (other) throw { kind: 'conflict', with: other.action };
+      }
+      this.overrides[action] = acc;
+      return this.snapshot();
     },
   };
   // Minimal stand-in for the Rust sequencer: one app every 700 ms, cancellable.

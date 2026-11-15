@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "tauri": "tauri",
     "qa:shots": "node scripts/visual-qa/shoot.mjs",
-    "qa:contrast": "node scripts/visual-qa/contrast.mjs"
+    "qa:contrast": "node scripts/visual-qa/contrast.mjs",
+    "qa:flows": "node scripts/visual-qa/flows.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",

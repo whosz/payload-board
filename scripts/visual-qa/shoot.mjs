@@ -2,11 +2,9 @@
 // Usage: npm run qa:shots -- --out docs/assets/qa --themes dark,grey,light --sizes 1280x800,900x600 --views grid,list,settings,add,installed,sgdb,profile,confirm,hover,palette,palette-search [--scenario mixed|idle|launching|accent [--accent #19e3ff]] [--tab 12] [--url http://localhost:1420]
 // Browser: set CHROMIUM_PATH, or it uses the newest Playwright headless shell in ~/.cache/ms-playwright.
 import { chromium } from 'playwright-core';
-import { spawn } from 'node:child_process';
-import { existsSync, mkdirSync, readdirSync } from 'node:fs';
-import { homedir } from 'node:os';
+import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { findBrowser, startDevServer } from './lib.mjs';
 import { installTauriMock, PROFILES, STATUSES } from './tauri-mock.js';
 
 const arg = (name, def) => { const i = process.argv.indexOf('--' + name); return i > 0 ? process.argv[i + 1] : def; };
@@ -20,36 +18,11 @@ const scenario = arg('scenario', 'mixed');
 const accentColor = arg('accent', '#19e3ff'); // used by --scenario accent
 let url = arg('url', '');
 
-function findBrowser() {
-  if (process.env.CHROMIUM_PATH) return process.env.CHROMIUM_PATH;
-  const base = join(homedir(), '.cache', 'ms-playwright');
-  if (!existsSync(base)) return null;
-  for (const d of readdirSync(base).filter(x => x.startsWith('chromium_headless_shell')).sort().reverse()) {
-    const p = join(base, d, 'chrome-headless-shell-linux64', 'chrome-headless-shell');
-    if (existsSync(p)) return p;
-  }
-  return null;
-}
-
-async function waitFor(u) {
-  for (let i = 0; i < 40; i++) {
-    try { if ((await fetch(u)).ok) return; } catch { /* not up yet */ }
-    await new Promise(r => setTimeout(r, 500));
-  }
-  throw new Error('dev server did not start: ' + u);
-}
-
 const exe = findBrowser();
 if (!exe) { console.error('No Chromium found. Run `npx playwright install chromium` or set CHROMIUM_PATH.'); process.exit(1); }
 
 let server;
-if (!url) {
-  url = 'http://localhost:1420';
-  // run vite directly (not via npx) so server.kill() really stops it
-  const vite = fileURLToPath(new URL('../../node_modules/vite/bin/vite.js', import.meta.url));
-  server = spawn(process.execPath, [vite, '--port', '1420', '--strictPort'], { stdio: 'ignore' });
-  await waitFor(url);
-}
+if (!url) { server = await startDevServer(); url = server.url; }
 
 mkdirSync(out, { recursive: true });
 const browser = await chromium.launch({ executablePath: exe, args: ['--no-sandbox'] });
@@ -81,5 +54,5 @@ try {
   }
 } finally {
   await browser.close();
-  server?.kill();
+  server?.stop();
 }

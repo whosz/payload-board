@@ -119,29 +119,28 @@ async fn execute<R: tauri::Runtime>(
     (SequenceState::Done, total)
 }
 
-#[tauri::command]
-pub async fn run_sequence<R: tauri::Runtime>(
-    app: AppHandle<R>,
-    process_map: State<'_, ProcessMap>,
-    sequences: State<'_, SequenceMap>,
-    profile_id: String,
+/// Loads the profile and launches its sequence in the background (shared by the command and the global shortcut).
+pub fn start_sequence<R: tauri::Runtime>(
+    app: &AppHandle<R>,
+    map: &ProcessMap,
+    seqs: &SequenceMap,
+    profile_id: &str,
 ) -> Result<(), String> {
-    let profile = store::load_profiles(&app)
+    let profile = store::load_profiles(app)
         .into_iter()
         .find(|p| p.id == profile_id)
         .ok_or("Profile not found")?;
 
     let cancel = Arc::new(AtomicBool::new(false));
     {
-        let mut running = sequences.lock().unwrap();
-        if running.contains_key(&profile_id) {
+        let mut running = seqs.lock().unwrap();
+        if running.contains_key(profile_id) {
             return Err("A sequence is already running for this profile".into());
         }
-        running.insert(profile_id.clone(), cancel.clone());
+        running.insert(profile_id.to_string(), cancel.clone());
     }
 
-    let map = process_map.inner().clone();
-    let seqs = sequences.inner().clone();
+    let (app, map, seqs) = (app.clone(), map.clone(), seqs.clone());
     tauri::async_runtime::spawn(async move {
         let total = plan(&profile).len();
         let (state, step) = execute(&app, &map, &profile, &cancel).await;
@@ -149,6 +148,16 @@ pub async fn run_sequence<R: tauri::Runtime>(
         emit_progress(&app, &profile.id, state, step, total, None, None);
     });
     Ok(())
+}
+
+#[tauri::command]
+pub async fn run_sequence<R: tauri::Runtime>(
+    app: AppHandle<R>,
+    process_map: State<'_, ProcessMap>,
+    sequences: State<'_, SequenceMap>,
+    profile_id: String,
+) -> Result<(), String> {
+    start_sequence(&app, &process_map, &sequences, &profile_id)
 }
 
 #[tauri::command]

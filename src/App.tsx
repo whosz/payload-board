@@ -26,6 +26,8 @@ import { startApp, stopApp, restartApp, openPath, stopAll, scanRunningApps } fro
 import { useSequence } from './hooks/useSequence';
 import { useSessionSeconds } from './hooks/useSessionSeconds';
 import { applyAccent } from './lib/accent';
+import { useShortcuts } from './hooks/useShortcuts';
+import { setActiveProfile } from './ipc/shortcuts';
 import type { AppEntry } from './types';
 
 type Theme = 'dark' | 'grey' | 'light';
@@ -34,6 +36,7 @@ const THEMES: Theme[] = ['dark', 'grey', 'light'];
 interface Toast {
   id: number;
   message: string;
+  kind: 'info' | 'warn' | 'error';
 }
 
 export default function App() {
@@ -77,20 +80,7 @@ export default function App() {
     return () => window.removeEventListener('keydown', handler);
   }, []);
 
-  // Command palette: Ctrl/Cmd+K or Ctrl/Cmd+P (ignored while another dialog is open)
   const anyDialogOpen = profileEditorOpen || appEditorOpen || settingsOpen || confirmDeleteId !== null || confirmRemoveApp !== null;
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      const k = e.key.toLowerCase();
-      if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && (k === 'k' || k === 'p')) {
-        e.preventDefault();
-        if (paletteOpen) setPaletteOpen(false);
-        else if (!anyDialogOpen) setPaletteOpen(true);
-      }
-    };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, [paletteOpen, anyDialogOpen]);
 
   const [theme, setTheme] = useState<Theme>(() =>
     THEMES.find(t => t === localStorage.getItem('theme')) ?? 'dark'
@@ -109,16 +99,29 @@ export default function App() {
     }
   }, [activeProfileId]);
 
-  const pushError = useCallback((msg: string) => {
-    const id = Date.now();
-    setToasts(prev => [...prev, { id, message: msg }]);
-    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 6000);
+  const pushToast = useCallback((msg: string, kind: Toast['kind'] = 'error') => {
+    const id = Date.now() + Math.random();
+    setToasts(prev => [...prev, { id, message: msg, kind }]);
+    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), kind === 'error' ? 6000 : 3000);
   }, []);
+  const pushError = useCallback((msg: string) => pushToast(msg, 'error'), [pushToast]);
 
   const sequence = useSequence(activeProfileId, (appId, message) => {
     const name = activeProfile?.apps.find(a => a.id === appId)?.name ?? 'App';
     pushError(`Start failed — ${name}: ${message}`);
   });
+
+  const shortcuts = useShortcuts({
+    palette: () => { if (paletteOpen) setPaletteOpen(false); else if (!anyDialogOpen) setPaletteOpen(true); },
+    palette_global: () => { if (!anyDialogOpen) setPaletteOpen(true); },
+    run_sequence: () => { if (activeProfile) sequence.run().catch(e => pushError(`Run sequence failed: ${e}`)); },
+    end_session: () => { if (activeProfile) stopAll(activeProfile.id).catch(e => pushError(`End Session failed: ${e}`)); },
+    add_app: () => { if (!anyDialogOpen && !paletteOpen && activeProfile) { setEditingApp(undefined); setAppEditorOpen(true); } },
+    new_profile: () => { if (!anyDialogOpen && !paletteOpen) { setEditingProfile(undefined); setProfileEditorOpen(true); } },
+    settings: () => { if (!anyDialogOpen && !paletteOpen) setSettingsOpen(true); },
+  }, pushToast);
+
+  useEffect(() => { setActiveProfile(activeProfileId).catch(() => {}); }, [activeProfileId]);
 
   const dismissToast = (id: number) =>
     setToasts(prev => prev.filter(t => t.id !== id));
@@ -327,7 +330,7 @@ export default function App() {
               key={t.id}
               style={{
                 background: 'var(--color-bg-elevated)',
-                border: '1px solid var(--color-status-crit)',
+                border: `1px solid ${t.kind === 'error' ? 'var(--color-status-crit)' : t.kind === 'warn' ? 'var(--color-accent)' : 'var(--color-border-control)'}`,
                 borderRadius: 2,
                 padding: '10px 14px',
                 display: 'flex',
@@ -427,6 +430,7 @@ export default function App() {
         theme={theme}
         onThemeChange={setTheme}
         onReset={() => reload()}
+        shortcuts={shortcuts}
       />
     </div>
   );

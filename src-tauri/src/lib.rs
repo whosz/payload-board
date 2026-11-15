@@ -2,6 +2,7 @@ mod commands;
 mod platform;
 mod process_manager;
 mod sequencer;
+mod shortcuts;
 mod store;
 
 use commands::apps::{list_installed_apps, pick_executable, pick_icon_file};
@@ -15,6 +16,7 @@ use commands::settings::{
 use commands::steamgriddb::{sgdb_auto_bg, sgdb_grids, sgdb_search};
 use process_manager::{check_crashed_processes, new_process_map, ProcessMap};
 use sequencer::{cancel_sequence, new_sequence_map, run_sequence};
+use shortcuts::{get_shortcuts, register_all, reset_shortcut, set_active_profile, set_global_shortcuts_enabled, set_shortcut, suspend_global_shortcuts, ShortcutRuntime};
 use store::SETTINGS_FILE;
 use tauri::Manager;
 use tauri_plugin_store::StoreExt;
@@ -26,8 +28,10 @@ pub fn run() {
     tauri::Builder::default()
         .manage(process_map)
         .manage(new_sequence_map())
+        .manage(ShortcutRuntime::default())
         .plugin(tauri_plugin_autostart::init(tauri_plugin_autostart::MacosLauncher::LaunchAgent, None))
         .plugin(tauri_plugin_store::Builder::default().build())
+        .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_shell::init())
         .setup(|app| {
@@ -98,6 +102,9 @@ pub fn run() {
                 });
             }
 
+            // ── Global shortcuts (from stored settings) ─────────────────────
+            register_all(app.handle());
+
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -114,6 +121,12 @@ pub fn run() {
             stop_all,
             run_sequence,
             cancel_sequence,
+            get_shortcuts,
+            set_shortcut,
+            reset_shortcut,
+            set_global_shortcuts_enabled,
+            set_active_profile,
+            suspend_global_shortcuts,
             scan_running_apps,
             get_data_dir,
             get_profiles_dir,

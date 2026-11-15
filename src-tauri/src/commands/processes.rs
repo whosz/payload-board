@@ -411,7 +411,16 @@ pub async fn stop_all<R: tauri::Runtime>(
     process_map: State<'_, ProcessMap>,
     profile_id: String,
 ) -> Result<(), String> {
-    let profiles = store::load_profiles(&app);
+    stop_all_inner(&app, &process_map, &profile_id).await
+}
+
+/// Shared by the `stop_all` command and the global "end session" shortcut.
+pub async fn stop_all_inner<R: tauri::Runtime>(
+    app: &AppHandle<R>,
+    process_map: &ProcessMap,
+    profile_id: &str,
+) -> Result<(), String> {
+    let profiles = store::load_profiles(app);
     let profile = profiles
         .iter()
         .find(|p| p.id == profile_id)
@@ -462,7 +471,7 @@ pub async fn stop_all<R: tauri::Runtime>(
     }
 
     for (id, _) in &to_kill {
-        emit_status(&app, id, None, ProcessStatus::Stopped);
+        emit_status(app, id, None, ProcessStatus::Stopped);
     }
 
     Ok(())

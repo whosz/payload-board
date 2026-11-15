@@ -4,14 +4,17 @@ interface SwitchProps {
   checked: boolean;
   onCheckedChange: (checked: boolean) => void;
   disabled?: boolean;
+  /** accessible name — required when the visible label isn't programmatically associated */
+  'aria-label'?: string;
 }
 
-export function Switch({ checked, onCheckedChange, disabled }: SwitchProps) {
+export function Switch({ checked, onCheckedChange, disabled, 'aria-label': ariaLabel }: SwitchProps) {
   return (
     <SwitchPrimitive.Root
       checked={checked}
       onCheckedChange={onCheckedChange}
       disabled={disabled}
+      aria-label={ariaLabel}
       style={{
         position: 'relative',
         display: 'inline-flex',
