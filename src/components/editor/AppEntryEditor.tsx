@@ -9,6 +9,7 @@ import { sgdbAutoBg } from '../../ipc/steamgriddb';
 import { InstalledAppsPicker } from './InstalledAppsPicker';
 import { SteamGridPicker } from './SteamGridPicker';
 import type { AppEntry } from '../../types';
+import { t } from '../../i18n';
 
 function resolveUrl(url: string): string {
   return url.startsWith('http') ? url : convertFileSrc(url);
@@ -94,13 +95,13 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
     <>
       <Dialog open={open} onOpenChange={v => !v && onClose()}>
         <DialogContent>
-        <ModalHeader title={isEditing ? 'Edit Application' : 'Add Application'} />
+        <ModalHeader title={isEditing ? t('Edit application') : t('Add application')} />
 
           {/* Fields */}
           <div className="flex flex-col gap-3">
             <InputField
-              label="Name"
-              placeholder="App name"
+              label={t('Name')}
+              placeholder={t('App name')}
               value={form.name}
               onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
               autoFocus
@@ -108,23 +109,23 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
 
             <div>
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginBottom: 6 }}>
-                Executable
+                {t('Executable')}
               </div>
               <div className="flex gap-2">
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <input
                     value={form.executable_path}
                     onChange={e => setForm(f => ({ ...f, executable_path: e.target.value }))}
-                    placeholder="/path/to/executable"
+                    placeholder={t('/path/to/executable')}
                     className="h-9 w-full min-w-0 rounded-[2px] border px-2 py-1 outline-none transition-colors bg-[var(--color-bg-base)] border-[var(--color-border-control)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-accent)] disabled:pointer-events-none disabled:opacity-50"
                     style={{ fontFamily: 'var(--font-body)', fontSize: 14, fontWeight: 400 }}
                   />
                 </div>
                 <Button variant="default" size="default" onClick={handleBrowse} disabled={picking}>
-                  Browse
+                  {t('Browse')}
                 </Button>
                 <Button variant="default" size="default" onClick={() => setInstalledPickerOpen(true)} disabled={picking}>
-                  Installed...
+                  {t('Installed…')}
                 </Button>
               </div>
             </div>
@@ -136,14 +137,14 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
                   onCheckedChange={v => setForm(f => ({ ...f, launch_minimised: v || undefined }))}
                 />
                 <span style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--color-text-secondary)' }}>
-                  Launch minimised
+                  {t('Launch minimised')}
                 </span>
               </div>
             )}
 
             <InputField
-              label="Arguments"
-              placeholder="--no-update --windowed"
+              label={t('Arguments')}
+              placeholder={t('--no-update --windowed')}
               value={argsStr}
               onChange={e => setArgsStr(e.target.value)}
               style={{ fontFamily: 'var(--font-body)', fontSize: 14 }}
@@ -152,7 +153,7 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
             {/* Process priority */}
             <div>
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginBottom: 6 }}>
-                Process Priority
+                {t('Process priority')}
               </div>
               <div className="flex gap-1.5">
                 {(['low', 'normal', 'high'] as const).map(p => (
@@ -162,7 +163,7 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
                     size="default"
                     onClick={() => setForm(f => ({ ...f, priority: p === 'normal' ? undefined : p }))}
                   >
-                    {p.charAt(0).toUpperCase() + p.slice(1)}
+                    {p === 'low' ? t('Low') : p === 'high' ? t('High') : t('Normal')}
                   </Button>
                 ))}
               </div>
@@ -172,18 +173,18 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
             <div>
               <div className="flex items-center gap-3">
                 <Switch
-                  aria-label="Restart if it crashes"
+                  aria-label={t('Restart if it crashes')}
                   checked={!!form.restart_on_crash}
                   onCheckedChange={v => setForm(f => ({ ...f, restart_on_crash: v || undefined }))}
                 />
                 <span style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--color-text-secondary)' }}>
-                  Restart if it crashes
+                  {t('Restart if it crashes')}
                 </span>
               </div>
               {form.restart_on_crash && (
-                <div className="flex items-center gap-1.5" style={{ marginTop: 10 }} role="group" aria-label="Maximum restart attempts">
+                <div className="flex items-center gap-1.5" style={{ marginTop: 10 }} role="group" aria-label={t('Maximum restart attempts')}>
                   <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginRight: 6 }}>
-                    Max attempts
+                    {t('Max attempts')}
                   </span>
                   {[1, 2, 3, 5].map(n => (
                     <Button
@@ -203,7 +204,7 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
             {/* Background art */}
             <div>
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginBottom: 6 }}>
-                Background art
+                {t('Background art')}
               </div>
               <div className="flex items-center gap-2">
                 {form.background_url ? (
@@ -235,19 +236,19 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
                     }}
                   >
                     <span style={{ color: 'var(--color-text-muted)', fontSize: 11, fontFamily: 'var(--font-body)' }}>
-                      {bgAutoLoading ? '...' : 'none'}
+                      {bgAutoLoading ? '…' : t('none')}
                     </span>
                   </div>
                 )}
                 <Button variant="default" size="sm" onClick={() => setSgdbPickerOpen(true)} disabled={bgPicking}>
-                  SteamGridDB...
+                  {t('SteamGridDB…')}
                 </Button>
                 <Button variant="default" size="sm" onClick={handleLocalBg} disabled={bgPicking}>
-                  Local image...
+                  {t('Local image…')}
                 </Button>
                 {form.background_url && (
                   <Button variant="ghost" size="sm" onClick={() => setForm(f => ({ ...f, background_url: undefined }))}>
-                    Clear
+                    {t('Clear')}
                   </Button>
                 )}
               </div>
@@ -257,7 +258,7 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
           {/* Footer */}
           <ModalFooter>
             <Button variant="ghost" size="default" onClick={onClose}>
-              Cancel
+              {t('Cancel')}
             </Button>
             <Button
               variant="fill"
@@ -265,7 +266,7 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
               onClick={handleSave}
               disabled={!form.name.trim() || !form.executable_path.trim()}
             >
-              {isEditing ? 'Save' : 'Add App'}
+              {isEditing ? t('Save') : t('Add app')}
             </Button>
           </ModalFooter>
         </DialogContent>

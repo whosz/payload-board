@@ -1,5 +1,6 @@
 mod commands;
 mod crash;
+mod i18n;
 mod platform;
 mod process_manager;
 mod sequencer;
@@ -16,6 +17,7 @@ use commands::settings::{
 };
 use commands::steamgriddb::{sgdb_auto_bg, sgdb_grids, sgdb_search};
 use crash::{get_bool_setting, set_bool_setting, RestartState};
+use i18n::set_language;
 use process_manager::{check_crashed_processes, new_process_map, ProcessMap};
 use sequencer::{cancel_sequence, new_sequence_map, run_sequence};
 use shortcuts::{get_shortcuts, register_all, reset_shortcut, set_active_profile, set_global_shortcuts_enabled, set_shortcut, suspend_global_shortcuts, ShortcutRuntime};
@@ -136,6 +138,7 @@ pub fn run() {
             suspend_global_shortcuts,
             get_bool_setting,
             set_bool_setting,
+            set_language,
             scan_running_apps,
             get_data_dir,
             get_profiles_dir,

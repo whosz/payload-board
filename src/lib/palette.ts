@@ -1,5 +1,6 @@
 import { appColor } from './appColor';
-import { STATUS_LABEL, type ProcessInfo } from '../hooks/useProcessStatus';
+import { statusLabel as processStatusLabel, type ProcessInfo } from '../hooks/useProcessStatus';
+import { t } from '../i18n';
 import type { AppEntry, Profile } from '../types';
 
 export type PaletteGroup = 'Actions' | 'Apps' | 'Profiles';
@@ -51,12 +52,12 @@ export function buildPaletteItems(c: PaletteContext): PaletteItem[] {
   const apps = [...(c.activeProfile?.apps ?? [])].sort((a, b) => a.order - b.order);
   const items: PaletteItem[] = [
     c.launching
-      ? { id: 'cancel', group: 'Actions', title: 'Cancel sequence', description: 'Stop launching the remaining apps.', run: c.cancelSequence }
-      : { id: 'run', group: 'Actions', title: 'Run sequence', subtitle: `Start ${apps.filter(a => a.enabled).length} apps in order`, keywords: 'start launch', disabled: apps.length === 0 || c.anyRunning, description: 'Start every enabled app of this profile in launch order.', run: c.runSequence },
-    { id: 'end', group: 'Actions', title: 'End session', subtitle: 'Stop everything in this profile', keywords: 'stop kill close', disabled: !c.anyRunning, description: 'Gracefully close all running apps of this profile.', run: c.endSession },
-    { id: 'add', group: 'Actions', title: 'Add app…', subtitle: c.activeProfile ? `New entry in ${c.activeProfile.name}` : undefined, disabled: !c.activeProfile, description: 'Add an application to the active profile.', run: c.addApp },
-    { id: 'new-profile', group: 'Actions', title: 'New profile…', description: 'Create another set of apps.', run: c.newProfile },
-    { id: 'settings', group: 'Actions', title: 'Settings', keywords: 'theme options storage', description: 'Theme, tray, SteamGridDB key, storage.', run: c.openSettings },
+      ? { id: 'cancel', group: 'Actions', title: t('Cancel sequence'), description: t('Stop launching the remaining apps.'), run: c.cancelSequence }
+      : { id: 'run', group: 'Actions', title: t('Run sequence'), subtitle: t('Start {count} apps in order', { count: apps.filter(a => a.enabled).length }), keywords: t('start launch run'), disabled: apps.length === 0 || c.anyRunning, description: t('Start every enabled app of this profile in launch order.'), run: c.runSequence },
+    { id: 'end', group: 'Actions', title: t('End session'), subtitle: t('Stop everything in this profile'), keywords: t('stop kill close end'), disabled: !c.anyRunning, description: t('Gracefully close all running apps of this profile.'), run: c.endSession },
+    { id: 'add', group: 'Actions', title: t('Add app…'), subtitle: c.activeProfile ? t('New entry in {name}', { name: c.activeProfile.name }) : undefined, disabled: !c.activeProfile, description: t('Add an application to the active profile.'), run: c.addApp },
+    { id: 'new-profile', group: 'Actions', title: t('New profile…'), description: t('Create another set of apps.'), run: c.newProfile },
+    { id: 'settings', group: 'Actions', title: t('Settings'), keywords: t('theme options storage language'), description: t('Theme, language, shortcuts, tray, SteamGridDB key, storage.'), run: c.openSettings },
   ];
 
   for (const app of apps) {
@@ -64,12 +65,12 @@ export function buildPaletteItems(c: PaletteContext): PaletteItem[] {
     items.push({
       id: `app:${app.id}`, group: 'Apps', title: app.name, subtitle: app.executable_path.split(/[\\/]/).pop(),
       keywords: app.executable_path, app, status, color: appColor(app.order),
-      hint: status === 'running' ? '↵ stop' : '↵ start',
+      hint: status === 'running' ? t('↵ stop') : t('↵ start'),
       run: status === 'running' ? c.appHandlers(app).onStop : c.appHandlers(app).onStart,
     });
   }
   for (const p of c.profiles.filter(p => p.id !== c.activeProfile?.id)) {
-    items.push({ id: `profile:${p.id}`, group: 'Profiles', title: `Switch to ${p.name}`, subtitle: `${p.apps.length} apps`, keywords: p.name, description: 'Make this the active profile.', run: () => c.switchProfile(p.id) });
+    items.push({ id: `profile:${p.id}`, group: 'Profiles', title: t('Switch to {name}', { name: p.name }), subtitle: t('{count} apps', { count: p.apps.length }), keywords: p.name, description: t('Make this the active profile.'), run: () => c.switchProfile(p.id) });
   }
   return items;
 }
@@ -113,4 +114,4 @@ export function filterItems(items: PaletteItem[], query: string): PaletteItem[] 
 /** Index of the first item that can actually run (0 when none). */
 export const firstEnabled = (items: PaletteItem[]) => Math.max(0, items.findIndex(i => !i.disabled));
 
-export const statusLabel = (s?: ProcessInfo['status']) => (s ? STATUS_LABEL[s] : '');
+export const statusLabel = (s?: ProcessInfo['status']) => (s ? processStatusLabel(s) : '');

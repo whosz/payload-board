@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { listen } from '@tauri-apps/api/event';
+import { t } from '../i18n';
 
 export type ProcessStatus = 'running' | 'stopping' | 'stopped' | 'crashed';
 
@@ -10,7 +11,7 @@ export interface ProcessInfo {
   error_message?: string;
 }
 
-export const STATUS_LABEL: Record<ProcessStatus, string> = { running: 'Live', stopping: 'Stopping', stopped: 'Stopped', crashed: 'Crashed' };
+export const statusLabel = (s: ProcessStatus): string => ({ running: t('Live'), stopping: t('Stopping'), stopped: t('Stopped'), crashed: t('Crashed') })[s];
 
 type StatusMap = Record<string, ProcessInfo>;
 

@@ -1,6 +1,7 @@
 import { Icon } from './icons/Icon';
 import { faPlus, faGear } from './icons';
 import type { Profile } from '../types';
+import { t } from '../i18n';
 
 interface Props {
   profiles: Profile[];
@@ -21,7 +22,7 @@ export function ProfileTabs({ profiles, activeProfileId, onSelect, onNew, onSett
         </span>
       </div>
 
-      <nav aria-label="Profiles" className="flex items-stretch min-w-0 flex-1" style={{ gap: 22, overflowX: 'auto', height: '100%' }}>
+      <nav aria-label={t('Profiles')} className="flex items-stretch min-w-0 flex-1" style={{ gap: 22, overflowX: 'auto', height: '100%' }}>
         {profiles.map(p => {
           const active = p.id === activeProfileId;
           return (
@@ -54,13 +55,13 @@ export function ProfileTabs({ profiles, activeProfileId, onSelect, onNew, onSett
       </nav>
 
       <div className="flex items-center flex-shrink-0" style={{ gap: 4 }}>
-        <button onClick={onPalette} title="Command palette (Ctrl+K)" aria-label="Open command palette" className="tile-btn">
+        <button onClick={onPalette} title={t('Command palette')} aria-label={t('Open command palette')} className="tile-btn">
           <svg width="14" height="14" viewBox="0 0 20 20" aria-hidden="true" style={{ color: 'var(--color-text-secondary)' }}>
             <circle cx="8" cy="8" r="5.5" fill="none" stroke="currentColor" strokeWidth="2.2" /><path d="M12 12l6 6" stroke="currentColor" strokeWidth="2.2" />
           </svg>
         </button>
-        <button onClick={onNew} title="New profile" aria-label="New profile" className="tile-btn"><Icon icon={faPlus} size={14} /></button>
-        <button onClick={onSettings} title="Settings" aria-label="Settings" className="tile-btn"><Icon icon={faGear} size={14} /></button>
+        <button onClick={onNew} title={t('New profile')} aria-label={t('New profile')} className="tile-btn"><Icon icon={faPlus} size={14} /></button>
+        <button onClick={onSettings} title={t('Settings')} aria-label={t('Settings')} className="tile-btn"><Icon icon={faGear} size={14} /></button>
       </div>
     </header>
   );

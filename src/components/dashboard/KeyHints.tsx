@@ -1,9 +1,11 @@
-const HINTS: [string, string][] = [
-  ['← →', 'select'], ['Enter', 'start / stop'], ['E', 'edit'], ['R', 'restart'], ['Del', 'remove'],
-];
+
+import { t } from '../../i18n';
 
 /** Footer with the keyboard shortcuts of the tile strip. */
 export function KeyHints() {
+  const HINTS: [string, string][] = [
+    ['← →', t('select')], ['Enter', t('start / stop')], ['E', t('edit')], ['R', t('restart')], ['Del', t('remove')],
+  ];
   return (
     <footer
       className="flex items-center flex-shrink-0"

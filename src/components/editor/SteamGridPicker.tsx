@@ -8,6 +8,7 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { sgdbSearch, sgdbGrids } from '../../ipc/steamgriddb';
 import type { SgdbGame, SgdbGrid } from '../../ipc/steamgriddb';
+import { t } from '../../i18n';
 
 interface SteamGridPickerProps {
   open: boolean;
@@ -44,7 +45,7 @@ export function SteamGridPicker({ open, onClose, initialQuery, onSelect }: Steam
     try {
       const results = await sgdbSearch(query.trim());
       setGames(results);
-      if (results.length === 0) setError('No games found.');
+      if (results.length === 0) setError(t('No games found.'));
     } catch (e) {
       setError(String(e));
     } finally {
@@ -60,7 +61,7 @@ export function SteamGridPicker({ open, onClose, initialQuery, onSelect }: Steam
     try {
       const results = await sgdbGrids(game.id);
       setGrids(results);
-      if (results.length === 0) setError('No grid images found for this game.');
+      if (results.length === 0) setError(t('No grid images found for this game.'));
     } catch (e) {
       setError(String(e));
     } finally {
@@ -80,12 +81,12 @@ export function SteamGridPicker({ open, onClose, initialQuery, onSelect }: Steam
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
       <DialogContent width={600}>
-        <ModalHeader title="SteamGridDB — Background Art" />
+        <ModalHeader title={t('SteamGridDB — Background art')} />
 
         {/* Search */}
         <div className="flex gap-2 mb-1">
           <Input
-            placeholder="Search game name..."
+            placeholder={t('Search game name…')}
             value={query}
             onChange={e => setQuery(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleSearch()}
@@ -103,7 +104,7 @@ export function SteamGridPicker({ open, onClose, initialQuery, onSelect }: Steam
             disabled={searching || !query.trim()}
             style={{ borderColor: 'var(--color-border-default)', color: 'var(--color-text-secondary)' }}
           >
-            {searching ? '...' : 'Search'}
+            {searching ? '…' : t('Search')}
           </Button>
         </div>
 
@@ -121,7 +122,7 @@ export function SteamGridPicker({ open, onClose, initialQuery, onSelect }: Steam
           {/* Game list */}
           {games.length > 0 && (
             <div>
-              <div style={labelStyle}>Select game</div>
+              <div style={labelStyle}>{t('Select game')}</div>
               <div className="flex flex-col">
                 {games.map(g => (
                   <button
@@ -159,7 +160,7 @@ export function SteamGridPicker({ open, onClose, initialQuery, onSelect }: Steam
               </div>
               {loadingGrids ? (
                 <div className="font-mono text-xs text-center py-6" style={{ color: 'var(--color-text-disabled)' }}>
-                  Loading...
+                  {t('Loading…')}
                 </div>
               ) : (
                 <div

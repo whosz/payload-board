@@ -127,6 +127,15 @@ Concepts (static mockups, dark theme): ![all concepts](../assets/concepts/sheet.
 - [x] Below ~520 px width: status + RUN/END only; reachable by resizing (no separate window yet)
 - Done: window minimum lowered to 360×260 (`tauri.conf.json`); below 560 px width only the hero stays (name, live/crashed counters, crash banner, one primary button); carousel, toolbar, key hints, Add app, profile edit icons and the brand text are hidden. Checked at 400×560 and 360×300. No separate app list in mini mode (by design: status + primary action only).
 
+## Phase 7 — Languages (added later, done)
+
+- [x] English (source), Polish, German, Spanish, French. Language picker in Settings → Appearance (default: browser language, stored in `localStorage`; `<html lang>` follows).
+- [x] Own tiny i18n (`src/i18n/index.ts`): English text is the key, `t()`/`tx()`, `{placeholders}`, plural entries via `Intl.PluralRules` (needed for Polish few/many). No new dependency.
+- [x] ~190 strings wrapped across the UI; Rust-side messages (crash notifications, shortcut feedback) translated in `src-tauri/src/i18n.rs`, language pushed to Rust with `set_language`.
+- [x] `npm run qa:i18n` fails on a missing translation, differing placeholders or missing plural forms.
+- **Translation quality:** written by the assistant, not by native speakers or a professional translator. Terminology chosen for games/launchers (profil/Profil/perfil/profil, sekwencja/Sequenz/secuencia/séquence, skrót/Tastenkürzel/atajo/raccourci). German and Spanish use informal address in "Are you sure?" (du/tú-free phrasing where possible), French uses "vous". Worth a native read-through before a release.
+- Profile and app names, executable names and technical error text coming from the OS stay as they are.
+
 ## Acceptance criteria
 
 - [ ] Full flow without a mouse: open palette → start an app → close → run/stop sequence

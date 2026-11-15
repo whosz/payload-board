@@ -7,6 +7,7 @@ import {
 import { Input } from '../ui/input';
 import { listInstalledApps } from '../../ipc/profiles';
 import type { InstalledApp } from '../../ipc/profiles';
+import { t } from '../../i18n';
 
 interface InstalledAppsPickerProps {
   open: boolean;
@@ -37,10 +38,10 @@ export function InstalledAppsPicker({ open, onClose, onSelect }: InstalledAppsPi
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
       <DialogContent width={520}>
-        <ModalHeader title="Installed Apps" />
+        <ModalHeader title={t('Installed apps')} />
 
         <Input
-          placeholder="Search..."
+          placeholder={t('Search…')}
           value={query}
           onChange={e => setQuery(e.target.value)}
           autoFocus
@@ -58,14 +59,14 @@ export function InstalledAppsPicker({ open, onClose, onSelect }: InstalledAppsPi
               className="font-mono text-xs uppercase tracking-wider text-center py-8"
               style={{ color: 'var(--color-text-disabled)' }}
             >
-              Loading...
+              {t('Loading…')}
             </div>
           ) : filtered.length === 0 ? (
             <div
               className="font-mono text-xs uppercase tracking-wider text-center py-8"
               style={{ color: 'var(--color-text-disabled)' }}
             >
-              No apps found
+              {t('No apps found')}
             </div>
           ) : (
             filtered.map((app, i) => (

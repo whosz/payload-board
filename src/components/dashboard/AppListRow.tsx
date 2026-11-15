@@ -7,7 +7,7 @@ import {
   faTriangleExclamation,
 } from '../icons';
 import type { AppEntry } from '../../types';
-import { STATUS_LABEL, type ProcessInfo } from '../../hooks/useProcessStatus';
+import { statusLabel, type ProcessInfo } from '../../hooks/useProcessStatus';
 
 interface AppListRowProps {
   app: AppEntry;
@@ -103,7 +103,7 @@ export function AppListRow({ app, status, onStart, onStop, onRestart, onOpenPath
         flexShrink: 0, width: 72, fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase',
         color: isCrashed ? 'var(--color-error-text)' : isRunning ? 'var(--color-text-primary)' : 'var(--color-text-muted)',
       }}>
-        {STATUS_LABEL[status.status]}
+        {statusLabel(status.status)}
       </span>
 
       <div className="flex-shrink-0" style={{ width: 240 }}>

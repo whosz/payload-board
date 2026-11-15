@@ -1,3 +1,5 @@
+import { t } from '../i18n';
+
 // Accelerators use Tauri's format with KeyboardEvent.code key names, e.g. "CommandOrControl+Alt+KeyR".
 export type ShortcutAction =
   | 'palette_global' | 'run_sequence' | 'end_session'
@@ -14,15 +16,15 @@ export interface ShortcutEntry {
 export interface ShortcutsState { entries: ShortcutEntry[]; global_enabled: boolean }
 export type ShortcutError = { kind: 'invalid' } | { kind: 'conflict'; with: ShortcutAction } | { kind: 'taken' };
 
-export const ACTION_LABEL: Record<ShortcutAction, string> = {
-  palette_global: 'Command palette (anywhere)',
-  run_sequence: 'Run sequence',
-  end_session: 'End session',
-  palette: 'Command palette (in window)',
-  add_app: 'Add app',
-  new_profile: 'New profile',
-  settings: 'Open settings',
-};
+export const actionLabel = (a: ShortcutAction): string => ({
+  palette_global: t('Command palette (anywhere)'),
+  run_sequence: t('Run sequence'),
+  end_session: t('End session'),
+  palette: t('Command palette (in window)'),
+  add_app: t('Add app'),
+  new_profile: t('New profile'),
+  settings: t('Open settings'),
+})[a];
 
 const MODIFIER_CODES = /^(Control|Shift|Alt|Meta|OS)(Left|Right)$/;
 const KEY_LABEL: Record<string, string> = {
@@ -64,8 +66,8 @@ export function formatAccelerator(accelerator: string): string[] {
 
 export function describeError(err: unknown): string {
   const e = err as Partial<ShortcutError> | undefined;
-  if (e?.kind === 'conflict') return `Already used by “${ACTION_LABEL[(e as { with: ShortcutAction }).with]}”`;
-  if (e?.kind === 'taken') return 'Another application already uses this shortcut';
-  if (e?.kind === 'invalid') return 'Not a valid shortcut (global ones need Ctrl, Alt or Shift)';
-  return 'Could not save the shortcut';
+  if (e?.kind === 'conflict') return t('Already used by “{action}”', { action: actionLabel((e as { with: ShortcutAction }).with) });
+  if (e?.kind === 'taken') return t('Another application already uses this shortcut');
+  if (e?.kind === 'invalid') return t('Not a valid shortcut (global ones need Ctrl, Alt or Shift)');
+  return t('Could not save the shortcut');
 }

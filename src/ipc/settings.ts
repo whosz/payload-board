@@ -65,3 +65,8 @@ export function getBoolSetting(key: BoolSetting): Promise<boolean> {
 export function setBoolSetting(key: BoolSetting, value: boolean): Promise<void> {
   return invoke<void>('set_bool_setting', { key, value });
 }
+
+/** Tells the backend which language to use for notifications and shortcut feedback. */
+export function setBackendLanguage(code: string): Promise<void> {
+  return invoke<void>('set_language', { code });
+}

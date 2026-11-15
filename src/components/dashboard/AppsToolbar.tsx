@@ -1,6 +1,7 @@
 import { Button } from '../ui/button';
 import { Icon } from '../icons/Icon';
 import { faList, faTableCellsLarge, faChevronDown } from '../icons';
+import { t } from '../../i18n';
 
 export type SortOrder = 'manual' | 'az' | 'za';
 export type ViewMode = 'grid' | 'list';
@@ -14,19 +15,19 @@ interface Props {
   onView: (v: ViewMode) => void;
 }
 
-const SORT_LABEL: Record<SortOrder, string> = { manual: 'Launch order', az: 'A → Z', za: 'Z → A' };
+const sortLabel = (s: SortOrder) => ({ manual: t('Launch order'), az: t('A → Z'), za: t('Z → A') })[s];
 
 /** "Apps · launch order" heading with sort menu and view toggle. */
 export function AppsToolbar({ sortOrder, onSort, sortOpen, onSortOpen, viewMode, onView }: Props) {
   return (
     <div className="flex items-center flex-shrink-0" style={{ gap: 6, padding: '16px 40px 0' }} onClick={e => e.stopPropagation()}>
       <span style={{ flex: 1, fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-text-muted)' }}>
-        Apps · {SORT_LABEL[sortOrder]}
+        {t('Apps')} · {sortLabel(sortOrder)}
       </span>
 
       <div style={{ position: 'relative' }}>
         <Button variant="outline" size="default" aria-haspopup="menu" aria-expanded={sortOpen} onClick={() => onSortOpen(!sortOpen)} style={{ gap: 6 }}>
-          Sort: {SORT_LABEL[sortOrder]}
+          {t('Sort: {order}', { order: sortLabel(sortOrder) })}
           <Icon icon={faChevronDown} size={8} />
         </Button>
         {sortOpen && (
@@ -41,17 +42,17 @@ export function AppsToolbar({ sortOrder, onSort, sortOpen, onSortOpen, viewMode,
                 color: sortOrder === opt ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
                 fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: 600,
               }}>
-                {SORT_LABEL[opt]}
+                {sortLabel(opt)}
               </button>
             ))}
           </div>
         )}
       </div>
 
-      <Button variant={viewMode === 'grid' ? 'fill' : 'outline'} size="icon" onClick={() => onView('grid')} title="Poster view" aria-label="Poster view" aria-pressed={viewMode === 'grid'}>
+      <Button variant={viewMode === 'grid' ? 'fill' : 'outline'} size="icon" onClick={() => onView('grid')} title={t('Poster view')} aria-label={t('Poster view')} aria-pressed={viewMode === 'grid'}>
         <Icon icon={faTableCellsLarge} size={12} color={viewMode === 'grid' ? 'var(--color-accent-fg)' : undefined} />
       </Button>
-      <Button variant={viewMode === 'list' ? 'fill' : 'outline'} size="icon" onClick={() => onView('list')} title="List view" aria-label="List view" aria-pressed={viewMode === 'list'}>
+      <Button variant={viewMode === 'list' ? 'fill' : 'outline'} size="icon" onClick={() => onView('list')} title={t('List view')} aria-label={t('List view')} aria-pressed={viewMode === 'list'}>
         <Icon icon={faList} size={12} color={viewMode === 'list' ? 'var(--color-accent-fg)' : undefined} />
       </Button>
     </div>

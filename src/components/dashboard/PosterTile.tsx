@@ -2,8 +2,9 @@ import { AppControls } from './AppControls';
 import { TileBackdrop } from './TileBackdrop';
 import { appColor } from '../../lib/appColor';
 import { artworkSrc, exeName } from '../../lib/appArt';
-import { STATUS_LABEL, type ProcessInfo } from '../../hooks/useProcessStatus';
+import { statusLabel, type ProcessInfo } from '../../hooks/useProcessStatus';
 import type { AppEntry } from '../../types';
+import { t } from '../../i18n';
 
 interface Props {
   app: AppEntry;
@@ -35,7 +36,7 @@ export function PosterTile({ ref, index, tabIndex, onFocusTile, ...p }: Props) {
       role="listitem"
       tabIndex={tabIndex}
       data-index={index}
-      aria-label={`${app.name}, ${STATUS_LABEL[status.status]}`}
+      aria-label={`${app.name}, ${statusLabel(status.status)}`}
       onFocus={e => { onFocusTile(); e.currentTarget.scrollIntoView({ block: 'nearest', inline: 'center' }); }}
       className="poster"
       style={crashed ? { borderColor: 'var(--color-status-crit)' } : undefined}
@@ -55,7 +56,7 @@ export function PosterTile({ ref, index, tabIndex, onFocusTile, ...p }: Props) {
             boxShadow: running ? '0 0 6px var(--color-status-live)' : 'none',
             animation: crashed ? 'pulse-crit 1s infinite' : undefined,
           }} />
-          {STATUS_LABEL[status.status]}
+          {statusLabel(status.status)}
         </div>
 
         {crashed && (
@@ -63,7 +64,7 @@ export function PosterTile({ ref, index, tabIndex, onFocusTile, ...p }: Props) {
             ...mono, position: 'absolute', top: 38, left: 14, right: 14, padding: '5px 8px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
             color: 'var(--color-error-text)', background: 'color-mix(in srgb, var(--color-bg-surface) 88%, var(--color-status-crit) 12%)', border: '1px solid var(--color-status-crit)',
           }}>
-            {status.error_message ?? 'Process crashed'}
+            {status.error_message ?? t('Process crashed')}
           </div>
         )}
 

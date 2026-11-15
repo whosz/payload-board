@@ -8,6 +8,7 @@ use tauri_plugin_notification::NotificationExt;
 use tauri_plugin_store::StoreExt;
 
 use crate::commands::processes::start_app_inner;
+use crate::i18n::{fmt, tr};
 use crate::process_manager::{emit_error, ProcessMap, ProcessStatus};
 use crate::store::{self, AppEntry, SETTINGS_FILE};
 
@@ -77,7 +78,7 @@ pub fn on_crash<R: tauri::Runtime>(app: &AppHandle<R>, entry_id: &str) {
     match decide(bool_setting(app, "auto_restart_enabled"), entry.restart_on_crash, attempts, entry.max_retries) {
         Decision::Restart(n) => {
             state.0.lock().unwrap().insert(entry_id.to_string(), n);
-            if tell { notify(app, &format!("{name} crashed"), &format!("Restarting it (attempt {n})")); }
+            if tell { notify(app, &fmt("{name} crashed", &[("name", name)]), &fmt("Restarting it (attempt {n})", &[("n", &n.to_string())])); }
             let (app, map) = (app.clone(), app.state::<ProcessMap>().inner().clone());
             let entry_id = entry_id.to_string();
             tauri::async_runtime::spawn(async move {
@@ -90,10 +91,10 @@ pub fn on_crash<R: tauri::Runtime>(app: &AppHandle<R>, entry_id: &str) {
             });
         }
         Decision::GiveUp(max) => {
-            if tell { notify(app, &format!("{name} keeps crashing"), &format!("Gave up after {max} restarts")); }
+            if tell { notify(app, &fmt("{name} keeps crashing", &[("name", name)]), &fmt("Gave up after {max} restarts", &[("max", &max.to_string())])); }
         }
         Decision::Nothing => {
-            if tell { notify(app, &format!("{name} crashed"), "Open Payload Board to restart it"); }
+            if tell { notify(app, &fmt("{name} crashed", &[("name", name)]), &tr("Open Payload Board to restart it")); }
         }
     }
 }

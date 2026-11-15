@@ -1,5 +1,5 @@
 // Headless visual QA with a mocked Tauri backend (no Rust needed).
-// Usage: npm run qa:shots -- --out docs/assets/qa --themes dark,grey,light --sizes 1280x800,900x600 --views grid,list,settings,add,installed,sgdb,profile,confirm,hover,palette,palette-search,restart [--scenario mixed|idle|launching|accent [--accent #19e3ff]|cover] [--tab 12] [--url http://localhost:1420]
+// Usage: npm run qa:shots -- --out docs/assets/qa --themes dark,grey,light --sizes 1280x800,900x600 --views grid,list,settings,add,installed,sgdb,profile,confirm,hover,palette,palette-search,restart [--scenario mixed|idle|launching|accent [--accent #19e3ff]|cover] [--lang pl|de|es|fr] [--tab 12] [--url http://localhost:1420]
 // Browser: set CHROMIUM_PATH, or it uses the newest Playwright headless shell in ~/.cache/ms-playwright.
 import { chromium } from 'playwright-core';
 import { mkdirSync } from 'node:fs';
@@ -15,6 +15,7 @@ const views = arg('views', 'grid').split(',');
 const tabs = Number(arg('tab', 0));
 // mixed = 3 live + 1 crashed (default) | idle = nothing running | launching = idle, then click Run sequence
 const scenario = arg('scenario', 'mixed');
+const lang = arg('lang', ''); // pl | de | es | fr (default: English)
 const accentColor = arg('accent', '#19e3ff'); // used by --scenario accent
 let url = arg('url', '');
 
@@ -33,24 +34,24 @@ try {
     const COVER = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="400"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0b3d5c"/><stop offset=".6" stop-color="#c2410c"/><stop offset="1" stop-color="#ffd166"/></linearGradient></defs><rect width="1200" height="400" fill="url(#g)"/><path d="M0 300 C300 220 600 360 1200 200 L1200 400 L0 400Z" fill="#111" opacity=".55"/></svg>');
     const profiles = scenario === 'accent' ? PROFILES.map((p, i) => (i === 0 ? { ...p, color_accent: accentColor } : p))
       : scenario === 'cover' ? PROFILES.map((p, i) => (i === 0 ? { ...p, cover_url: COVER } : p)) : PROFILES;
-    await page.addInitScript(installTauriMock, { profiles, theme });
+    await page.addInitScript(installTauriMock, { profiles, theme, lang });
     await page.goto(url);
     await page.waitForTimeout(800);
     if (scenario === 'mixed' || scenario === 'accent' || scenario === 'cover') await page.evaluate(s => s.forEach(p => window.__emit('process_status_changed', p)), STATUSES);
     if (scenario === 'launching') { await page.getByRole('button', { name: /run sequence/i }).click(); await page.waitForTimeout(1500); }
-    if (view === 'list') await page.getByLabel('List view').click();
-    if (view === 'settings') await page.getByLabel('Settings').first().click();
-    if (view === 'add' || view === 'installed' || view === 'sgdb' || view === 'restart') await page.getByText('Add app').first().click();
+    if (view === 'list') await page.locator('button[aria-pressed]').nth(1).click(); // 0 = poster view, 1 = list view
+    if (view === 'settings') await page.locator('header .tile-btn').nth(2).click(); // palette, new profile, settings
+    if (view === 'add' || view === 'installed' || view === 'sgdb' || view === 'restart') await page.locator('.hero__add').click();
     if (view === 'restart') await page.getByRole('switch', { name: 'Restart if it crashes' }).click();
     if (view === 'installed') await page.getByRole('button', { name: /installed/i }).click();
     if (view === 'sgdb') await page.getByRole('button', { name: /steamgriddb/i }).click();
-    if (view === 'profile') await page.getByLabel('New profile').click();
+    if (view === 'profile') await page.locator('header .tile-btn').nth(1).click();
     if (view === 'confirm') await page.getByLabel('Delete profile').click({ force: true });
     if (view === 'palette' || view === 'palette-search') { await page.keyboard.press('Control+k'); if (view === 'palette-search') await page.keyboard.type('rac'); await page.waitForTimeout(300); }
     if (view === 'hover') await page.locator('.hero__name').hover();
     if (tabs) for (let i = 0; i < tabs; i++) await page.keyboard.press('Tab');
     await page.waitForTimeout(400);
-    const file = join(out, `${theme}-${w}x${h}-${view}${scenario !== 'mixed' ? '-' + scenario : ''}${tabs ? '-tab' + tabs : ''}.png`);
+    const file = join(out, `${theme}-${w}x${h}-${view}${scenario !== 'mixed' ? '-' + scenario : ''}${lang ? '-' + lang : ''}${tabs ? '-tab' + tabs : ''}.png`);
     await page.screenshot({ path: file });
     console.log(file);
     await page.close();

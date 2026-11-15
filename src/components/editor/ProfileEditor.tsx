@@ -7,6 +7,9 @@ import { artworkUrl } from '../../lib/appArt';
 import { pickIconFile } from '../../ipc/profiles';
 import { SteamGridPicker } from './SteamGridPicker';
 import type { Profile } from '../../types';
+import { t } from '../../i18n';
+
+const presetName = (n: string) => ({ Orange: t('Orange'), Cyan: t('Cyan'), Pink: t('Pink'), Amber: t('Amber'), Violet: t('Violet'), Lime: t('Lime') })[n] ?? n;
 
 const EMOJI_LIST = [
   '🚀','🎮','💻','🖥','⚙️','🔧','🎯','📊','🏎','🎲','🎵','🎬','📡','🔌','🖱',
@@ -70,13 +73,13 @@ export function ProfileEditor({ open, onClose, onSave, initial }: ProfileEditorP
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
       <DialogContent>
-        <ModalHeader title={isEditing ? 'Edit Profile' : 'New Profile'} />
+        <ModalHeader title={isEditing ? t('Edit profile') : t('New profile')} />
 
         {/* Name */}
         <div>
-          <FieldLabel>Name</FieldLabel>
+          <FieldLabel>{t('Name')}</FieldLabel>
           <Input
-            placeholder="Profile name"
+            placeholder={t('Profile name')}
             value={name}
             onChange={e => setName(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleSave()}
@@ -86,13 +89,13 @@ export function ProfileEditor({ open, onClose, onSave, initial }: ProfileEditorP
 
         {/* Accent colour */}
         <div>
-          <FieldLabel>Accent colour</FieldLabel>
-          <div className="flex items-center flex-wrap" style={{ gap: 8 }} role="group" aria-label="Accent colour">
+          <FieldLabel>{t('Accent colour')}</FieldLabel>
+          <div className="flex items-center flex-wrap" style={{ gap: 8 }} role="group" aria-label={t('Accent colour')}>
             <button
               onClick={() => setAccent('')}
-              aria-label="Default accent"
+              aria-label={t('Default accent')}
               aria-pressed={!accent}
-              title="Default"
+              title={t('Default')}
               style={{
                 width: 32, height: 32, borderRadius: 2, cursor: 'pointer', background: 'var(--color-bg-elevated)',
                 border: `2px solid ${!accent ? 'var(--color-text-primary)' : 'var(--color-border-control)'}`,
@@ -105,9 +108,9 @@ export function ProfileEditor({ open, onClose, onSave, initial }: ProfileEditorP
               <button
                 key={p.color}
                 onClick={() => setAccent(p.color)}
-                aria-label={p.name}
+                aria-label={presetName(p.name)}
                 aria-pressed={accent === p.color}
-                title={p.name}
+                title={presetName(p.name)}
                 style={{
                   width: 32, height: 32, borderRadius: 2, cursor: 'pointer', background: p.color,
                   border: `2px solid ${accent === p.color ? 'var(--color-text-primary)' : 'transparent'}`,
@@ -121,24 +124,24 @@ export function ProfileEditor({ open, onClose, onSave, initial }: ProfileEditorP
 
         {/* Cover image */}
         <div>
-          <FieldLabel>Cover image</FieldLabel>
+          <FieldLabel>{t('Cover image')}</FieldLabel>
           <div className="flex items-center" style={{ gap: 8 }}>
             <div style={{
               width: 96, height: 54, flexShrink: 0, border: '1px solid var(--color-border-control)', borderRadius: 2,
               background: cover ? `center / cover no-repeat url("${artworkUrl(cover)}")` : 'var(--color-bg-base)',
               display: 'grid', placeItems: 'center', color: 'var(--color-text-muted)', fontSize: 11, fontFamily: 'var(--font-mono)',
-            }} role="img" aria-label={cover ? 'Cover preview' : 'No cover'}>
-              {cover ? null : 'none'}
+            }} role="img" aria-label={cover ? t('Cover preview') : t('No cover')}>
+              {cover ? null : t('none')}
             </div>
-            <Button variant="default" size="sm" onClick={() => setPickerOpen(true)}>SteamGridDB…</Button>
-            <Button variant="default" size="sm" onClick={async () => { try { setCover(await pickIconFile()); } catch { /* cancelled */ } }}>Local image…</Button>
-            {cover && <Button variant="ghost" size="sm" onClick={() => setCover('')}>Clear</Button>}
+            <Button variant="default" size="sm" onClick={() => setPickerOpen(true)}>{t('SteamGridDB…')}</Button>
+            <Button variant="default" size="sm" onClick={async () => { try { setCover(await pickIconFile()); } catch { /* cancelled */ } }}>{t('Local image…')}</Button>
+            {cover && <Button variant="ghost" size="sm" onClick={() => setCover('')}>{t('Clear')}</Button>}
           </div>
         </div>
 
         {/* Icon (emoji) */}
         <div>
-          <FieldLabel>Icon</FieldLabel>
+          <FieldLabel>{t('Icon')}</FieldLabel>
           <div className="flex items-end gap-2 mb-2">
             {/* Selected emoji display */}
             <div style={{
@@ -157,7 +160,7 @@ export function ProfileEditor({ open, onClose, onSave, initial }: ProfileEditorP
             </div>
             {emoji && (
               <Button variant="ghost" size="sm" onClick={() => setEmoji('')}>
-                Clear
+                {t('Clear')}
               </Button>
             )}
           </div>
@@ -196,10 +199,10 @@ export function ProfileEditor({ open, onClose, onSave, initial }: ProfileEditorP
         {/* Footer */}
         <ModalFooter>
           <Button variant="ghost" size="default" onClick={onClose}>
-            Cancel
+            {t('Cancel')}
           </Button>
           <Button variant="fill" size="default" onClick={handleSave} disabled={!name.trim()}>
-            Save
+            {t('Save')}
           </Button>
         </ModalFooter>
       </DialogContent>

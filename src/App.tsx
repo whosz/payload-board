@@ -27,7 +27,9 @@ import { useSequence } from './hooks/useSequence';
 import { useSessionSeconds } from './hooks/useSessionSeconds';
 import { applyAccent } from './lib/accent';
 import { useShortcuts } from './hooks/useShortcuts';
+import { t, tx, useLanguage } from './i18n';
 import { setActiveProfile } from './ipc/shortcuts';
+import { setBackendLanguage } from './ipc/settings';
 import type { AppEntry } from './types';
 
 type Theme = 'dark' | 'grey' | 'light';
@@ -40,6 +42,8 @@ interface Toast {
 }
 
 export default function App() {
+  const lang = useLanguage(); // re-render the whole tree when the language changes
+  useEffect(() => { setBackendLanguage(lang).catch(() => {}); }, [lang]);
   const {
     profiles,
     activeProfile,
@@ -108,14 +112,14 @@ export default function App() {
 
   const sequence = useSequence(activeProfileId, (appId, message) => {
     const name = activeProfile?.apps.find(a => a.id === appId)?.name ?? 'App';
-    pushError(`Start failed — ${name}: ${message}`);
+    pushError(t('Start failed — {name}: {error}', { name, error: message }));
   });
 
   const shortcuts = useShortcuts({
     palette: () => { if (paletteOpen) setPaletteOpen(false); else if (!anyDialogOpen) setPaletteOpen(true); },
     palette_global: () => { if (!anyDialogOpen) setPaletteOpen(true); },
-    run_sequence: () => { if (activeProfile) sequence.run().catch(e => pushError(`Run sequence failed: ${e}`)); },
-    end_session: () => { if (activeProfile) stopAll(activeProfile.id).catch(e => pushError(`End Session failed: ${e}`)); },
+    run_sequence: () => { if (activeProfile) sequence.run().catch(e => pushError(t('Run sequence failed: {error}', { error: String(e) }))); },
+    end_session: () => { if (activeProfile) stopAll(activeProfile.id).catch(e => pushError(t('End session failed: {error}', { error: String(e) }))); },
     add_app: () => { if (!anyDialogOpen && !paletteOpen && activeProfile) { setEditingApp(undefined); setAppEditorOpen(true); } },
     new_profile: () => { if (!anyDialogOpen && !paletteOpen) { setEditingProfile(undefined); setProfileEditorOpen(true); } },
     settings: () => { if (!anyDialogOpen && !paletteOpen) setSettingsOpen(true); },
@@ -135,7 +139,7 @@ export default function App() {
         await addApp(activeProfileId, entry);
       }
     } catch (e) {
-      pushError(`Failed to save app: ${e}`);
+      pushError(t('Failed to save app: {error}', { error: String(e) }));
     }
     setAppEditorOpen(false);
     setEditingApp(undefined);
@@ -165,7 +169,7 @@ export default function App() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full text-sm" style={{ color: 'var(--color-text-disabled)', fontFamily: 'var(--font-display)' }}>
-        LOADING...
+        {t('Loading…')}
       </div>
     );
   }
@@ -187,27 +191,27 @@ export default function App() {
       try { await startApp(activeProfileId, app.id); }
       catch (e) {
         const msg = String(e);
-        pushError(`Start failed — ${app.name}: ${msg}`);
+        pushError(t('Start failed — {name}: {error}', { name: app.name, error: msg }));
         setErrorStatus(app.id, msg);
       }
     },
     onStop: async () => {
       try { await stopApp(app.id); }
-      catch (e) { pushError(`Stop failed — ${app.name}: ${e}`); }
+      catch (e) { pushError(t('Stop failed — {name}: {error}', { name: app.name, error: String(e) })); }
     },
     onRestart: async () => {
       if (!activeProfileId) return;
       try { await restartApp(activeProfileId, app.id); }
       catch (e) {
         const msg = String(e);
-        pushError(`Restart failed — ${app.name}: ${msg}`);
+        pushError(t('Restart failed — {name}: {error}', { name: app.name, error: msg }));
         setErrorStatus(app.id, msg);
       }
     },
     onOpenPath: async () => {
       if (!activeProfileId) return;
       try { await openPath(activeProfileId, app.id); }
-      catch (e) { pushError(`Open folder failed — ${app.name}: ${e}`); }
+      catch (e) { pushError(t('Open folder failed — {name}: {error}', { name: app.name, error: String(e) })); }
     },
     onEdit: (a: AppEntry) => { setEditingApp(a); setAppEditorOpen(true); },
     onRemove: (id: string) => {
@@ -223,11 +227,11 @@ export default function App() {
         getStatus,
         launching: sequence.launching,
         anyRunning: runningCount > 0,
-        runSequence: () => sequence.run().catch(e => pushError(`Run sequence failed: ${e}`)),
-        cancelSequence: () => sequence.cancel().catch(e => pushError(`Cancel failed: ${e}`)),
+        runSequence: () => sequence.run().catch(e => pushError(t('Run sequence failed: {error}', { error: String(e) }))),
+        cancelSequence: () => sequence.cancel().catch(e => pushError(t('Cancel failed: {error}', { error: String(e) }))),
         endSession: async () => {
           if (!activeProfile) return;
-          try { await stopAll(activeProfile.id); } catch (e) { pushError(`End Session failed: ${e}`); }
+          try { await stopAll(activeProfile.id); } catch (e) { pushError(t('End session failed: {error}', { error: String(e) })); }
         },
         addApp: () => { setEditingApp(undefined); setAppEditorOpen(true); },
         newProfile: () => { setEditingProfile(undefined); setProfileEditorOpen(true); },
@@ -251,11 +255,11 @@ export default function App() {
       {!activeProfile ? (
         <div className="flex flex-col items-center justify-center flex-1 gap-4">
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-text-secondary)' }}>
-            No profile selected
+            {t('No profile selected')}
           </span>
           <Button variant="cta" size="lg" onClick={() => setProfileEditorOpen(true)}>
             <Icon icon={faPlus} size={12} />
-            New Profile
+            {t('New profile')}
           </Button>
         </div>
       ) : (
@@ -269,11 +273,11 @@ export default function App() {
             crashed={crashedApps}
             sessionSeconds={sessionSeconds}
             runDisabled={sortedApps.length === 0}
-            onRun={() => sequence.run().catch(e => pushError(`Run sequence failed: ${e}`))}
-            onCancel={() => sequence.cancel().catch(e => pushError(`Cancel failed: ${e}`))}
+            onRun={() => sequence.run().catch(e => pushError(t('Run sequence failed: {error}', { error: String(e) })))}
+            onCancel={() => sequence.cancel().catch(e => pushError(t('Cancel failed: {error}', { error: String(e) })))}
             onEnd={async () => {
               try { await stopAll(activeProfile.id); }
-              catch (e) { pushError(`End Session failed: ${e}`); }
+              catch (e) { pushError(t('End session failed: {error}', { error: String(e) })); }
             }}
             onAddApp={() => { setEditingApp(undefined); setAppEditorOpen(true); }}
             onEditProfile={() => { setEditingProfile(activeProfile); setProfileEditorOpen(true); }}
@@ -286,7 +290,7 @@ export default function App() {
           {sortedApps.length === 0 ? (
             <div className="flex flex-col items-center justify-center flex-1 gap-4">
               <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-text-secondary)' }}>
-                No apps in this profile
+                {t('No apps in this profile')}
               </span>
             </div>
           ) : (
@@ -354,23 +358,23 @@ export default function App() {
       {/* ── Confirm delete profile ── */}
       <Dialog open={confirmDeleteId !== null} onOpenChange={v => { if (!v) setConfirmDeleteId(null); }}>
         <DialogContent width={420} tone="danger">
-          <ModalHeader title="Delete profile" />
+          <ModalHeader title={t('Delete profile')} />
           <p style={{ color: 'var(--color-text-secondary)', fontSize: 15, lineHeight: 1.4, margin: 0 }}>
-            This will permanently delete <strong style={{ color: 'var(--color-text-primary)', fontWeight: 700 }}>{profileToDelete?.name}</strong> and all its apps. Are you sure?
+            {tx('This will permanently delete {name} and all its apps. Are you sure?', { name: <strong style={{ color: 'var(--color-text-primary)', fontWeight: 700 }}>{profileToDelete?.name}</strong> })}
           </p>
           <ModalFooter>
-            <Button variant="ghost" size="default" onClick={() => setConfirmDeleteId(null)}>Cancel</Button>
+            <Button variant="ghost" size="default" onClick={() => setConfirmDeleteId(null)}>{t('Cancel')}</Button>
             <Button
               variant="destructive"
               size="default"
               onClick={async () => {
                 if (!confirmDeleteId) return;
                 try { await removeProfile(confirmDeleteId); }
-                catch (e) { pushError(`Failed to delete profile: ${e}`); }
+                catch (e) { pushError(t('Failed to delete profile: {error}', { error: String(e) })); }
                 setConfirmDeleteId(null);
               }}
             >
-              Yes, delete everything
+              {t('Yes, delete everything')}
             </Button>
           </ModalFooter>
         </DialogContent>
@@ -379,23 +383,23 @@ export default function App() {
       {/* ── Confirm remove app ── */}
       <Dialog open={confirmRemoveApp !== null} onOpenChange={v => { if (!v) setConfirmRemoveApp(null); }}>
         <DialogContent width={420} tone="danger">
-          <ModalHeader title="Remove app" />
+          <ModalHeader title={t('Remove app')} />
           <p style={{ color: 'var(--color-text-secondary)', fontSize: 15, lineHeight: 1.4, margin: 0 }}>
-            This will permanently remove <strong style={{ color: 'var(--color-text-primary)', fontWeight: 700 }}>{confirmRemoveApp?.name}</strong> from this profile. Are you sure?
+            {tx('This will permanently remove {name} from this profile. Are you sure?', { name: <strong style={{ color: 'var(--color-text-primary)', fontWeight: 700 }}>{confirmRemoveApp?.name}</strong> })}
           </p>
           <ModalFooter>
-            <Button variant="ghost" size="default" onClick={() => setConfirmRemoveApp(null)}>Cancel</Button>
+            <Button variant="ghost" size="default" onClick={() => setConfirmRemoveApp(null)}>{t('Cancel')}</Button>
             <Button
               variant="destructive"
               size="default"
               onClick={async () => {
                 if (!confirmRemoveApp || !activeProfileId) return;
                 try { await removeApp(activeProfileId, confirmRemoveApp.id); }
-                catch (e) { pushError(`Remove failed: ${e}`); }
+                catch (e) { pushError(t('Remove failed: {error}', { error: String(e) })); }
                 setConfirmRemoveApp(null);
               }}
             >
-              Yes, remove it
+              {t('Yes, remove it')}
             </Button>
           </ModalFooter>
         </DialogContent>
@@ -413,7 +417,7 @@ export default function App() {
               await createProfile(fields);
             }
           } catch (e) {
-            pushError(`Failed to save profile: ${e}`);
+            pushError(t('Failed to save profile: {error}', { error: String(e) }));
           }
           setProfileEditorOpen(false);
           setEditingProfile(undefined);

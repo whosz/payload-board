@@ -4,7 +4,7 @@ import { AppControls } from './AppControls';
 import { TileBackdrop } from './TileBackdrop';
 import { appColor } from '../../lib/appColor';
 import type { AppEntry } from '../../types';
-import { STATUS_LABEL, type ProcessInfo } from '../../hooks/useProcessStatus';
+import { statusLabel, type ProcessInfo } from '../../hooks/useProcessStatus';
 
 interface AppTileProps {
   app: AppEntry;
@@ -84,7 +84,7 @@ export function AppTile(props: AppTileProps) {
 
         {/* top-right: status text + LED (never colour alone) */}
         <div style={{ ...monoLabel, position: 'absolute', top: 10, right: 12, display: 'flex', alignItems: 'center', gap: 6, color: isCrashed ? 'var(--color-error-text)' : isRunning ? 'var(--color-text-primary)' : 'var(--color-text-muted)' }}>
-          {STATUS_LABEL[status.status]}
+          {statusLabel(status.status)}
           <span style={{
             width: 7, height: 7, borderRadius: '50%', background: ledColor, display: 'inline-block',
             boxShadow: isRunning ? '0 0 6px var(--color-status-live)' : 'none',

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Dialog, DialogContent, DialogTitle } from './ui/dialog';
+import { t } from '../i18n';
 import { filterItems, firstEnabled, statusLabel, type PaletteGroup, type PaletteItem } from '../lib/palette';
 
 interface Props {
@@ -12,13 +13,17 @@ interface Props {
   onOpenFolder: (item: PaletteItem) => void;
 }
 
+const waitLabel = (w: string) => ({ fire_and_forget: t('Fire and forget'), wait_for_window: t('Wait for window'), wait_seconds: t('Wait seconds') })[w] ?? w;
+const priorityLabel = (p: string) => ({ low: t('Low'), normal: t('Normal'), high: t('High') })[p] ?? p;
+const groupLabel = (g: string) => ({ Actions: t('Actions'), Apps: t('Apps'), Profiles: t('Profiles') })[g] ?? g;
+
 const mono = { fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase' } as const;
 
 export function CommandPalette({ open, ...rest }: Props) {
   return (
     <Dialog open={open} onOpenChange={v => { if (!v) rest.onClose(); }}>
       <DialogContent width={940} className="p-0 gap-0 overflow-hidden" style={{ top: '38%' }}>
-        <DialogTitle className="sr-only">Command palette</DialogTitle>
+        <DialogTitle className="sr-only">{t('Command palette')}</DialogTitle>
         <PaletteBody {...rest} />
       </DialogContent>
     </Dialog>
@@ -66,27 +71,27 @@ function PaletteBody({ items, onClose, onRestart, onEdit, onOpenFolder }: Omit<P
           autoFocus
           value={query}
           onChange={e => setQuery(e.target.value)}
-          placeholder="Search apps, actions, profiles…"
+          placeholder={t('Search apps, actions, profiles…')}
           role="combobox"
           aria-expanded="true"
           aria-controls="palette-list"
           aria-autocomplete="list"
-          aria-label="Search"
+          aria-label={t('Search')}
           aria-activedescendant={current ? `palette-opt-${results.indexOf(current)}` : undefined}
           style={{ flex: 1, minWidth: 0, background: 'none', border: 'none', outline: 'none', color: 'var(--color-text-primary)', fontFamily: 'var(--font-body)', fontSize: 22, fontWeight: 600 }}
         />
-        <span style={{ ...mono, border: '1px solid var(--color-border-control)', padding: '4px 8px', color: 'var(--color-text-muted)' }}>Esc</span>
+        <span style={{ ...mono, border: '1px solid var(--color-border-control)', padding: '4px 8px', color: 'var(--color-text-muted)' }}>{t('Esc')}</span>
       </div>
 
       <div className="grid" style={{ gridTemplateColumns: 'minmax(0, 1fr) 300px', height: 400 }}>
-        <div ref={listRef} id="palette-list" role="listbox" aria-label="Results" style={{ overflowY: 'auto', padding: '8px 0' }}>
-          {results.length === 0 && <div style={{ ...mono, padding: '24px 20px', color: 'var(--color-text-muted)' }}>No results</div>}
+        <div ref={listRef} id="palette-list" role="listbox" aria-label={t('Results')} style={{ overflowY: 'auto', padding: '8px 0' }}>
+          {results.length === 0 && <div style={{ ...mono, padding: '24px 20px', color: 'var(--color-text-muted)' }}>{t('No results')}</div>}
           {([...new Set(results.map(r => r.group))] as PaletteGroup[]).map(group => {
             const rows = results.filter(r => r.group === group);
             if (!rows.length) return null;
             return (
-              <div key={group} role="group" aria-label={group}>
-                <div aria-hidden="true" style={{ ...mono, padding: '10px 20px 6px', color: 'var(--color-text-muted)' }}>{group}</div>
+              <div key={group} role="group" aria-label={groupLabel(group)}>
+                <div aria-hidden="true" style={{ ...mono, padding: '10px 20px 6px', color: 'var(--color-text-muted)' }}>{groupLabel(group)}</div>
                 {rows.map(item => {
                   const i = ++optionIndex;
                   const isActive = item === current;
@@ -122,14 +127,14 @@ function PaletteBody({ items, onClose, onRestart, onEdit, onOpenFolder }: Omit<P
           })}
         </div>
 
-        <aside aria-label="Details" style={{ borderLeft: '1px solid var(--color-border-divider)', background: 'var(--color-bg-base)', padding: 20, overflowY: 'auto' }}>
+        <aside aria-label={t('Details')} style={{ borderLeft: '1px solid var(--color-border-divider)', background: 'var(--color-bg-base)', padding: 20, overflowY: 'auto' }}>
           {current ? <Details item={current} /> : null}
         </aside>
       </div>
 
-      <div aria-live="polite" className="sr-only">{results.length} results</div>
+      <div aria-live="polite" className="sr-only">{t('{count} results', { count: results.length })}</div>
       <div className="flex items-center flex-wrap" style={{ gap: '6px 22px', padding: '0 20px', minHeight: 44, borderTop: '1px solid var(--color-border-divider)', background: 'var(--color-bg-surface)' }}>
-        {[['↑↓', 'navigate'], ['Enter', 'run'], ...(current?.app ? [['Ctrl R', 'restart'], ['Ctrl E', 'edit'], ['Ctrl O', 'folder']] : [])].map(([k, l]) => (
+        {[['↑↓', t('navigate')], ['Enter', t('run')], ...(current?.app ? [['Ctrl R', t('restart')], ['Ctrl E', t('edit')], ['Ctrl O', t('folder')]] : [])].map(([k, l]) => (
           <span key={k} style={{ ...mono, color: 'var(--color-text-muted)' }}><span style={{ color: 'var(--color-text-primary)' }}>{k}</span> {l}</span>
         ))}
       </div>
@@ -155,11 +160,11 @@ function Details({ item }: { item: PaletteItem }) {
   const a = item.app;
   const rows: [string, string][] = a
     ? [
-        ['Executable', a.executable_path],
-        ['Arguments', a.args.join(' ') || '—'],
-        ['Delay', a.launch_delay_ms ? `+${(a.launch_delay_ms / 1000).toFixed(1)}s` : '—'],
-        ['Wait for', a.wait_strategy.replace(/_/g, ' ')],
-        ['Priority', a.priority ?? 'normal'],
+        [t('Executable'), a.executable_path],
+        [t('Arguments'), a.args.join(' ') || '—'],
+        [t('Delay'), a.launch_delay_ms ? `+${(a.launch_delay_ms / 1000).toFixed(1)}s` : '—'],
+        [t('Wait for'), waitLabel(a.wait_strategy)],
+        [t('Priority'), priorityLabel(a.priority ?? 'normal')],
       ]
     : [];
   return (

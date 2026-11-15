@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { listen } from '@tauri-apps/api/event';
 import * as ipc from '../ipc/shortcuts';
 import { describeError, matches, type ShortcutAction, type ShortcutsState } from '../lib/shortcuts';
+import { t } from '../i18n';
 
 export interface ShortcutsApi {
   state: ShortcutsState | null;
@@ -58,7 +59,7 @@ export function useShortcuts(
         e.preventDefault();
         if (entry.action === 'end_session') {
           const now = Date.now();
-          if (now - lastEnd.current > 2000) { lastEnd.current = now; feedbackRef.current('Press again within 2 s to end the session', 'warn'); return; }
+          if (now - lastEnd.current > 2000) { lastEnd.current = now; feedbackRef.current(t('Press again within 2 s to end the session'), 'warn'); return; }
           lastEnd.current = 0;
         }
         run();

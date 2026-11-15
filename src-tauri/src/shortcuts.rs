@@ -12,6 +12,7 @@ use tauri_plugin_global_shortcut::{GlobalShortcutExt, Shortcut, ShortcutState};
 use tauri_plugin_store::StoreExt;
 
 use crate::commands::processes::stop_all_inner;
+use crate::i18n::tr;
 use crate::process_manager::ProcessMap;
 use crate::sequencer::{start_sequence, SequenceMap};
 use crate::store::SETTINGS_FILE;
@@ -203,17 +204,17 @@ fn handle<R: tauri::Runtime>(app: &AppHandle<R>, action: Action) {
             let _ = app.emit("shortcut_triggered", serde_json::json!({ "action": "palette" }));
         }
         Action::RunSequence => match profile {
-            None => feedback(app, "No active profile", "warn"),
+            None => feedback(app, &tr("No active profile"), "warn"),
             Some(id) => {
                 let (map, seqs) = (app.state::<ProcessMap>(), app.state::<SequenceMap>());
                 match start_sequence(app, &map, &seqs, &id) {
-                    Ok(()) => feedback(app, "Sequence started", "info"),
-                    Err(e) => feedback(app, &e, "warn"),
+                    Ok(()) => feedback(app, &tr("Sequence started"), "info"),
+                    Err(e) => feedback(app, &tr(&e), "warn"),
                 }
             }
         },
         Action::EndSession => {
-            let Some(id) = profile else { return feedback(app, "No active profile", "warn") };
+            let Some(id) = profile else { return feedback(app, &tr("No active profile"), "warn") };
             let confirmed = {
                 let mut last = rt.last_end_press.lock().unwrap();
                 let ok = last.is_some_and(|t| t.elapsed() <= END_CONFIRM_WINDOW);
@@ -221,14 +222,14 @@ fn handle<R: tauri::Runtime>(app: &AppHandle<R>, action: Action) {
                 ok
             };
             if !confirmed {
-                return feedback(app, "Press again within 2 s to end the session", "warn");
+                return feedback(app, &tr("Press again within 2 s to end the session"), "warn");
             }
-            feedback(app, "Ending session…", "info");
+            feedback(app, &tr("Ending session…"), "info");
             let app = app.clone();
             tauri::async_runtime::spawn(async move {
                 let map = app.state::<ProcessMap>();
                 if let Err(e) = stop_all_inner(&app, &map, &id).await {
-                    feedback(&app, &e, "error");
+                    feedback(&app, &tr(&e), "error");
                 }
             });
         }

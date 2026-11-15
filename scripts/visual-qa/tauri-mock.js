@@ -1,7 +1,8 @@
 // Browser-side stand-in for the Tauri backend, injected with page.addInitScript.
 // Gives the UI sample profiles and lets the harness emit process_status_changed events.
-export function installTauriMock({ profiles, theme }) {
+export function installTauriMock({ profiles, theme, lang }) {
   localStorage.setItem('theme', theme);
+  if (lang) localStorage.setItem('language', lang);
   let cbid = 1;
   const cbs = {};
   window.__TAURI_INTERNALS__ = {

@@ -10,7 +10,8 @@
     "tauri": "tauri",
     "qa:shots": "node scripts/visual-qa/shoot.mjs",
     "qa:contrast": "node scripts/visual-qa/contrast.mjs",
-    "qa:flows": "node scripts/visual-qa/flows.mjs"
+    "qa:flows": "node scripts/visual-qa/flows.mjs",
+    "qa:i18n": "node scripts/i18n-check.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",

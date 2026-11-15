@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Icon } from "@/components/icons/Icon"
 import { faXmark } from "@/components/icons"
+import { t } from "@/i18n"
 
 function Dialog({ ...props }: DialogPrimitive.Root.Props) {
   return <DialogPrimitive.Root data-slot="dialog" {...props} />
@@ -93,7 +94,7 @@ function ModalHeader({ title }: { title: React.ReactNode }) {
       >
         {title}
       </DialogPrimitive.Title>
-      <DialogPrimitive.Close className="tile-btn" aria-label="Close" style={{ marginTop: -6, marginRight: -8 }}>
+      <DialogPrimitive.Close className="tile-btn" aria-label={t('Close')} style={{ marginTop: -6, marginRight: -8 }}>
         <Icon icon={faXmark} size={14} />
       </DialogPrimitive.Close>
     </div>
@@ -139,7 +140,7 @@ function DialogFooter({
       {children}
       {showCloseButton && (
         <DialogPrimitive.Close render={<Button variant="outline" />}>
-          Close
+          {t('Close')}
         </DialogPrimitive.Close>
       )}
     </div>

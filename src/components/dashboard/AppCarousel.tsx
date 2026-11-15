@@ -4,6 +4,7 @@ import { Icon } from '../icons/Icon';
 import { faPlus } from '../icons';
 import type { AppEntry } from '../../types';
 import type { ProcessInfo } from '../../hooks/useProcessStatus';
+import { t } from '../../i18n';
 
 export interface AppHandlers {
   onStart: () => void;
@@ -54,7 +55,7 @@ export function AppCarousel({ apps, getStatus, makeHandlers, onAdd }: Props) {
   return (
     <div
       role="list"
-      aria-label="Apps"
+      aria-label={t('Apps')}
       className={wrap ? 'carousel--wrap' : undefined}
       onKeyDown={onKeyDown}
       style={{
@@ -80,7 +81,7 @@ export function AppCarousel({ apps, getStatus, makeHandlers, onAdd }: Props) {
         style={{ borderStyle: 'dashed', borderColor: 'var(--color-border-default)', alignItems: 'center', justifyContent: 'center', gap: 14, cursor: 'pointer', color: 'var(--color-text-secondary)', background: 'transparent' }}
       >
         <Icon icon={faPlus} size={22} />
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase' }}>Add app</span>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase' }}>{t('Add app')}</span>
       </button>
     </div>
   );
