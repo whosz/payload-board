@@ -6,6 +6,8 @@ import { Hero } from './components/dashboard/Hero';
 import { AppCarousel } from './components/dashboard/AppCarousel';
 import { AppsToolbar, type SortOrder, type ViewMode } from './components/dashboard/AppsToolbar';
 import { KeyHints } from './components/dashboard/KeyHints';
+import { CommandPalette } from './components/CommandPalette';
+import { buildPaletteItems } from './lib/palette';
 import { AppListRow } from './components/dashboard/AppListRow';
 import { ProfileEditor } from './components/editor/ProfileEditor';
 import { AppEntryEditor } from './components/editor/AppEntryEditor';
@@ -63,6 +65,7 @@ export default function App() {
   const [sortOrder, setSortOrder] = useState<SortOrder>('manual');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [designRefOpen, setDesignRefOpen] = useState(false);
+  const [paletteOpen, setPaletteOpen] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
 
   useEffect(() => {
@@ -73,6 +76,21 @@ export default function App() {
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, []);
+
+  // Command palette: Ctrl/Cmd+K or Ctrl/Cmd+P (ignored while another dialog is open)
+  const anyDialogOpen = profileEditorOpen || appEditorOpen || settingsOpen || confirmDeleteId !== null || confirmRemoveApp !== null;
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const k = e.key.toLowerCase();
+      if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && (k === 'k' || k === 'p')) {
+        e.preventDefault();
+        if (paletteOpen) setPaletteOpen(false);
+        else if (!anyDialogOpen) setPaletteOpen(true);
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [paletteOpen, anyDialogOpen]);
 
   const [theme, setTheme] = useState<Theme>(() =>
     THEMES.find(t => t === localStorage.getItem('theme')) ?? 'dark'
@@ -195,6 +213,27 @@ export default function App() {
     },
   });
 
+  const paletteItems = paletteOpen
+    ? buildPaletteItems({
+        profiles,
+        activeProfile: activeProfile ?? undefined,
+        getStatus,
+        launching: sequence.launching,
+        anyRunning: runningCount > 0,
+        runSequence: () => sequence.run().catch(e => pushError(`Run sequence failed: ${e}`)),
+        cancelSequence: () => sequence.cancel().catch(e => pushError(`Cancel failed: ${e}`)),
+        endSession: async () => {
+          if (!activeProfile) return;
+          try { await stopAll(activeProfile.id); } catch (e) { pushError(`End Session failed: ${e}`); }
+        },
+        addApp: () => { setEditingApp(undefined); setAppEditorOpen(true); },
+        newProfile: () => { setEditingProfile(undefined); setProfileEditorOpen(true); },
+        openSettings: () => setSettingsOpen(true),
+        switchProfile: setActiveProfileId,
+        appHandlers: makeHandlers,
+      })
+    : [];
+
   return (
     <div className="flex flex-col h-full" onClick={() => setSortOpen(false)}>
       <ProfileTabs
@@ -203,6 +242,7 @@ export default function App() {
         onSelect={setActiveProfileId}
         onNew={() => { setEditingProfile(undefined); setProfileEditorOpen(true); }}
         onSettings={() => setSettingsOpen(true)}
+        onPalette={() => { if (!anyDialogOpen) setPaletteOpen(true); }}
       />
 
       {!activeProfile ? (
@@ -269,6 +309,15 @@ export default function App() {
           )}
         </>
       )}
+
+      <CommandPalette
+        open={paletteOpen}
+        onClose={() => setPaletteOpen(false)}
+        items={paletteItems}
+        onRestart={item => item.app && makeHandlers(item.app).onRestart()}
+        onEdit={item => item.app && makeHandlers(item.app).onEdit(item.app)}
+        onOpenFolder={item => item.app && makeHandlers(item.app).onOpenPath()}
+      />
 
       {/* ── Toast notifications ── */}
       {toasts.length > 0 && (

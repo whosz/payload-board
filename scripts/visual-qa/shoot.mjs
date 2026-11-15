@@ -1,5 +1,5 @@
 // Headless visual QA with a mocked Tauri backend (no Rust needed).
-// Usage: npm run qa:shots -- --out docs/assets/qa --themes dark,grey,light --sizes 1280x800,900x600 --views grid,list,settings,add,installed,sgdb,profile,confirm,hover [--scenario mixed|idle|launching|accent [--accent #19e3ff]] [--tab 12] [--url http://localhost:1420]
+// Usage: npm run qa:shots -- --out docs/assets/qa --themes dark,grey,light --sizes 1280x800,900x600 --views grid,list,settings,add,installed,sgdb,profile,confirm,hover,palette,palette-search [--scenario mixed|idle|launching|accent [--accent #19e3ff]] [--tab 12] [--url http://localhost:1420]
 // Browser: set CHROMIUM_PATH, or it uses the newest Playwright headless shell in ~/.cache/ms-playwright.
 import { chromium } from 'playwright-core';
 import { spawn } from 'node:child_process';
@@ -70,6 +70,7 @@ try {
     if (view === 'sgdb') await page.getByRole('button', { name: /steamgriddb/i }).click();
     if (view === 'profile') await page.getByLabel('New profile').click();
     if (view === 'confirm') await page.getByLabel('Delete profile').click({ force: true });
+    if (view === 'palette' || view === 'palette-search') { await page.keyboard.press('Control+k'); if (view === 'palette-search') await page.keyboard.type('rac'); await page.waitForTimeout(300); }
     if (view === 'hover') await page.locator('.hero__name').hover();
     if (tabs) for (let i = 0; i < tabs; i++) await page.keyboard.press('Tab');
     await page.waitForTimeout(400);

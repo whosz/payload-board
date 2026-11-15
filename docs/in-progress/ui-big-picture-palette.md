@@ -92,12 +92,13 @@ Concepts (static mockups, dark theme): ![all concepts](../assets/concepts/sheet.
 - Done: `lib/accent.ts` (presets, readable text colour, darkening in the light theme), colour picker in `ProfileEditor`, accent applied on `<html>` so tabs, hero, focus ring and buttons follow the active profile. **2b (cover image) is NOT done** — it adds a new optional profile field, so it waits for your OK.
 
 ### Phase 3 — Command Palette (in-window)
-- [ ] `CommandPalette.tsx` on the existing base-ui `Dialog`; `Ctrl+K` / `Ctrl+P` to open, `Esc` to close
-- [ ] Sections: Actions (Run sequence, End session, Add app…), Apps (start/stop/restart/open folder/edit), Profiles (`> Work Stuff`), Recent
-- [ ] Filter: simple scored substring match (no new dependency); `↑↓`, `Enter`, `Tab` for details panel
-- [ ] A11y: combobox/listbox pattern (`role`, `aria-activedescendant`, live region for result count); focus returns to the opener
-- [ ] Details panel from existing `AppEntry` fields (path, args, delay, wait, priority)
-- [ ] Also wire the in-app shortcuts from `planned/hotkeys.md` (`Ctrl+R`, `Ctrl+.`, `Ctrl+N`) — same action registry feeds palette and shortcuts
+- [x] `CommandPalette.tsx` on the existing base-ui `Dialog`; `Ctrl+K` / `Ctrl+P` to open (toggle), `Esc` to close, header button
+- [x] Sections: Actions, Apps (Enter start/stop, Ctrl+R restart, Ctrl+E edit, Ctrl+O folder), Profiles ("Switch to …"). *Recent* not built
+- [x] Filter: simple scored substring match (no new dependency); `↑↓`, `Enter`, `Tab` for details panel
+- [x] A11y: combobox/listbox pattern (`role`, `aria-activedescendant`, live region for result count); focus returns to the opener
+- [x] Details panel from existing `AppEntry` fields (path, args, delay, wait, priority)
+- [ ] (moves to phase 4) Also wire the in-app shortcuts from `planned/hotkeys.md` (`Ctrl+R`, `Ctrl+.`, `Ctrl+N`) — same action registry feeds palette and shortcuts
+- Done: `lib/palette.ts` (items, scoring, ranking: groups ordered by best match, first enabled item preselected), `CommandPalette.tsx`. 10-step keyboard/ARIA check passes in headless Chromium (open, focus, arrows, activedescendant, groups, no results, Enter, Esc, toggle). Not tested with a real screen reader. The palette hotkey is hard-coded for now; phase 4 makes it configurable.
 
 ### Phase 4 — Shortcuts (global + configurable)
 - [ ] **Action registry** (`lib/actions.ts`, shared with the palette): `id`, `title`, `scope: 'global' | 'window'`, `defaultAccelerator`, `run(ctx)`. Actions: `palette`, `run_sequence`, `end_session`, `add_app`, `new_profile`, `settings`

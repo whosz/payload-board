@@ -8,9 +8,10 @@ interface Props {
   onSelect: (id: string) => void;
   onNew: () => void;
   onSettings: () => void;
+  onPalette: () => void;
 }
 
-export function ProfileTabs({ profiles, activeProfileId, onSelect, onNew, onSettings }: Props) {
+export function ProfileTabs({ profiles, activeProfileId, onSelect, onNew, onSettings, onPalette }: Props) {
   return (
     <header className="flex items-center flex-shrink-0" style={{ height: 56, gap: 24, padding: '0 24px', borderBottom: '1px solid var(--color-border-divider)' }}>
       <div className="flex items-center flex-shrink-0" style={{ gap: 10 }}>
@@ -53,6 +54,11 @@ export function ProfileTabs({ profiles, activeProfileId, onSelect, onNew, onSett
       </nav>
 
       <div className="flex items-center flex-shrink-0" style={{ gap: 4 }}>
+        <button onClick={onPalette} title="Command palette (Ctrl+K)" aria-label="Open command palette" className="tile-btn">
+          <svg width="14" height="14" viewBox="0 0 20 20" aria-hidden="true" style={{ color: 'var(--color-text-secondary)' }}>
+            <circle cx="8" cy="8" r="5.5" fill="none" stroke="currentColor" strokeWidth="2.2" /><path d="M12 12l6 6" stroke="currentColor" strokeWidth="2.2" />
+          </svg>
+        </button>
         <button onClick={onNew} title="New profile" aria-label="New profile" className="tile-btn"><Icon icon={faPlus} size={14} /></button>
         <button onClick={onSettings} title="Settings" aria-label="Settings" className="tile-btn"><Icon icon={faGear} size={14} /></button>
       </div>
