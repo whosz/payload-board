@@ -282,6 +282,7 @@ export default function App() {
             onClearErrors={clearErrors}
           />
 
+          <div className="mini-hide" style={{ display: 'contents' }}>
           {sortedApps.length === 0 ? (
             <div className="flex flex-col items-center justify-center flex-1 gap-4">
               <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-text-secondary)' }}>
@@ -310,6 +311,7 @@ export default function App() {
               )}
             </>
           )}
+          </div>
         </>
       )}
 

@@ -318,3 +318,14 @@
 .poster:hover .poster__controls, .poster:focus-within .poster__controls { opacity: 1; }
 .poster:hover .poster__meta, .poster:focus-within .poster__meta { opacity: 0; }
 .carousel--wrap .poster { height: var(--poster-h); }
+
+/* ── Mini mode (< 560 px wide): status + the one primary action only ── */
+@media (max-width: 559px) {
+  .mini-hide, .hero__add, .hero__title .tile-btn, .brand-text { display: none !important; }
+  .hero { display: flex; flex-direction: column; align-items: stretch; gap: 10px; padding: 14px 16px; min-height: 0; }
+  .hero__name { font-size: 28px; }
+  .hero__stats { margin-top: 0; gap: 4px 16px; }
+  .hero__actions { margin: 0; }
+  .hero__actions > button { flex: 1; justify-content: center; }
+  .hero__banner { display: flex !important; flex-wrap: wrap; margin: 0; }
+}

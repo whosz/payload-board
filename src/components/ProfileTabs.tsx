@@ -16,7 +16,7 @@ export function ProfileTabs({ profiles, activeProfileId, onSelect, onNew, onSett
     <header className="flex items-center flex-shrink-0" style={{ height: 56, gap: 24, padding: '0 24px', borderBottom: '1px solid var(--color-border-divider)' }}>
       <div className="flex items-center flex-shrink-0" style={{ gap: 10 }}>
         <img src="/logo.svg" alt="" width={22} height={22} />
-        <span style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 19, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+        <span className="brand-text" style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: 19, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
           Payload Board
         </span>
       </div>

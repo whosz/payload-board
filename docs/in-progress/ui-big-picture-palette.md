@@ -124,7 +124,8 @@ Concepts (static mockups, dark theme): ![all concepts](../assets/concepts/sheet.
 - **Windows check:** notification appears (and not while the window is focused); a killed app is restarted after ~2 s up to the limit, then "keeps crashing"; manual Start resets the budget.
 
 ### Phase 6 — Mini mode
-- [ ] Below ~520 px width: status + RUN/END only; reachable by resizing (no separate window yet)
+- [x] Below ~520 px width: status + RUN/END only; reachable by resizing (no separate window yet)
+- Done: window minimum lowered to 360×260 (`tauri.conf.json`); below 560 px width only the hero stays (name, live/crashed counters, crash banner, one primary button); carousel, toolbar, key hints, Add app, profile edit icons and the brand text are hidden. Checked at 400×560 and 360×300. No separate app list in mini mode (by design: status + primary action only).
 
 ## Acceptance criteria
 

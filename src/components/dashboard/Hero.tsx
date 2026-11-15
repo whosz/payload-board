@@ -104,7 +104,7 @@ export function Hero(p: Props) {
             <Icon icon={faPlay} size={14} color="var(--color-accent-fg)" /> Run sequence
           </Button>
         )}
-        <Button variant="default" size="lg" className="h-12 px-6 text-base" onClick={p.onAddApp}>
+        <Button variant="default" size="lg" className="hero__add h-12 px-6 text-base" onClick={p.onAddApp}>
           <Icon icon={faPlus} size={12} /> Add app
         </Button>
       </div>
