@@ -133,7 +133,7 @@ Concepts (static mockups, dark theme): ![all concepts](../assets/concepts/sheet.
 - [x] Own tiny i18n (`src/i18n/index.ts`): English text is the key, `t()`/`tx()`, `{placeholders}`, plural entries via `Intl.PluralRules` (needed for Polish few/many). No new dependency.
 - [x] ~190 strings wrapped across the UI; Rust-side messages (crash notifications, shortcut feedback) translated in `src-tauri/src/i18n.rs`, language pushed to Rust with `set_language`.
 - [x] `npm run qa:i18n` fails on a missing translation, differing placeholders or missing plural forms.
-- **Translation quality:** written by the assistant, not by native speakers or a professional translator. Terminology chosen for games/launchers (profil/Profil/perfil/profil, sekwencja/Sequenz/secuencia/séquence, skrót/Tastenkürzel/atajo/raccourci). German and Spanish use informal address in "Are you sure?" (du/tú-free phrasing where possible), French uses "vous". Worth a native read-through before a release.
+- **Translation quality:** written by the assistant, not by native speakers or a professional translator. Terminology chosen for games/launchers (profil/Profil/perfil/profil, sekwencja/Sequenz/secuencia/séquence, skrót/Tastenkürzel/atajo/raccourci). German uses the informal "du", Spanish neutral phrasing, French "vous" and Polish impersonal forms. Worth a native read-through before a release.
 - Profile and app names, executable names and technical error text coming from the OS stay as they are.
 
 ## Acceptance criteria
