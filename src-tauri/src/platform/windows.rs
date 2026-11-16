@@ -31,15 +31,21 @@ impl PlatformAdapter for WindowsAdapter {
     }
 
     fn open_path(&self, exe_path: &std::path::Path) -> Result<(), String> {
-        let path_str = exe_path.to_string_lossy();
+        use std::os::windows::process::CommandExt;
+        // Explorer wants backslashes and `/select,"path"` as ONE raw argument: Rust would quote the
+        // whole thing when the path has spaces, and Explorer then falls back to Documents.
+        let path = PathBuf::from(exe_path.to_string_lossy().replace('/', "\\"));
         let mut cmd = std::process::Command::new("explorer");
-        if exe_path.is_dir() {
-            cmd.arg(exe_path);
+        if path.is_dir() {
+            cmd.raw_arg(format!("\"{}\"", path.display()));
+        } else if path.exists() {
+            cmd.raw_arg(format!("/select,\"{}\"", path.display()));
+        } else if let Some(dir) = path.parent().filter(|d| d.is_dir()) {
+            cmd.raw_arg(format!("\"{}\"", dir.display()));
         } else {
-            cmd.arg(format!("/select,{}", path_str));
+            return Err(format!("Path not found: {}", path.display()));
         }
-        cmd.spawn()
-            .map_err(|e| e.to_string())?;
+        cmd.spawn().map_err(|e| e.to_string())?;
         Ok(())
     }
 
