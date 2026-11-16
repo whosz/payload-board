@@ -30,7 +30,8 @@ import { keysFor } from './lib/shortcuts';
 import { useShortcuts } from './hooks/useShortcuts';
 import { t, tx, useLanguage } from './i18n';
 import { setActiveProfile } from './ipc/shortcuts';
-import { setBackendLanguage } from './ipc/settings';
+import { setBackendLanguage, getBoolSetting, checkForUpdate, type UpdateInfo } from './ipc/settings';
+import { openExternal } from './lib/links';
 import type { AppEntry } from './types';
 
 type Theme = 'dark' | 'grey' | 'light';
@@ -69,6 +70,7 @@ export default function App() {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [confirmRemoveApp, setConfirmRemoveApp] = useState<AppEntry | null>(null);
+  const [update, setUpdate] = useState<UpdateInfo | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settingsTab, setSettingsTab] = useState<'appearance' | 'data'>('appearance');
   const [sortOrder, setSortOrder] = useState<SortOrder>('manual');
@@ -84,6 +86,10 @@ export default function App() {
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
+  }, []);
+
+  useEffect(() => {
+    getBoolSetting('check_updates').then(on => { if (on) return checkForUpdate().then(setUpdate); }).catch(() => {});
   }, []);
 
   // Settings opens on top of whichever editor asked, so unsaved form input survives.
@@ -256,6 +262,14 @@ export default function App() {
         onPalette={() => { if (!anyDialogOpen) setPaletteOpen(true); }}
         keys={{ palette: keysFor(shortcuts.state, 'palette'), newProfile: keysFor(shortcuts.state, 'new_profile'), settings: keysFor(shortcuts.state, 'settings') }}
       />
+
+      {update && (
+        <div role="status" className="mini-hide flex items-center flex-shrink-0" style={{ gap: 12, padding: '6px 24px', background: 'var(--color-bg-elevated)', borderBottom: '1px solid var(--color-border-divider)', fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--color-text-primary)' }}>
+          <span style={{ flex: 1 }}>{t('Version {version} is available', { version: update.version })}</span>
+          <Button variant="fill" size="sm" onClick={() => openExternal(update.url)}>{t('Download')}</Button>
+          <button className="tile-btn" title={t('Dismiss')} aria-label={t('Dismiss')} onClick={() => setUpdate(null)}><Icon icon={faXmark} size={14} /></button>
+        </div>
+      )}
 
       {!activeProfile ? (
         <div className="flex flex-col items-center justify-center flex-1 gap-4">

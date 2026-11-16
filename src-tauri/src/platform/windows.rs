@@ -95,6 +95,16 @@ fn list_registry_apps() -> Vec<InstalledApp> {
                     s.trim_matches('"').to_string()
                 });
 
+            // Steam games ("Steam App <id>"): their DisplayIcon may even point at steam.exe, so ask
+            // Steam where the game really lives.
+            if let Some(id) = subkey_name.strip_prefix("Steam App ") {
+                let exe_path = steam_game_dir(id)
+                    .and_then(|d| find_game_exe(&d, &name))
+                    .map(|p| p.to_string_lossy().to_string());
+                apps.push(InstalledApp { name, exe_path });
+                continue;
+            }
+
             let mut exe_path = icon_path
                 .clone()
                 .filter(|p| {
@@ -127,6 +137,40 @@ fn list_registry_apps() -> Vec<InstalledApp> {
     }
 
     apps
+}
+
+/// Values of every `"key" "value"` line in a Steam VDF/ACF file (backslashes un-escaped).
+fn vdf_values(text: &str, key: &str) -> Vec<String> {
+    text.lines()
+        .filter_map(|l| {
+            let mut q = l.split('"').skip(1).step_by(2);
+            if !q.next()?.eq_ignore_ascii_case(key) { return None; }
+            Some(q.next()?.replace("\\\\", "\\"))
+        })
+        .collect()
+}
+
+/// Install folder of a Steam game, from `appmanifest_<id>.acf` in the Steam library folders.
+fn steam_game_dir(app_id: &str) -> Option<PathBuf> {
+    use winreg::enums::HKEY_CURRENT_USER;
+    use winreg::RegKey;
+
+    let steam: String = RegKey::predef(HKEY_CURRENT_USER)
+        .open_subkey(r"Software\Valve\Steam")
+        .ok()?
+        .get_value("SteamPath")
+        .ok()?;
+    let steam = PathBuf::from(steam);
+    let mut libs = vec![steam.clone()];
+    if let Ok(vdf) = std::fs::read_to_string(steam.join("steamapps").join("libraryfolders.vdf")) {
+        libs.extend(vdf_values(&vdf, "path").into_iter().map(PathBuf::from));
+    }
+    libs.iter().find_map(|lib| {
+        let apps = lib.join("steamapps");
+        let acf = std::fs::read_to_string(apps.join(format!("appmanifest_{app_id}.acf"))).ok()?;
+        let dir = apps.join("common").join(vdf_values(&acf, "installdir").into_iter().next()?);
+        dir.is_dir().then_some(dir)
+    })
 }
 
 /// Best-guess game executable in `dir` (top level + one sub-folder deep): skips installers,

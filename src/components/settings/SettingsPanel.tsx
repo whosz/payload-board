@@ -3,7 +3,7 @@ import { getVersion } from '@tauri-apps/api/app';
 import { Tabs as TabsPrimitive } from '@base-ui/react/tabs';
 import { Dialog, DialogContent, ModalHeader } from '../ui/dialog';
 import { ShortcutsSection } from './ShortcutsSection';
-import { getBoolSetting, setBoolSetting, type BoolSetting } from '../../ipc/settings';
+import { getBoolSetting, setBoolSetting, checkForUpdate, type BoolSetting, type UpdateInfo } from '../../ipc/settings';
 import type { ShortcutsApi } from '../../hooks/useShortcuts';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -60,14 +60,15 @@ function SectionLabel({ children, crit }: { children: React.ReactNode; crit?: bo
 }
 
 function CrashSettings() {
-  const [values, setValues] = useState<Record<BoolSetting, boolean>>({ notify_on_crash: true, auto_restart_enabled: true });
+  const [values, setValues] = useState<Record<BoolSetting, boolean>>({ notify_on_crash: true, auto_restart_enabled: true, check_updates: true });
   useEffect(() => {
-    (['notify_on_crash', 'auto_restart_enabled'] as const).forEach(k =>
+    (['notify_on_crash', 'auto_restart_enabled', 'check_updates'] as const).forEach(k =>
       getBoolSetting(k).then(v => setValues(prev => ({ ...prev, [k]: v }))).catch(() => {}));
   }, []);
   const rows: { key: BoolSetting; label: string; hint: string }[] = [
     { key: 'notify_on_crash', label: t('Notify when an app crashes'), hint: t('System notification, only when this window is not in front.') },
     { key: 'auto_restart_enabled', label: t('Allow auto-restart'), hint: t('Master switch. Each app opts in under Restart if it crashes.') },
+    { key: 'check_updates', label: t('Check for updates on startup'), hint: t('Asks GitHub once at launch whether a newer release exists.') },
   ];
   return (
     <div className="flex flex-col gap-3">
@@ -102,6 +103,11 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset, sh
   const [sgdbKey, setSgdbKeyState] = useState('');
   const [sgdbSaving, setSgdbSaving] = useState(false);
   const [sgdbStatus, setSgdbStatus] = useState<'saved' | 'error' | null>(null);
+  const [updateState, setUpdateState] = useState<'checking' | 'latest' | 'error' | UpdateInfo | null>(null);
+  const handleCheckUpdate = () => {
+    setUpdateState('checking');
+    checkForUpdate().then(u => setUpdateState(u ?? 'latest')).catch(() => setUpdateState('error'));
+  };
   const [autostart, setAutostartState] = useState(false);
   const [startMinimised, setStartMinimisedState] = useState(false);
   const [minimiseOnClose, setMinimiseOnCloseState] = useState(false);
@@ -345,6 +351,19 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset, sh
                   {t('Made by Matt')} · github.com/whosz/payload-board
                 </span>
               </div>
+            </div>
+            <div className="flex items-center gap-3" style={{ marginTop: 16 }}>
+              <Button variant="default" size="default" disabled={updateState === 'checking'} onClick={handleCheckUpdate}>
+                {t('Check for updates')}
+              </Button>
+              <span role="status" style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--color-text-secondary)' }}>
+                {updateState === 'latest' ? t('You have the latest version')
+                  : updateState === 'error' ? t('Could not check for updates')
+                  : typeof updateState === 'object' && updateState ? t('Version {version} is available', { version: updateState.version }) : ''}
+              </span>
+              {typeof updateState === 'object' && updateState && (
+                <Button variant="fill" size="default" onClick={() => openExternal(updateState.url)}>{t('Download')}</Button>
+              )}
             </div>
           </section>
           </TabsPrimitive.Panel>

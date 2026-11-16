@@ -98,6 +98,17 @@ try {
   await page.getByRole('button', { name: 'Open Settings' }).click();
   await page.waitForTimeout(300);
   ok('sgdb: Open Settings lands on the Data tab', (await page.getByRole('tab', { name: 'Data' }).getAttribute('aria-selected')) === 'true');
+
+  // ── update banner (only when a newer release exists) ──
+  ok('update: no banner when up to date', (await count('[role=status]')) === 0 || !(await page.getByText(/is available/).count()));
+  const p2 = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+  await p2.addInitScript(installTauriMock, { profiles: PROFILES, theme: 'dark' });
+  await p2.addInitScript(() => { window.__mockUpdate = { version: '9.9.9', url: 'https://example.com/r' }; });
+  await p2.goto(url);
+  await p2.waitForTimeout(800);
+  ok('update: banner announces the new version', (await p2.getByRole('status').filter({ hasText: '9.9.9' }).count()) === 1);
+  await p2.getByRole('button', { name: 'Dismiss' }).click();
+  ok('update: banner can be dismissed', (await p2.getByText(/is available/).count()) === 0);
 } finally {
   await browser.close();
   server?.stop();

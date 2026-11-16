@@ -6,6 +6,7 @@ mod process_manager;
 mod sequencer;
 mod shortcuts;
 mod store;
+mod update;
 
 use commands::apps::{list_installed_apps, pick_executable, pick_icon_file};
 use commands::processes::{open_path, restart_app, scan_running_apps, start_app, stop_all, stop_app};
@@ -117,6 +118,7 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            update::check_for_update,
             list_profiles,
             save_profile,
             delete_profile,

@@ -56,7 +56,14 @@ export function setAutostart(enable: boolean): Promise<void> {
   return invoke<void>(enable ? 'plugin:autostart|enable' : 'plugin:autostart|disable');
 }
 
-export type BoolSetting = 'notify_on_crash' | 'auto_restart_enabled';
+export type BoolSetting = 'notify_on_crash' | 'auto_restart_enabled' | 'check_updates';
+
+export interface UpdateInfo { version: string; url: string }
+
+/** The newer release, or null when the app is up to date. */
+export function checkForUpdate(): Promise<UpdateInfo | null> {
+  return invoke<UpdateInfo | null>('check_for_update');
+}
 
 export function getBoolSetting(key: BoolSetting): Promise<boolean> {
   return invoke<boolean>('get_bool_setting', { key });

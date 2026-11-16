@@ -17,7 +17,7 @@ const RESTART_DELAY: Duration = Duration::from_secs(2);
 const STABLE_AFTER: Duration = Duration::from_secs(60);
 const DEFAULT_RETRIES: u32 = 3;
 /// Boolean settings the frontend may read/write (both default to on).
-const BOOL_SETTINGS: [&str; 2] = ["notify_on_crash", "auto_restart_enabled"];
+const BOOL_SETTINGS: [&str; 3] = ["notify_on_crash", "auto_restart_enabled", "check_updates"];
 
 /// entry_id -> restart attempts used since the app last ran stably
 #[derive(Default)]
