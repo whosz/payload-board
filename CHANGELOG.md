@@ -5,6 +5,29 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.6.0] — 2026-11-16
+
+### Added
+- **New look** — graphite + orange accent, per-app neon colours, first-letter tile backdrop; dark, grey and redesigned light themes
+- **Big Picture layout** — profile tabs on top, big profile hero with one contextual action (Run / Cancel / End session), tile carousel with keyboard navigation, redesigned list view; mini mode below 560 px width
+- **Command palette** (`Ctrl+K`) — actions, apps and profiles in one list
+- **Configurable shortcuts** — window and global (OS-level) shortcuts, edited in Settings → Shortcuts; shortcut shown in button tooltips
+- **Rust sequencer** — launch order, delays, progress and cancel keep running with the window hidden
+- **Crash notifications and auto-restart** — system notification on crash; per-app "Restart if it crashes" with max attempts (new optional fields `restart_on_crash`, `max_retries`)
+- **Profile accent colour and cover image** (new optional field `cover_url`)
+- **Languages** — English, Polski, Deutsch, Español, Français (Settings → Appearance); translations are machine-written and need a native read-through
+- **Update check** — asks GitHub for the latest release at startup (can be turned off) and offers a link to the download page; "Check for updates" in Settings → About
+- **Settings in tabs**; link to the SteamGridDB API-key page; "Open Settings" button when the key is missing
+- Visual QA tooling: `npm run qa:shots`, `qa:contrast`, `qa:flows`, `qa:i18n`
+
+### Changed
+- Launch order now follows the app order; the A→Z / Z→A sort only affects the display
+- Windows and Linux only — the macOS build and adapter were removed
+
+### Fixed
+- Installed Steam games now resolve to the game's executable (via Steam's app manifests)
+- "Open folder" works for paths with spaces (Explorer was falling back to Documents)
+
 ## [0.5.4] — 2026-05-27
 
 ### Changed

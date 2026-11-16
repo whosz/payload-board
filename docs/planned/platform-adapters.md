@@ -1,3 +1,5 @@
+> **macOS is no longer a target (2026-11-16): Windows and Linux only.** The macOS items below are dropped.
+
 # Platform Adapters
 
 ## Goal

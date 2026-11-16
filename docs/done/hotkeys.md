@@ -1,5 +1,7 @@
 # Hotkeys
 
+**Status: shipped in v0.6.0** as a configurable action registry (palette, run, end session, add app, new profile, settings): window shortcuts plus global OS-level ones via `tauri-plugin-global-shortcut`, editable in Settings → Shortcuts. See [ui-big-picture-palette.md](ui-big-picture-palette.md) phases 3–4. The original plan below is kept as a record; its fixed shortcut table was replaced by the configurable one.
+
 ## Goal
 
 Keyboard shortcuts for common actions, both in-app and system-wide (available even when the window is not focused).

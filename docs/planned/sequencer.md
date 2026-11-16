@@ -12,10 +12,10 @@ Launch all apps in a profile one by one, in configured order, with optional dela
   - `fire_and_forget` — launch and immediately move to next
   - `wait_for_window` — poll for a window belonging to the process before continuing
   - `wait_seconds` — fixed delay
-- [ ] Progress bar / indicator at top of dashboard during sequence
-- [ ] Cancel in-progress sequence
+- [x] Progress indicator during sequence (hero button shows step/total) — v0.6.0
+- [x] Cancel in-progress sequence — v0.6.0 (sequencer runs in Rust)
 - [ ] Toast on sequence complete / error (shadcn Sonner)
-- [ ] Hotkey: `Ctrl/Cmd+R` to trigger RUN SEQUENCE
+- [x] Hotkey to trigger RUN SEQUENCE (configurable, global) — v0.6.0
 
 ## Notes
 

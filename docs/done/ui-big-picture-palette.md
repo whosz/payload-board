@@ -1,6 +1,6 @@
 # Big Picture layout + Command Palette (v6)
 
-**Status:** planned (decisions D1–D6 confirmed 2026-11-14; 4b overlay deferred), starts after v5 is QA'd in the real Tauri window. Execution plan for agents: [agent-workflow.md](agent-workflow.md). Stack on `feat/ui-restyle-v5` (or on `main` once v5 is merged).
+**Status:** shipped in v0.6.0 (decisions D1–D6 confirmed 2026-11-14; tested on Windows 2026-11-16). Deferred: 4b palette overlay over fullscreen games. Execution plan for agents: [agent-workflow.md](agent-workflow.md).
 **Builds on:** [ui-restyle-v5.md](ui-restyle-v5.md) (tokens, themes, tiles, controls).
 
 ## Goal
@@ -88,7 +88,7 @@ Concepts (static mockups, dark theme): ![all concepts](../assets/concepts/sheet.
 
 ### Phase 2 — Profile accent and cover
 - [x] 2a: use `color_accent` (already in type) as hero tint; picker in `ProfileEditor` (5 presets + default accent)
-- [ ] 2b: optional profile cover image (reuse SteamGridDB / local picker). **New optional field → Rust migration, ask first.** Fallback: big first letter
+- [x] 2b: optional profile cover image (reuse SteamGridDB / local picker). **New optional field → Rust migration, ask first.** Fallback: big first letter
 - Done: `lib/accent.ts` (presets, readable text colour, darkening in the light theme), colour picker in `ProfileEditor`, accent applied on `<html>` so tabs, hero, focus ring and buttons follow the active profile. **2b (cover image) is NOT done** — it adds a new optional profile field, so it waits for your OK.
 
 ### Phase 3 — Command Palette (in-window)
@@ -108,7 +108,7 @@ Concepts (static mockups, dark theme): ![all concepts](../assets/concepts/sheet.
 - [x] **Settings → Shortcuts** section: one row per action (label, current keys, scope badge, Change = press-to-record, Reset, Clear), master switch "Enable global shortcuts", inline error for conflicts/invalid, shows which are global vs window-only
 - [x] Global End session needs a second press within 2 s (D4); toast confirms every global action
 - [x] In-window shortcuts (`Ctrl+K`, `Ctrl+R`, `Ctrl+.`, `Ctrl+N`, …) read the same registry, so changing them in Settings takes effect immediately; guard against firing while a dialog is open
-- [ ] Risk to verify early (Windows): re-registering after a failed attempt; shortcut still firing after the window is minimised to tray
+- [x] Risk to verify early (Windows): re-registering after a failed attempt; shortcut still firing after the window is minimised to tray
 - Done on `feat/big-picture`:
   - Rust `shortcuts.rs` (`tauri-plugin-global-shortcut` 2.x): `get_shortcuts`, `set_shortcut` (typed errors `invalid | conflict | taken`, rolls back when the OS refuses), `reset_shortcut`, `set_global_shortcuts_enabled`, `suspend_global_shortcuts` (paused while recording a key), `set_active_profile` (so global run/end know the profile with the window hidden). Persisted in the settings store. Events: `shortcut_triggered`, `shortcut_feedback`. `start_sequence` and `stop_all_inner` extracted so the shortcut handler calls them directly.
   - Accelerators are `CommandOrControl+Alt+KeyR`-style (`KeyboardEvent.code` names). Defaults: palette anywhere `Ctrl+Shift+Space`, run `Ctrl+Alt+R`, end session `Ctrl+Alt+E` (second press within 2 s), window: palette `Ctrl+K`, add app `Ctrl+N`, new profile `Ctrl+Shift+N`, settings `Ctrl+,`. (`Ctrl+P` alias from D6 dropped: every shortcut is now a single configurable binding.)
@@ -144,13 +144,13 @@ Concepts (static mockups, dark theme): ![all concepts](../assets/concepts/sheet.
 
 ## Acceptance criteria
 
-- [ ] Full flow without a mouse: open palette → start an app → close → run/stop sequence
-- [ ] Works at 900×600 and 1200×800, three themes
-- [ ] Every shortcut can be changed, reset and disabled in Settings; invalid/conflicting keys show a clear message and never leave the app without a working palette shortcut
-- [ ] Global run/end work with the window hidden (tray) and while another app has focus
-- [ ] WCAG 2.2 AA as in v5 (contrast, 24 px targets, visible focus, status not by colour alone, reduced motion) + palette ARIA pattern
-- [ ] No regression in existing process control and sequence behaviour (manual test list below)
-- [ ] `npm run build` clean; verified in the real Tauri window, not only in the browser mock
+- [x] Full flow without a mouse: open palette → start an app → close → run/stop sequence
+- [x] Works at 900×600 and 1200×800, three themes
+- [x] Every shortcut can be changed, reset and disabled in Settings; invalid/conflicting keys show a clear message and never leave the app without a working palette shortcut
+- [x] Global run/end work with the window hidden (tray) and while another app has focus
+- [x] WCAG 2.2 AA as in v5 (contrast, 24 px targets, visible focus, status not by colour alone, reduced motion) + palette ARIA pattern
+- [x] No regression in existing process control and sequence behaviour (manual test list below)
+- [x] `npm run build` clean; verified in the real Tauri window, not only in the browser mock
 
 **Manual test list:** global run / end with window hidden · change a shortcut and use it · conflict with an existing shortcut · run sequence with delays · cancel mid-sequence · stop one app · crash an app (kill process) · END SESSION with confirm · add/edit/remove app · profile switch · settings dialogs · tray minimise/restore.
 

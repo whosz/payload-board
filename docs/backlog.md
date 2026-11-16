@@ -19,22 +19,24 @@ Lower-priority ideas and Phase 6 nice-to-haves. Promote to a feature file when r
 - [x] **Start minimised to tray** — tray icon always present; "Start minimised to tray" toggle in Settings hides the window on launch
 - [x] **Start apps minimised** — "Launch minimised" toggle per app in editor; Windows only (SW_SHOWMINIMIZED via CreateProcessW); hidden on Linux/macOS
 - [x] **Minimise on close** — "Minimise on close" toggle in Settings; closing the window hides it to the tray; quit via tray menu
-- [ ] **Settings tabs** — split the Settings modal into tabs (e.g. Appearance / Integrations / Storage / Advanced) as the panel grows
+- [x] **Settings tabs** — split the Settings modal into tabs (e.g. Appearance / Integrations / Storage / Advanced) as the panel grows
 - [x] **Autostart** — `tauri-plugin-autostart` (cross-platform); option per profile or global
 - [x] **Detect already running** — on sequence start, check if process is already up; skip it rather than double-launching
 - [x] **Browse installed apps list** — Windows (registry), macOS (`/Applications`), Linux (`.desktop` files); currently Windows-only in v0.4.0
 - [ ] **MS Store apps in installed apps picker** — `Get-StartApps` scan alongside registry; reverted due to latency and missing exe paths for Store apps
-- [x] **macOS & Linux installers** — add macOS (.dmg / .app bundle) and Linux (.deb / .AppImage) build targets to CI; currently Windows-only (NSIS + MSI)
+- [x] **macOS & Linux installers** (macOS dropped 2026-11-16; Windows + Linux only) — add macOS (.dmg / .app bundle) and Linux (.deb / .AppImage) build targets to CI; currently Windows-only (NSIS + MSI)
 - [x] **Clear errors button** — resets all crashed app states at once; appears in actions bar when any app has crashed (v0.5.2)
 - [x] **Collapsible sidebar** — chevron toggle in Profiles header; equal margins when collapsed (v0.5.2)
-- [ ] **Auto-restart on crash** — automatically relaunch an app if it exits unexpectedly; configurable retry limit before giving up
+- [x] **Auto-restart on crash** — automatically relaunch an app if it exits unexpectedly; configurable retry limit before giving up
 - [ ] **Conditional launch** — only start an app if a condition is met: USB device connected, network available, or another process already running
 - [ ] **Environment variables per app** — inject custom env vars at launch without touching the system environment
 - [ ] **Duplicate profile** — clone an existing profile as a starting point instead of building from scratch
 - [ ] **Working directory override** — some apps behave differently depending on where they're launched from; allow overriding per app entry
 - [ ] **App notes field** — small text note per app entry for quirks or reminders (e.g. "must launch before SimHub or it crashes")
 - [ ] **Run multiple instances** — same executable, different args, treated as separate independent entries
-- [ ] **System-wide hotkeys** — trigger RUN SEQUENCE or END SESSION from anywhere, even when the Payload Board window is in the background
+- [x] **System-wide hotkeys** — trigger RUN SEQUENCE or END SESSION from anywhere, even when the Payload Board window is in the background
+
+- [x] **Update check** — startup check against GitHub releases, banner + link to the download page, toggle and manual check in Settings (v0.6.0)
 
 ## Future ideas
 

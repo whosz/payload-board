@@ -1,3 +1,5 @@
+> **Aktualizacja 2026-11-16:** wspierane platformy to Windows i Linux; macOS zarzucony (usunięty build i adapter).
+
 # Payload Board — plan dla Claude Code
 
 > Robocza nazwa: **Payload Board**. Profil = `payload` (zestaw apek przygotowany do odpalenia), apka = `board` (panel dowodzenia, na którym widzisz status każdego payloadu w czasie rzeczywistym). Bundle ID: `com.matt.payload-board`.

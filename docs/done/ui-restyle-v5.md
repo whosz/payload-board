@@ -1,6 +1,6 @@
 # UI Restyle v5 — "Rig" look on the current layout
 
-**Status: in progress on branch `feat/ui-restyle-v5` (phases 1–4 implemented, phase 5 = manual QA in the real Tauri app).** Priority: highest. Supersedes the Figma-driven approach in `ui-redesign.md` for visuals; keep that file for onboarding and logo work.
+**Status: shipped in v0.6.0 (merged with the v6 work; QA done on Windows).** Supersedes the Figma-driven approach in `ui-redesign.md` for visuals; keep that file for onboarding and logo work.
 
 ## Goal
 

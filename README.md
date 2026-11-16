@@ -2,63 +2,56 @@
 
 ![Payload Board](docs/assets/screenshot.png)
 
+<sub>Also in [grey](docs/assets/screenshots/grey-1280x800-grid.png) and [light](docs/assets/screenshots/light-1280x800-grid.png) themes, with a [list view](docs/assets/screenshots/dark-1280x800-list.png) and [tabbed settings](docs/assets/screenshots/dark-1280x800-settings.png). Screenshots use sample data.</sub>
+
 A desktop app for managing sets of applications (profiles) — launch them in sequence, monitor their status in real time, and close everything with one click. Built for the "dark cockpit" aesthetic: functional data, no fluff.
 
 Inspired by the pain of managing a dozen simracing apps that all had to be started in the right order before a session and closed one by one afterwards. Payload Board automates that.
 
 ## What it does
 
-1. You create a named **profile** (e.g. `Racing`, `Work`, `Stream`).
-2. You add **apps** to the profile — each with a launch order and optional CLI arguments.
-3. You click **RUN SEQUENCE** → apps start one by one in your configured order.
+1. You create a named **profile** (e.g. `Racing`, `Work`, `Stream`) and pick an accent colour and optional cover image.
+2. You add **apps** to the profile — each with a launch order, delay and optional CLI arguments.
+3. You press **Run sequence** → apps start one by one in your configured order; the button shows progress and can cancel.
 4. The dashboard shows a live tile per app with its current status.
-5. You can stop / restart / force-kill individual apps from their tile.
-6. **END SESSION** gracefully closes everything in the profile (→ force-kill after 5 s timeout).
-7. Profiles persist across restarts. Multiple profiles, switch from the left sidebar.
+5. You can stop / restart / open the folder of individual apps from their tile.
+6. **End session** gracefully closes everything in the profile (→ force-kill after 5 s timeout).
+7. Profiles persist across restarts; switch between them in the tabs at the top.
+
+Everything is reachable from the keyboard: `Ctrl+K` opens a command palette, and global shortcuts work even while a game has focus.
 
 ## Features
 
 **Profiles & apps**
-- Named profiles with emoji icon and description
-- Multiple app entries per profile with launch order and CLI arguments
+- Named profiles with emoji, accent colour and cover image
+- Multiple app entries per profile with launch order, delay and CLI arguments
 - Per-app process priority: Low / Normal / High
 - Per-app "Launch minimised" toggle (Windows only)
-- Tile and list view — switch between grid of cards or compact rows
-- A→Z / Z→A sort
+- Poster view (carousel) and compact list view; A→Z / Z→A display sort
 - Confirm dialogs before removing apps or deleting profiles
 
 **Session management**
-- **RUN SEQUENCE** disabled while a session is active
-- Detect already-running processes — adopts existing process instead of double-launching
-- Clear all errors at once — button appears when any app has crashed
-- Per-process controls: start, stop, restart, open folder
+- Sequencer runs in the backend — keeps going with the window hidden; progress and cancel in the hero button
+- Detect already-running processes — adopts the existing process instead of double-launching
+- Crash notifications (when the window is not in front) and optional auto-restart per app with a retry limit
+- Hero shows live / crashed counts, launch-order strip and session timer
 
-**Status & monitoring**
-- Status LED per tile: live (cyan glow) / stopped / crashed (red pulse + error message)
-- Status bar: total / alive / crashed counts
+**Keyboard**
+- **Command palette** (`Ctrl+K`) — actions, apps and profiles in one searchable list
+- **Configurable shortcuts** in Settings → Shortcuts — in-window and global (OS-level); conflicts and refused keys are reported
+- Roving focus on tiles: arrows, `Enter` start/stop, `R` restart, `E` edit, `Del` remove; tooltips show the key
 
-**System tray**
-- Tray icon always present with Show / Quit menu; left-click to restore
-- **Start minimised to tray** — hide main window on launch (toggle in Settings)
-- **Minimise on close** — close button hides to tray instead of quitting (toggle in Settings)
-- **Launch on startup** — register as a Windows / Linux autostart entry (toggle in Settings)
+**Appearance**
+- Graphite + orange accent, per-app colour glow and first-letter backdrop; Dark / Grey / Light themes
+- SteamGridDB artwork for tiles (API key in Settings, with a link to where to get one) or any local image
+- Mini mode below 560 px width; WCAG 2.2 AA contrast, focus and target sizes
+- Languages: English, Polski, Deutsch, Español, Français
 
-**Artwork & appearance**
-- SteamGridDB integration — search and assign game artwork as tile backgrounds; API key in Settings
-- Local background image per app — pick any image file as a tile background
-- Auto-fetch tile art when adding an app by name (if SteamGridDB API key is set)
-- Theme selector: Purple / Grey (Settings → Appearance)
-
-**Sidebar**
-- Collapsible sidebar — chevron toggle in the Profiles header
-
-**App discovery**
-- Browse installed apps: Windows (registry), Linux (`.desktop` files)
-
-**Storage**
-- Persistent profiles (JSON, stored in platform app data dir)
-- Custom config directory — change or reset in Settings
-- Reset all data option in Settings
+**System**
+- Tray icon with Show / Quit; **Start minimised to tray**, **Minimise on close**, **Launch on startup** (Settings)
+- **Update check** — asks GitHub for a newer release at startup (can be turned off) and links to the download page
+- Browse installed apps: Windows (registry; Steam games resolved through Steam's app manifests), Linux (`.desktop` files)
+- Custom config directory and reset-all-data option in Settings → Data
 
 ## Installation
 
@@ -102,11 +95,11 @@ First Rust compile takes 5–10 minutes. Subsequent builds are fast.
 
 ## Usage
 
-1. **Create a profile** — click `+ NEW PROFILE` in the sidebar, enter a name and optionally an emoji and description.
-2. **Add apps** — select the profile, click `Add App`, browse to the executable or pick from the installed apps list. Set any CLI arguments and process priority if needed.
-3. **Configure order** — apps launch in the order they appear; sort A→Z or rearrange manually.
-4. **Run** — click `RUN SEQUENCE`. Watch the tiles turn live. The button is disabled while a session is active.
-5. **End session** — click `END SESSION`. All profile apps receive a graceful close signal; any that don't exit within 5 s are force-killed.
+1. **Create a profile** — click `+` in the top bar (or `Ctrl+N`), enter a name; optionally an emoji, accent colour and cover image.
+2. **Add apps** — select the profile, click `Add app`, browse to the executable or pick from the installed apps list. Set any CLI arguments and process priority if needed.
+3. **Configure order** — apps launch in the order they were added (the A→Z sort only changes how they are displayed).
+4. **Run** — click `Run sequence`. Watch the tiles turn live; click the button again (it shows the step) to cancel.
+5. **End session** — click `End session`. All profile apps receive a graceful close signal; any that don't exit within 5 s are force-killed.
 6. **Tray** — the app lives in the system tray. Close the window to minimise it (if "Minimise on close" is enabled), or use Quit from the tray menu to exit fully.
 
 ## FAQ
@@ -133,11 +126,12 @@ After launch, Payload Board scans the process list for 10 seconds looking for a 
 |-------|-----------|
 | Desktop shell | [Tauri 2](https://tauri.app) |
 | Backend | Rust stable |
-| Frontend | React 18 + TypeScript |
+| Frontend | React 19 + TypeScript |
 | Build | Vite |
 | Styling | Tailwind CSS v4 |
-| Styling tokens | CSS custom properties (`--color-*`); Purple / Grey themes via `[data-theme]` |
+| Styling tokens | CSS custom properties (`--color-*`) in `src/globals.css`; Dark / Grey / Light themes via `[data-theme]` |
 | Components | shadcn/ui (heavily customised) |
-| Fonts | Exo (headers/labels) + Inter (body/buttons) |
+| Fonts | Big Shoulders (headings), Barlow Semi Condensed (UI), IBM Plex Mono (labels), Racing Sans One (tile letter) |
 | Icons | FontAwesome 6 Free |
 | Persistence | `tauri-plugin-store` (JSON) |
+| Shortcuts / notifications | `tauri-plugin-global-shortcut`, `tauri-plugin-notification` |

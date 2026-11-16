@@ -13,13 +13,13 @@ Tauri 2 (Rust) + React 19 + Tailwind 4 + shadcn/base-ui. Windows-first desktop a
 - Follow ponytail (already enabled): smallest change that works, reuse existing components/tokens.
 - Colours, fonts, radii live in `src/globals.css` tokens only — no hardcoded values in components.
 - Changing the profile JSON shape needs a migration in Rust (`src-tauri`) — ask first.
-- Docs: plans in `docs/planned/`, move to `docs/in-progress/` then `docs/done/`. Current top priority: `docs/in-progress/ui-restyle-v5.md`.
+- Docs: plans in `docs/planned/`, move to `docs/in-progress/` then `docs/done/`. Last shipped: v0.6.0 (`docs/done/ui-big-picture-palette.md`). Next: `docs/backlog.md`.
 
 ## Models (see `docs/planned/model-routing.md`)
 
 - Search / exploration: Haiku (`Explore` agent). Implementation: Sonnet. Opus only for architecture or data-format decisions.
 - Don't spawn agents for work 1–3 tool calls can do. Read line ranges, not whole files.
-- Agent roles, file ownership and phase gates for the v6 work: `docs/in-progress/agent-workflow.md`.
+- Agent roles, file ownership and phase gates for the v6 work: `docs/done/agent-workflow.md`.
 
 ## Translations
 

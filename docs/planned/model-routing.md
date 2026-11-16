@@ -12,7 +12,7 @@ Goal: least tokens for the same result. Ponytail (`ponytail@ponytail`, already i
 | Project `CLAUDE.md` | missing | added (short, loaded every session) |
 | Default model | `sonnet`, effort `high` | keep; lower effort for mechanical work |
 
-> Agent roster and per-phase orchestration for the v6 work: [../in-progress/agent-workflow.md](../in-progress/agent-workflow.md).
+> Agent roster and per-phase orchestration for the v6 work: [../done/agent-workflow.md](../done/agent-workflow.md).
 
 ## Routing table
 
