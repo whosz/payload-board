@@ -1,6 +1,6 @@
 [package]
 name = "payload-board"
-version = "0.5.4"
+version = "0.6.0"
 description = "Payload Board — cross-platform app launcher and session manager"
 authors = ["matt"]
 edition = "2021"
