@@ -23,6 +23,9 @@ pub struct AppEntry {
     pub requires_elevation: Option<bool>,
     pub priority: Option<String>,
     pub launch_minimised: Option<bool>,
+    /// relaunch automatically when the process crashes (absent in older files = off)
+    pub restart_on_crash: Option<bool>,
+    pub max_retries: Option<u32>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -32,6 +35,8 @@ pub struct Profile {
     pub color_accent: Option<String>,
     pub emoji: Option<String>,
     pub description: Option<String>,
+    /// optional hero background (remote URL or local file path); absent in older profile files
+    pub cover_url: Option<String>,
     pub apps: Vec<AppEntry>,
     pub created_at: String,
     pub updated_at: String,

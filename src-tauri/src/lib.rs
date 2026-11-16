@@ -1,7 +1,12 @@
 mod commands;
+mod crash;
+mod i18n;
 mod platform;
 mod process_manager;
+mod sequencer;
+mod shortcuts;
 mod store;
+mod update;
 
 use commands::apps::{list_installed_apps, pick_executable, pick_icon_file};
 use commands::processes::{open_path, restart_app, scan_running_apps, start_app, stop_all, stop_app};
@@ -12,7 +17,11 @@ use commands::settings::{
     set_minimise_on_close, set_profiles_dir, set_sgdb_key, set_start_minimised_to_tray,
 };
 use commands::steamgriddb::{sgdb_auto_bg, sgdb_grids, sgdb_search};
+use crash::{get_bool_setting, set_bool_setting, RestartState};
+use i18n::set_language;
 use process_manager::{check_crashed_processes, new_process_map, ProcessMap};
+use sequencer::{cancel_sequence, new_sequence_map, run_sequence};
+use shortcuts::{get_shortcuts, register_all, reset_shortcut, set_active_profile, set_global_shortcuts_enabled, set_shortcut, suspend_global_shortcuts, ShortcutRuntime};
 use store::SETTINGS_FILE;
 use tauri::Manager;
 use tauri_plugin_store::StoreExt;
@@ -23,8 +32,13 @@ pub fn run() {
 
     tauri::Builder::default()
         .manage(process_map)
+        .manage(new_sequence_map())
+        .manage(ShortcutRuntime::default())
+        .manage(RestartState::default())
         .plugin(tauri_plugin_autostart::init(tauri_plugin_autostart::MacosLauncher::LaunchAgent, None))
         .plugin(tauri_plugin_store::Builder::default().build())
+        .plugin(tauri_plugin_global_shortcut::Builder::new().build())
+        .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_shell::init())
         .setup(|app| {
@@ -34,7 +48,10 @@ pub fn run() {
             tauri::async_runtime::spawn(async move {
                 loop {
                     tokio::time::sleep(std::time::Duration::from_secs(1)).await;
-                    check_crashed_processes(&map, &handle);
+                    for id in check_crashed_processes(&map, &handle) {
+                        crash::on_crash(&handle, &id);
+                    }
+                    crash::tick(&handle, &map);
                 }
             });
 
@@ -95,9 +112,13 @@ pub fn run() {
                 });
             }
 
+            // ── Global shortcuts (from stored settings) ─────────────────────
+            register_all(app.handle());
+
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            update::check_for_update,
             list_profiles,
             save_profile,
             delete_profile,
@@ -109,6 +130,17 @@ pub fn run() {
             restart_app,
             open_path,
             stop_all,
+            run_sequence,
+            cancel_sequence,
+            get_shortcuts,
+            set_shortcut,
+            reset_shortcut,
+            set_global_shortcuts_enabled,
+            set_active_profile,
+            suspend_global_shortcuts,
+            get_bool_setting,
+            set_bool_setting,
+            set_language,
             scan_running_apps,
             get_data_dir,
             get_profiles_dir,

@@ -28,6 +28,8 @@ pub struct StatusEvent {
     pub entry_id: String,
     pub pid: Option<u32>,
     pub status: ProcessStatus,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub error_message: Option<String>,
 }
 
 pub fn new_process_map() -> ProcessMap {
@@ -46,12 +48,26 @@ pub fn emit_status<R: tauri::Runtime>(
             entry_id: entry_id.to_string(),
             pid,
             status,
+            error_message: None,
         },
     );
 }
 
-/// Called every ~1s from the background watcher. Detects crashed processes.
-pub fn check_crashed_processes<R: tauri::Runtime>(map: &ProcessMap, app: &AppHandle<R>) {
+/// Same as `emit_status` but carries a human-readable error (shown on the tile).
+pub fn emit_error<R: tauri::Runtime>(app: &AppHandle<R>, entry_id: &str, message: String) {
+    let _ = app.emit(
+        "process_status_changed",
+        StatusEvent {
+            entry_id: entry_id.to_string(),
+            pid: None,
+            status: ProcessStatus::Crashed,
+            error_message: Some(message),
+        },
+    );
+}
+
+/// Called every ~1s from the background watcher. Detects crashed processes and returns their entry ids.
+pub fn check_crashed_processes<R: tauri::Runtime>(map: &ProcessMap, app: &AppHandle<R>) -> Vec<String> {
     use sysinfo::System;
 
     let candidates: Vec<(String, u32)> = {
@@ -67,10 +83,11 @@ pub fn check_crashed_processes<R: tauri::Runtime>(map: &ProcessMap, app: &AppHan
     };
 
     if candidates.is_empty() {
-        return;
+        return Vec::new();
     }
 
     let sys = System::new_all();
+    let mut crashed = Vec::new();
 
     for (entry_id, pid) in candidates {
         let alive = sys
@@ -87,6 +104,8 @@ pub fn check_crashed_processes<R: tauri::Runtime>(map: &ProcessMap, app: &AppHan
                 }
             }
             emit_status(app, &entry_id, None, ProcessStatus::Crashed);
+            crashed.push(entry_id);
         }
     }
+    crashed
 }

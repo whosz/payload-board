@@ -1,6 +1,6 @@
 [package]
 name = "payload-board"
-version = "0.5.4"
+version = "0.6.0"
 description = "Payload Board — cross-platform app launcher and session manager"
 authors = ["matt"]
 edition = "2021"
@@ -24,6 +24,8 @@ sysinfo             = "0.32"
 tokio               = { version = "1", features = ["time"] }
 reqwest             = { version = "0.12", features = ["json"] }
 tauri-plugin-autostart = "2"
+tauri-plugin-global-shortcut = "2"
+tauri-plugin-notification = "2"
 
 [target.'cfg(windows)'.dependencies]
 windows = { version = "0.58", features = [

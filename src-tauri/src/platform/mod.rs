@@ -33,21 +33,15 @@ pub fn create_adapter() -> Box<dyn PlatformAdapter> {
     #[cfg(windows)]
     return Box::new(windows::WindowsAdapter);
 
-    #[cfg(target_os = "macos")]
-    return Box::new(macos::MacOsAdapter);
-
     #[cfg(target_os = "linux")]
     return Box::new(linux::LinuxAdapter);
 
-    #[cfg(not(any(windows, target_os = "macos", target_os = "linux")))]
+    #[cfg(not(any(windows, target_os = "linux")))]
     compile_error!("Unsupported platform");
 }
 
 #[cfg(windows)]
 pub mod windows;
-
-#[cfg(target_os = "macos")]
-pub mod macos;
 
 #[cfg(target_os = "linux")]
 pub mod linux;

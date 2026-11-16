@@ -18,8 +18,12 @@ docs/
 │   ├── tray-autostart.md       ← system tray icon + launch at startup
 │   ├── export-import.md        ← export/import profiles as JSON
 │   ├── session-logs.md         ← per-session launch/crash log
-│   └── ui-redesign.md          ← Figma-driven full redesign
+│   ├── model-routing.md        ← which model does what, token rules, security finding
+│   └── ui-redesign.md          ← Figma-driven redesign (onboarding + logo remain)
 ├── in-progress/                ← currently being worked on
+│   ├── ui-restyle-v5.md        ← ★ new look on the current layout (branch feat/ui-restyle-v5)
+│   ├── ui-big-picture-palette.md ← next: Big Picture + Command Palette + configurable global shortcuts (after v5 QA)
+│   └── agent-workflow.md       ← agents/sub-agents, model split, contracts, gates for that work
 └── done/                       ← shipped
     ├── profiles.md             ← profile CRUD, emoji, edit (v0.4.0)
     ├── process-control.md      ← start/stop/restart/kill, status LED (v0.3.1–v0.4.0)

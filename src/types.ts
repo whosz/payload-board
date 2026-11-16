@@ -16,12 +16,17 @@ export interface AppEntry {
   requires_elevation?: boolean;
   priority?: 'low' | 'normal' | 'high';
   launch_minimised?: boolean;
+  /** relaunch automatically after a crash (up to max_retries, default 3) */
+  restart_on_crash?: boolean;
+  max_retries?: number;
 }
 
 export interface Profile {
   id: string;
   name: string;
   color_accent?: string;
+  /** hero background image: remote URL or local file path */
+  cover_url?: string;
   emoji?: string;
   apps: AppEntry[];
   created_at: string;

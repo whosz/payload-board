@@ -2,12 +2,12 @@ import { useState, useEffect, useMemo } from 'react';
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
+  ModalHeader,
 } from '../ui/dialog';
 import { Input } from '../ui/input';
 import { listInstalledApps } from '../../ipc/profiles';
 import type { InstalledApp } from '../../ipc/profiles';
+import { t } from '../../i18n';
 
 interface InstalledAppsPickerProps {
   open: boolean;
@@ -37,28 +37,11 @@ export function InstalledAppsPicker({ open, onClose, onSelect }: InstalledAppsPi
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent
-        style={{
-          background: 'var(--color-bg-elevated)',
-          border: '1px solid var(--color-border-default)',
-          boxShadow: 'none',
-          maxWidth: 520,
-          maxHeight: '80vh',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
-        <DialogHeader>
-          <DialogTitle
-            className="font-mono uppercase tracking-wider text-sm"
-            style={{ color: 'var(--color-text-primary)' }}
-          >
-            Installed Apps
-          </DialogTitle>
-        </DialogHeader>
+      <DialogContent width={520}>
+        <ModalHeader title={t('Installed apps')} />
 
         <Input
-          placeholder="Search..."
+          placeholder={t('Search…')}
           value={query}
           onChange={e => setQuery(e.target.value)}
           autoFocus
@@ -76,14 +59,14 @@ export function InstalledAppsPicker({ open, onClose, onSelect }: InstalledAppsPi
               className="font-mono text-xs uppercase tracking-wider text-center py-8"
               style={{ color: 'var(--color-text-disabled)' }}
             >
-              Loading...
+              {t('Loading…')}
             </div>
           ) : filtered.length === 0 ? (
             <div
               className="font-mono text-xs uppercase tracking-wider text-center py-8"
               style={{ color: 'var(--color-text-disabled)' }}
             >
-              No apps found
+              {t('No apps found')}
             </div>
           ) : (
             filtered.map((app, i) => (
@@ -108,7 +91,7 @@ export function InstalledAppsPicker({ open, onClose, onSelect }: InstalledAppsPi
                 {app.exe_path && (
                   <span
                     className="font-mono truncate"
-                    style={{ color: 'var(--color-text-muted)', fontSize: 10, marginTop: 1 }}
+                    style={{ color: 'var(--color-text-muted)', fontSize: 11, marginTop: 1 }}
                   >
                     {app.exe_path}
                   </span>

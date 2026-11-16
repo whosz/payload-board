@@ -15,7 +15,19 @@ pub async fn start_app<R: tauri::Runtime>(
     profile_id: String,
     entry_id: String,
 ) -> Result<(), String> {
-    let profiles = store::load_profiles(&app);
+    use tauri::Manager;
+    app.state::<crate::crash::RestartState>().reset(&entry_id);
+    start_app_inner(&app, &process_map, &profile_id, &entry_id).await
+}
+
+/// Shared by the `start_app` command and the sequencer (which has no `State`).
+pub async fn start_app_inner<R: tauri::Runtime>(
+    app: &AppHandle<R>,
+    process_map: &ProcessMap,
+    profile_id: &str,
+    entry_id: &str,
+) -> Result<(), String> {
+    let profiles = store::load_profiles(app);
     let profile = profiles
         .iter()
         .find(|p| p.id == profile_id)
@@ -49,7 +61,7 @@ pub async fn start_app<R: tauri::Runtime>(
                 let existing_pid = pid.as_u32();
                 let mut map = process_map.lock().unwrap();
                 map.insert(
-                    entry_id.clone(),
+                    entry_id.to_string(),
                     ProcessEntry {
                         pid: existing_pid,
                         status: ProcessStatus::Running,
@@ -58,7 +70,7 @@ pub async fn start_app<R: tauri::Runtime>(
                     },
                 );
                 drop(map);
-                emit_status(&app, &entry_id, Some(existing_pid), ProcessStatus::Running);
+                emit_status(app, entry_id, Some(existing_pid), ProcessStatus::Running);
                 return Ok(());
             }
         }
@@ -92,7 +104,7 @@ pub async fn start_app<R: tauri::Runtime>(
     {
         let mut map = process_map.lock().unwrap();
         map.insert(
-            entry_id.clone(),
+            entry_id.to_string(),
             ProcessEntry {
                 pid: initial_pid,
                 status: ProcessStatus::Running,
@@ -102,12 +114,12 @@ pub async fn start_app<R: tauri::Runtime>(
         );
     }
 
-    emit_status(&app, &entry_id, Some(initial_pid), ProcessStatus::Running);
+    emit_status(app, entry_id, Some(initial_pid), ProcessStatus::Running);
 
     // PID re-adoption task (handles launchers like Steam that re-exec themselves)
-    let map_clone = (*process_map).clone();
+    let map_clone = process_map.clone();
     let app_clone = app.clone();
-    let entry_id_clone = entry_id.clone();
+    let entry_id_clone = entry_id.to_string();
     tauri::async_runtime::spawn(async move {
         readopt_pid(map_clone, app_clone, entry_id_clone, initial_pid, exe_name).await;
     });
@@ -401,7 +413,16 @@ pub async fn stop_all<R: tauri::Runtime>(
     process_map: State<'_, ProcessMap>,
     profile_id: String,
 ) -> Result<(), String> {
-    let profiles = store::load_profiles(&app);
+    stop_all_inner(&app, &process_map, &profile_id).await
+}
+
+/// Shared by the `stop_all` command and the global "end session" shortcut.
+pub async fn stop_all_inner<R: tauri::Runtime>(
+    app: &AppHandle<R>,
+    process_map: &ProcessMap,
+    profile_id: &str,
+) -> Result<(), String> {
+    let profiles = store::load_profiles(app);
     let profile = profiles
         .iter()
         .find(|p| p.id == profile_id)
@@ -452,7 +473,7 @@ pub async fn stop_all<R: tauri::Runtime>(
     }
 
     for (id, _) in &to_kill {
-        emit_status(&app, id, None, ProcessStatus::Stopped);
+        emit_status(app, id, None, ProcessStatus::Stopped);
     }
 
     Ok(())

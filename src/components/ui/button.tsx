@@ -10,27 +10,27 @@ const buttonVariants = cva(
       variant: {
         /* CTA — Run Sequence / Add App: transparent + accent border, teal icon */
         cta: [
-          "uppercase tracking-[0.25px] leading-[12px]",
+          "uppercase",
           "border-[var(--color-accent-border)] text-[var(--color-text-primary)]",
           "hover:bg-[var(--color-btn-cta-hover)] hover:border-[var(--color-accent-border)]",
         ],
         /* Destructive Large — End Session: transparent + red border, red icon */
         destructive: [
-          "uppercase tracking-[0.25px] leading-[12px]",
+          "uppercase",
           "border-[var(--color-btn-destructive-border)] text-[var(--color-text-primary)]",
           "hover:bg-[var(--color-error-bg)] hover:border-[var(--color-btn-destructive-border-hover)]",
         ],
         /* Default — modal action buttons (Browse, Cancel, Save, theme selector) */
         default: [
           "uppercase",
-          "border-[var(--color-border-subtle)] text-[var(--color-text-primary)]",
+          "border-[var(--color-border-default)] text-[var(--color-text-primary)]",
           "hover:bg-[var(--color-btn-default-hover)] hover:text-[var(--color-text-primary)]",
         ],
-        /* Fill — Save buttons in modals */
+        /* Fill — Save buttons in modals, selected theme (accent-filled) */
         fill: [
-          "uppercase tracking-[0.25px] leading-[12px]",
-          "bg-[var(--color-btn-fill-bg)] border-[var(--color-accent-border)] text-[var(--color-text-primary)]",
-          "hover:bg-[var(--color-btn-fill-hover)] hover:border-[var(--color-accent-border)]",
+          "uppercase",
+          "bg-[var(--color-accent)] border-[var(--color-accent)] text-[var(--color-accent-fg)]",
+          "hover:brightness-110",
         ],
         /* Ghost — no border, muted */
         ghost: [
@@ -44,21 +44,20 @@ const buttonVariants = cva(
         ],
         /* Outline — Sort / filter controls (text-secondary, no uppercase) */
         outline: [
-          "border-[var(--color-border-subtle)] text-[var(--color-text-secondary)]",
+          "border-[var(--color-border-default)] text-[var(--color-text-secondary)]",
           "hover:bg-[var(--color-btn-default-hover)] hover:text-[var(--color-text-primary)]",
         ],
       },
       size: {
-        /* 32px — top header */
-        lg: "h-8 px-3 rounded-lg text-xs font-bold uppercase tracking-[1px] leading-[18px]",
-        /* 28px — table actions / modals */
-        default: "h-7 px-2 rounded-lg text-[10px] font-semibold tracking-[0.25px] leading-[12px]",
-        /* 30×28 — icon-only view toggle */
-        icon: "h-7 w-[30px] rounded-lg",
+        /* 36px — one scale for every text button */
+        lg: "h-9 px-4 rounded-[2px] text-[13px] font-semibold tracking-[0.06em] leading-none",
+        default: "h-9 px-3 rounded-[2px] text-[13px] font-semibold tracking-[0.06em] leading-none",
+        /* 36×36 — icon-only view toggle */
+        icon: "h-9 w-9 rounded-[2px]",
         /* sidebar navigation */
         nav: "h-10 w-full px-3 rounded-none justify-start gap-2",
-        /* 24px — small utility */
-        sm: "h-6 px-2 rounded-md text-[10px] font-semibold",
+        /* 32px — small utility */
+        sm: "h-8 px-2.5 rounded-[2px] text-xs font-semibold tracking-[0.06em]",
       },
     },
     compoundVariants: [
@@ -68,7 +67,7 @@ const buttonVariants = cva(
         size: "default",
         className: [
           "bg-[var(--color-error-bg)] border-[var(--color-btn-destructive-border)] text-[var(--color-error-text)]",
-          "hover:bg-[rgba(100,2,11,1)] hover:border-[var(--color-btn-destructive-border-hover)] hover:text-[var(--color-text-primary)]",
+          "hover:bg-[color-mix(in_srgb,var(--color-status-crit)_22%,transparent)] hover:border-[var(--color-btn-destructive-border-hover)] hover:text-[var(--color-text-primary)]",
         ],
       },
       {
@@ -76,7 +75,7 @@ const buttonVariants = cva(
         size: "sm",
         className: [
           "bg-[var(--color-error-bg)] border-[var(--color-btn-destructive-border)] text-[var(--color-error-text)]",
-          "hover:bg-[rgba(100,2,11,1)] hover:border-[var(--color-btn-destructive-border-hover)] hover:text-[var(--color-text-primary)]",
+          "hover:bg-[color-mix(in_srgb,var(--color-status-crit)_22%,transparent)] hover:border-[var(--color-btn-destructive-border-hover)] hover:text-[var(--color-text-primary)]",
         ],
       },
     ],

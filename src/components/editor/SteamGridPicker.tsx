@@ -2,22 +2,24 @@ import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
+  ModalHeader,
 } from '../ui/dialog';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { sgdbSearch, sgdbGrids } from '../../ipc/steamgriddb';
 import type { SgdbGame, SgdbGrid } from '../../ipc/steamgriddb';
+import { t } from '../../i18n';
+import { SGDB_API_URL, openExternal } from '../../lib/links';
 
 interface SteamGridPickerProps {
   open: boolean;
   onClose: () => void;
   initialQuery: string;
   onSelect: (url: string) => void;
+  onOpenSettings?: () => void;
 }
 
-export function SteamGridPicker({ open, onClose, initialQuery, onSelect }: SteamGridPickerProps) {
+export function SteamGridPicker({ open, onClose, initialQuery, onSelect, onOpenSettings }: SteamGridPickerProps) {
   const [query, setQuery] = useState('');
   const [games, setGames] = useState<SgdbGame[]>([]);
   const [grids, setGrids] = useState<SgdbGrid[]>([]);
@@ -45,7 +47,7 @@ export function SteamGridPicker({ open, onClose, initialQuery, onSelect }: Steam
     try {
       const results = await sgdbSearch(query.trim());
       setGames(results);
-      if (results.length === 0) setError('No games found.');
+      if (results.length === 0) setError(t('No games found.'));
     } catch (e) {
       setError(String(e));
     } finally {
@@ -61,7 +63,7 @@ export function SteamGridPicker({ open, onClose, initialQuery, onSelect }: Steam
     try {
       const results = await sgdbGrids(game.id);
       setGrids(results);
-      if (results.length === 0) setError('No grid images found for this game.');
+      if (results.length === 0) setError(t('No grid images found for this game.'));
     } catch (e) {
       setError(String(e));
     } finally {
@@ -69,9 +71,11 @@ export function SteamGridPicker({ open, onClose, initialQuery, onSelect }: Steam
     }
   };
 
+  const missingKey = error.includes('API key not configured');
+
   const labelStyle: React.CSSProperties = {
     color: 'var(--color-text-muted)',
-    fontSize: 10,
+    fontSize: 11,
     fontFamily: 'monospace',
     textTransform: 'uppercase',
     letterSpacing: '0.06em',
@@ -80,30 +84,13 @@ export function SteamGridPicker({ open, onClose, initialQuery, onSelect }: Steam
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent
-        style={{
-          background: 'var(--color-bg-elevated)',
-          border: '1px solid var(--color-border-default)',
-          boxShadow: 'none',
-          maxWidth: 600,
-          maxHeight: '85vh',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
-        <DialogHeader>
-          <DialogTitle
-            className="font-mono uppercase tracking-wider text-sm"
-            style={{ color: 'var(--color-text-primary)' }}
-          >
-            SteamGridDB — Background Art
-          </DialogTitle>
-        </DialogHeader>
+      <DialogContent width={600}>
+        <ModalHeader title={t('SteamGridDB — Background art')} />
 
         {/* Search */}
         <div className="flex gap-2 mb-1">
           <Input
-            placeholder="Search game name..."
+            placeholder={t('Search game name…')}
             value={query}
             onChange={e => setQuery(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleSearch()}
@@ -121,16 +108,21 @@ export function SteamGridPicker({ open, onClose, initialQuery, onSelect }: Steam
             disabled={searching || !query.trim()}
             style={{ borderColor: 'var(--color-border-default)', color: 'var(--color-text-secondary)' }}
           >
-            {searching ? '...' : 'Search'}
+            {searching ? '…' : t('Search')}
           </Button>
         </div>
 
         {error && (
-          <div
-            className="font-mono text-xs"
-            style={{ color: 'var(--color-status-crit)', padding: '4px 0' }}
-          >
-            {error}
+          <div style={{ padding: '4px 0' }}>
+            <div className="font-mono text-xs" style={{ color: 'var(--color-status-crit)' }}>
+              {missingKey ? t('SteamGridDB API key not configured') : error}
+            </div>
+            {missingKey && (
+              <div className="flex gap-2" style={{ marginTop: 8 }}>
+                {onOpenSettings && <Button variant="fill" size="sm" onClick={onOpenSettings}>{t('Open Settings')}</Button>}
+                <Button variant="default" size="sm" onClick={() => openExternal(SGDB_API_URL)}>{t('Get an API key')}</Button>
+              </div>
+            )}
           </div>
         )}
 
@@ -139,7 +131,7 @@ export function SteamGridPicker({ open, onClose, initialQuery, onSelect }: Steam
           {/* Game list */}
           {games.length > 0 && (
             <div>
-              <div style={labelStyle}>Select game</div>
+              <div style={labelStyle}>{t('Select game')}</div>
               <div className="flex flex-col">
                 {games.map(g => (
                   <button
@@ -177,7 +169,7 @@ export function SteamGridPicker({ open, onClose, initialQuery, onSelect }: Steam
               </div>
               {loadingGrids ? (
                 <div className="font-mono text-xs text-center py-6" style={{ color: 'var(--color-text-disabled)' }}>
-                  Loading...
+                  {t('Loading…')}
                 </div>
               ) : (
                 <div

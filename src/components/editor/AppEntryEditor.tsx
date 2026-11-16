@@ -1,16 +1,15 @@
 import { useState, useEffect } from 'react';
 import { convertFileSrc } from '@tauri-apps/api/core';
-import { Dialog, DialogContent } from '../ui/dialog';
+import { Dialog, DialogContent, ModalHeader, ModalFooter } from '../ui/dialog';
 import { Button } from '../ui/button';
 import { InputField } from '../ui/input';
 import { Switch } from '../ui/switch';
-import { Icon } from '../icons/Icon';
-import { faXmark } from '../icons';
 import { pickExecutable, pickIconFile } from '../../ipc/profiles';
 import { sgdbAutoBg } from '../../ipc/steamgriddb';
 import { InstalledAppsPicker } from './InstalledAppsPicker';
 import { SteamGridPicker } from './SteamGridPicker';
 import type { AppEntry } from '../../types';
+import { t } from '../../i18n';
 
 function resolveUrl(url: string): string {
   return url.startsWith('http') ? url : convertFileSrc(url);
@@ -21,6 +20,7 @@ interface AppEntryEditorProps {
   onClose: () => void;
   onSave: (entry: Omit<AppEntry, 'id' | 'order'>) => void;
   initial?: Partial<AppEntry>;
+  onOpenSettings?: () => void;
 }
 
 const defaults: Omit<AppEntry, 'id' | 'order'> = {
@@ -32,7 +32,7 @@ const defaults: Omit<AppEntry, 'id' | 'order'> = {
   enabled: true,
 };
 
-export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEditorProps) {
+export function AppEntryEditor({ open, onClose, onSave, initial, onOpenSettings }: AppEntryEditorProps) {
   const [isEditing, setIsEditing] = useState(Boolean(initial?.id));
   const [form, setForm] = useState<Omit<AppEntry, 'id' | 'order'>>({ ...defaults, ...initial });
   const [argsStr, setArgsStr] = useState((initial?.args ?? []).join(' '));
@@ -95,67 +95,38 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
   return (
     <>
       <Dialog open={open} onOpenChange={v => !v && onClose()}>
-        <DialogContent
-          showCloseButton={false}
-          style={{
-            background: 'var(--color-bg-base)',
-            border: '1px solid var(--color-border-divider)',
-            borderRadius: 8,
-            boxShadow: 'none',
-            maxWidth: 480,
-            padding: '16px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 16,
-          }}
-        >
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <span style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: 16,
-              fontWeight: 600,
-              color: 'var(--color-text-primary)',
-            }}>
-              {isEditing ? 'Edit Application' : 'Add Application'}
-            </span>
-            <button
-              onClick={onClose}
-              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', lineHeight: 0 }}
-            >
-              <Icon icon={faXmark} size={14} />
-            </button>
-          </div>
+        <DialogContent>
+        <ModalHeader title={isEditing ? t('Edit application') : t('Add application')} />
 
           {/* Fields */}
           <div className="flex flex-col gap-3">
             <InputField
-              label="Name"
-              placeholder="App name"
+              label={t('Name')}
+              placeholder={t('App name')}
               value={form.name}
               onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
               autoFocus
             />
 
             <div>
-              <div style={{ fontFamily: 'var(--font-body)', fontSize: 10, fontWeight: 500, color: 'var(--color-text-muted)', marginBottom: 4 }}>
-                Executable
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginBottom: 6 }}>
+                {t('Executable')}
               </div>
               <div className="flex gap-2">
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <input
                     value={form.executable_path}
                     onChange={e => setForm(f => ({ ...f, executable_path: e.target.value }))}
-                    placeholder="/path/to/executable"
-                    className="h-7 w-full min-w-0 rounded-lg border px-2 py-1 outline-none transition-colors bg-[var(--color-bg-base)] border-[rgba(176,169,198,0.3)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:border-[rgba(93,90,242,1)] disabled:pointer-events-none disabled:opacity-50"
-                    style={{ fontFamily: 'var(--font-body)', fontSize: 12, fontWeight: 400 }}
+                    placeholder={t('/path/to/executable')}
+                    className="h-9 w-full min-w-0 rounded-[2px] border px-2 py-1 outline-none transition-colors bg-[var(--color-bg-base)] border-[var(--color-border-control)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-accent)] disabled:pointer-events-none disabled:opacity-50"
+                    style={{ fontFamily: 'var(--font-body)', fontSize: 14, fontWeight: 400 }}
                   />
                 </div>
                 <Button variant="default" size="default" onClick={handleBrowse} disabled={picking}>
-                  Browse
+                  {t('Browse')}
                 </Button>
                 <Button variant="default" size="default" onClick={() => setInstalledPickerOpen(true)} disabled={picking}>
-                  Installed...
+                  {t('Installed…')}
                 </Button>
               </div>
             </div>
@@ -166,24 +137,24 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
                   checked={!!form.launch_minimised}
                   onCheckedChange={v => setForm(f => ({ ...f, launch_minimised: v || undefined }))}
                 />
-                <span style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--color-text-secondary)' }}>
-                  Launch minimised
+                <span style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--color-text-secondary)' }}>
+                  {t('Launch minimised')}
                 </span>
               </div>
             )}
 
             <InputField
-              label="Arguments"
-              placeholder="--no-update --windowed"
+              label={t('Arguments')}
+              placeholder={t('--no-update --windowed')}
               value={argsStr}
               onChange={e => setArgsStr(e.target.value)}
-              style={{ fontFamily: 'var(--font-body)', fontSize: 12 }}
+              style={{ fontFamily: 'var(--font-body)', fontSize: 14 }}
             />
 
             {/* Process priority */}
             <div>
-              <div style={{ fontFamily: 'var(--font-body)', fontSize: 10, fontWeight: 500, color: 'var(--color-text-muted)', marginBottom: 4 }}>
-                Process Priority
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginBottom: 6 }}>
+                {t('Process priority')}
               </div>
               <div className="flex gap-1.5">
                 {(['low', 'normal', 'high'] as const).map(p => (
@@ -193,16 +164,48 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
                     size="default"
                     onClick={() => setForm(f => ({ ...f, priority: p === 'normal' ? undefined : p }))}
                   >
-                    {p.charAt(0).toUpperCase() + p.slice(1)}
+                    {p === 'low' ? t('Low') : p === 'high' ? t('High') : t('Normal')}
                   </Button>
                 ))}
               </div>
             </div>
 
+            {/* Restart on crash */}
+            <div>
+              <div className="flex items-center gap-3">
+                <Switch
+                  aria-label={t('Restart if it crashes')}
+                  checked={!!form.restart_on_crash}
+                  onCheckedChange={v => setForm(f => ({ ...f, restart_on_crash: v || undefined }))}
+                />
+                <span style={{ fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--color-text-secondary)' }}>
+                  {t('Restart if it crashes')}
+                </span>
+              </div>
+              {form.restart_on_crash && (
+                <div className="flex items-center gap-1.5" style={{ marginTop: 10 }} role="group" aria-label={t('Maximum restart attempts')}>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginRight: 6 }}>
+                    {t('Max attempts')}
+                  </span>
+                  {[1, 2, 3, 5].map(n => (
+                    <Button
+                      key={n}
+                      variant={(form.max_retries ?? 3) === n ? 'fill' : 'default'}
+                      size="default"
+                      aria-pressed={(form.max_retries ?? 3) === n}
+                      onClick={() => setForm(f => ({ ...f, max_retries: n === 3 ? undefined : n }))}
+                    >
+                      {n}
+                    </Button>
+                  ))}
+                </div>
+              )}
+            </div>
+
             {/* Background art */}
             <div>
-              <div style={{ fontFamily: 'var(--font-body)', fontSize: 10, fontWeight: 500, color: 'var(--color-text-muted)', marginBottom: 4 }}>
-                Background art
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-text-muted)', marginBottom: 6 }}>
+                {t('Background art')}
               </div>
               <div className="flex items-center gap-2">
                 {form.background_url ? (
@@ -233,20 +236,20 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
                       flexShrink: 0,
                     }}
                   >
-                    <span style={{ color: 'var(--color-text-muted)', fontSize: 9, fontFamily: 'var(--font-body)' }}>
-                      {bgAutoLoading ? '...' : 'none'}
+                    <span style={{ color: 'var(--color-text-muted)', fontSize: 11, fontFamily: 'var(--font-body)' }}>
+                      {bgAutoLoading ? '…' : t('none')}
                     </span>
                   </div>
                 )}
                 <Button variant="default" size="sm" onClick={() => setSgdbPickerOpen(true)} disabled={bgPicking}>
-                  SteamGridDB...
+                  {t('SteamGridDB…')}
                 </Button>
                 <Button variant="default" size="sm" onClick={handleLocalBg} disabled={bgPicking}>
-                  Local image...
+                  {t('Local image…')}
                 </Button>
                 {form.background_url && (
                   <Button variant="ghost" size="sm" onClick={() => setForm(f => ({ ...f, background_url: undefined }))}>
-                    Clear
+                    {t('Clear')}
                   </Button>
                 )}
               </div>
@@ -254,12 +257,9 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
           </div>
 
           {/* Footer */}
-          <div
-            className="flex items-center justify-end gap-2 pt-3"
-            style={{ borderTop: '1px solid var(--color-border-divider)' }}
-          >
+          <ModalFooter>
             <Button variant="ghost" size="default" onClick={onClose}>
-              Cancel
+              {t('Cancel')}
             </Button>
             <Button
               variant="fill"
@@ -267,9 +267,9 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
               onClick={handleSave}
               disabled={!form.name.trim() || !form.executable_path.trim()}
             >
-              {isEditing ? 'Save' : 'Add App'}
+              {isEditing ? t('Save') : t('Add app')}
             </Button>
-          </div>
+          </ModalFooter>
         </DialogContent>
       </Dialog>
 
@@ -293,6 +293,7 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
         onClose={() => setSgdbPickerOpen(false)}
         initialQuery={form.name}
         onSelect={url => setForm(f => ({ ...f, background_url: url }))}
+        onOpenSettings={onOpenSettings}
       />
     </>
   );

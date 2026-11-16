@@ -1,18 +1,10 @@
-import { useState } from 'react';
+import type { CSSProperties } from 'react';
 import { convertFileSrc } from '@tauri-apps/api/core';
-import { Icon } from '../icons/Icon';
-import {
-  faPlay,
-  faStop,
-  faRotateRight,
-  faFolderOpen,
-  faSliders,
-  faTrash,
-  faCircleRegular,
-  faTriangleExclamation,
-} from '../icons';
+import { AppControls } from './AppControls';
+import { appColor } from '../../lib/appColor';
+import { exeName } from '../../lib/appArt';
+import { statusLabel, type ProcessInfo } from '../../hooks/useProcessStatus';
 import type { AppEntry } from '../../types';
-import type { ProcessInfo } from '../../hooks/useProcessStatus';
 
 interface AppListRowProps {
   app: AppEntry;
@@ -23,142 +15,65 @@ interface AppListRowProps {
   onOpenPath: () => void;
   onEdit: (app: AppEntry) => void;
   onRemove: (id: string) => void;
+  /** list navigation (optional: the dev-only DesignReference page renders rows without it) */
+  index?: number;
+  tabIndex?: number;
+  ref?: React.Ref<HTMLDivElement>;
+  onFocusRow?: () => void;
 }
 
-function Btn({
-  onClick, title, children, disabled,
-}: {
-  onClick: () => void; title: string; children: React.ReactNode; disabled?: boolean;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      title={title}
-      disabled={disabled}
-      className="tile-btn"
-      style={{
-        background: 'none', border: 'none', padding: 0, cursor: 'pointer', lineHeight: 0,
-        width: 14, height: 14, display: 'flex', alignItems: 'center', justifyContent: 'center',
-      }}
-    >
-      {children}
-    </button>
-  );
-}
+const mono = { fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase' } as const;
 
-export function AppListRow({ app, status, onStart, onStop, onRestart, onOpenPath, onEdit, onRemove }: AppListRowProps) {
-  const isRunning = status.status === 'running';
-  const isStopped = status.status === 'stopped';
-  const isCrashed = status.status === 'crashed';
-  const [hovered, setHovered] = useState(false);
-  const [removeHovered, setRemoveHovered] = useState(false);
+/** List view row: status bar in the app colour, letter/icon, name + executable, status text, controls. */
+export function AppListRow({ ref, index, tabIndex, onFocusRow, ...p }: AppListRowProps) {
+  const { app, status } = p;
+  const running = status.status === 'running';
+  const crashed = status.status === 'crashed';
+  const color = appColor(app.order);
+  const letter = (app.name.match(/[\p{L}\p{N}]/u)?.[0] ?? '·').toUpperCase();
+  const bar = running ? color : crashed ? 'var(--color-status-crit)' : 'var(--color-border-divider)';
 
   return (
     <div
-      className="flex items-center"
-      style={{
-        padding: '8px 16px',
-        gap: 16,
-        height: 52,
-        borderRadius: 8,
-        background: hovered ? 'var(--color-row-bg-hover)' : 'var(--color-row-bg)',
-        border: `1px solid ${isCrashed ? 'var(--color-status-crit)' : 'transparent'}`,
-        transition: 'background-color 0.1s',
-        flexShrink: 0,
-      }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      ref={ref}
+      role="listitem"
+      tabIndex={tabIndex}
+      data-index={index}
+      aria-label={`${app.name}, ${statusLabel(status.status)}`}
+      onFocus={e => { onFocusRow?.(); e.currentTarget.scrollIntoView({ block: 'nearest' }); }}
+      className="lrow"
+      style={{ '--lrow-bar': bar, ...(crashed ? { borderColor: 'var(--color-status-crit)' } : {}) } as CSSProperties}
     >
-      {/* Status dot */}
-      <div style={{ flexShrink: 0, width: 10, height: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        {isRunning ? (
-          <span style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--color-status-live)', boxShadow: '0 0 6px var(--color-status-live)', display: 'inline-block' }} />
-        ) : isCrashed ? (
-          <span style={{ animation: 'pulse-crit 1s infinite', lineHeight: 0 }}>
-            <Icon icon={faTriangleExclamation} size={10} crit />
-          </span>
-        ) : (
-          <Icon icon={faCircleRegular} size={8} />
-        )}
-      </div>
+      <span className="lrow__step" aria-hidden="true" style={{ ...mono, width: 22, color: 'var(--color-text-muted)' }}>{String(app.order + 1).padStart(2, '0')}</span>
 
-      {/* Icon */}
-      {app.icon_cache_path && (
-        <img
-          src={convertFileSrc(app.icon_cache_path)}
-          alt=""
-          style={{ width: 18, height: 18, objectFit: 'contain', flexShrink: 0 }}
-          onError={e => { e.currentTarget.style.display = 'none'; }}
-        />
+      {app.icon_cache_path ? (
+        <img src={convertFileSrc(app.icon_cache_path)} alt="" style={{ width: 34, height: 34, objectFit: 'contain', flex: 'none' }} onError={e => { e.currentTarget.style.display = 'none'; }} />
+      ) : (
+        <div aria-hidden="true" style={{
+          width: 34, height: 34, flex: 'none', display: 'grid', placeItems: 'center', fontFamily: 'var(--font-letter)', fontSize: 20,
+          border: `1px solid ${running ? color : 'var(--color-border-control)'}`, color: running ? color : 'var(--color-text-muted)',
+          background: running ? `color-mix(in srgb, ${color} 14%, transparent)` : 'transparent',
+        }}>{letter}</div>
       )}
 
-      {/* Name */}
-      <div className="flex flex-col justify-center min-w-0 flex-1" style={{ gap: 2 }}>
-        <div
-          style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: 12,
-            fontWeight: 700,
-            color: 'var(--color-text-primary)',
-            letterSpacing: '1px',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }}
-          title={app.name}
-        >
-          {app.name}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div className="lrow__name" title={app.name} style={{ color: status.status === 'stopped' ? 'var(--color-text-muted)' : 'var(--color-text-primary)' }}>{app.name}</div>
+        <div style={{ ...mono, fontSize: 10, color: crashed ? 'var(--color-error-text)' : 'var(--color-text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={crashed ? status.error_message : undefined}>
+          {crashed && status.error_message ? status.error_message : exeName(app)}
         </div>
-        {isCrashed && status.error_message && (
-          <div
-            style={{
-              fontFamily: 'var(--font-body)',
-              fontSize: 11,
-              fontWeight: 500,
-              color: 'var(--color-error-text)',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            }}
-            title={status.error_message}
-          >
-            {status.error_message}
-          </div>
-        )}
       </div>
 
-      {/* Controls — LeftActions (12px gap) + 24px gap + RightActions (12px gap) */}
-      <div className="flex items-center flex-shrink-0" style={{ gap: 24 }}>
-        <div className="flex items-center" style={{ gap: 12 }}>
-          <Btn onClick={onStart} title="Start" disabled={isRunning}>
-            <Icon icon={faPlay} size={14} active={!isRunning} />
-          </Btn>
-          <Btn onClick={onStop} title="Stop" disabled={isStopped}>
-            <Icon icon={faStop} size={14} crit={isRunning} />
-          </Btn>
-          <Btn onClick={onRestart} title="Restart">
-            <Icon icon={faRotateRight} size={14} />
-          </Btn>
-          <Btn onClick={onOpenPath} title="Open folder">
-            <Icon icon={faFolderOpen} size={14} />
-          </Btn>
-        </div>
-        <div className="flex items-center" style={{ gap: 12 }}>
-          <Btn onClick={() => onEdit(app)} title="Edit">
-            <Icon icon={faSliders} size={14} />
-          </Btn>
-          <button
-            onClick={() => onRemove(app.id)}
-            title="Remove"
-            className="tile-btn"
-            onMouseEnter={() => setRemoveHovered(true)}
-            onMouseLeave={() => setRemoveHovered(false)}
-            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', lineHeight: 0, width: 14, height: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-          >
-            <Icon icon={faTrash} size={14} crit={removeHovered} />
-          </button>
-        </div>
+      <div className="lrow__status flex items-center" style={{ ...mono, gap: 8, width: 112, flex: 'none', color: crashed ? 'var(--color-error-text)' : running ? 'var(--color-text-primary)' : 'var(--color-text-muted)' }}>
+        <span style={{
+          width: 8, height: 8, borderRadius: '50%', display: 'inline-block', flex: 'none',
+          background: running ? 'var(--color-status-live)' : crashed ? 'var(--color-status-crit)' : 'var(--color-border-default)',
+          boxShadow: running ? '0 0 6px var(--color-status-live)' : 'none',
+          animation: crashed ? 'pulse-crit 1s infinite' : undefined,
+        }} />
+        {statusLabel(status.status)}
       </div>
+
+      <div className="lrow__controls"><AppControls {...p} /></div>
     </div>
   );
 }

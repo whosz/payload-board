@@ -25,21 +25,20 @@ export function ProfileList({ profiles, activeProfileId, onSelect, onNew, onEdit
         style={{ minHeight: 40 }}
       >
         <span style={{
-          fontFamily: 'var(--font-display)',
-          fontSize: 10,
+          fontFamily: 'var(--font-mono)',
+          fontSize: 11,
           fontWeight: 600,
-          letterSpacing: '1.5px',
-          lineHeight: '16px',
+          letterSpacing: '0.12em',
           textTransform: 'uppercase',
-          color: 'var(--color-text-secondary)',
+          color: 'var(--color-text-muted)',
         }}>
           Profiles
         </span>
         <button
           onClick={onCollapse}
           title="Hide sidebar"
+          aria-label="Hide sidebar"
           className="tile-btn"
-          style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', lineHeight: 0, width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
         >
           <Icon icon={faChevronLeft} size={10} />
         </button>
@@ -57,8 +56,9 @@ export function ProfileList({ profiles, activeProfileId, onSelect, onNew, onEdit
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                background: highlighted ? 'var(--color-row-bg)' : 'transparent',
-                borderRadius: 8,
+                background: highlighted ? 'var(--color-bg-elevated)' : 'transparent',
+                border: `1px solid ${isActive ? 'var(--color-border-default)' : 'transparent'}`,
+                borderRadius: 2,
                 overflow: 'hidden',
                 minHeight: 40,
                 transition: 'background 0.1s',
@@ -66,19 +66,22 @@ export function ProfileList({ profiles, activeProfileId, onSelect, onNew, onEdit
               }}
               onMouseEnter={() => setHoveredId(profile.id)}
               onMouseLeave={() => setHoveredId(null)}
+              onFocus={() => setHoveredId(profile.id)}
+              onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget)) setHoveredId(null); }}
             >
               {/* State bar — always present, teal when active */}
               <div style={{
                 width: 4,
                 alignSelf: 'stretch',
                 flexShrink: 0,
-                background: isActive ? 'var(--color-status-live)' : 'transparent',
+                background: isActive ? 'var(--color-accent)' : 'transparent',
                 transition: 'background 0.1s',
               }} />
 
               {/* Button */}
               <button
                 onClick={() => onSelect(profile.id)}
+                aria-current={isActive ? 'true' : undefined}
                 style={{
                   flex: 1,
                   display: 'flex',
@@ -100,10 +103,10 @@ export function ProfileList({ profiles, activeProfileId, onSelect, onNew, onEdit
                 )}
                 <span style={{
                   fontFamily: 'var(--font-body)',
-                  fontSize: 14,
+                  fontSize: 15,
                   fontWeight: 600,
                   lineHeight: '18px',
-                  letterSpacing: '0.5px',
+                  letterSpacing: '0.02em',
                   color: highlighted ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
@@ -119,16 +122,16 @@ export function ProfileList({ profiles, activeProfileId, onSelect, onNew, onEdit
                   <button
                     onClick={e => { e.stopPropagation(); onEdit(profile.id); }}
                     title="Edit profile"
+                    aria-label="Edit profile"
                     className="tile-btn"
-                    style={{ width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
                   >
                     <Icon icon={faPen} size={10} />
                   </button>
                   <button
                     onClick={e => { e.stopPropagation(); onDelete(profile.id); }}
                     title="Delete profile"
+                    aria-label="Delete profile"
                     className="tile-btn"
-                    style={{ width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
                   >
                     <Icon icon={faTrash} size={10} crit />
                   </button>
@@ -160,7 +163,7 @@ function NavButton({ icon, label, onClick }: { icon: React.ReactNode; label: str
       style={{
         background: 'none',
         border: 'none',
-        borderRadius: 8,
+        borderRadius: 2,
         padding: '0 6px',
         minHeight: 40,
         color: hovered ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
@@ -170,7 +173,7 @@ function NavButton({ icon, label, onClick }: { icon: React.ReactNode; label: str
       <span style={{ width: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
         {icon}
       </span>
-      <span style={{ fontFamily: 'var(--font-display)', fontSize: 10, fontWeight: 600, letterSpacing: '1.5px', lineHeight: '16px', textTransform: 'uppercase' }}>
+      <span style={{ fontFamily: 'var(--font-body)', fontSize: 14, fontWeight: 600, letterSpacing: '0.06em', lineHeight: '16px', textTransform: 'uppercase' }}>
         {label}
       </span>
     </button>

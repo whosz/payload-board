@@ -1,32 +1,51 @@
 import { useState, useCallback, useEffect, lazy, Suspense } from 'react';
 const DesignReference = lazy(() => import('./components/DesignReference').then(m => ({ default: m.DesignReference })));
 import { Button } from './components/ui/button';
-import { ProfileList } from './components/sidebar/ProfileList';
-import { AppTile } from './components/dashboard/AppTile';
-import { AppListRow } from './components/dashboard/AppListRow';
-import { StatusBar } from './components/dashboard/StatusBar';
+import { ProfileTabs } from './components/ProfileTabs';
+import { Hero } from './components/dashboard/Hero';
+import { AppCarousel } from './components/dashboard/AppCarousel';
+import { AppsToolbar, type SortOrder, type ViewMode } from './components/dashboard/AppsToolbar';
+import { KeyHints } from './components/dashboard/KeyHints';
+import { CommandPalette } from './components/CommandPalette';
+import { buildPaletteItems } from './lib/palette';
+import { AppList } from './components/dashboard/AppList';
 import { ProfileEditor } from './components/editor/ProfileEditor';
 import { AppEntryEditor } from './components/editor/AppEntryEditor';
 import { SettingsPanel } from './components/settings/SettingsPanel';
 import {
   Dialog,
   DialogContent,
+  ModalFooter,
+  ModalHeader,
 } from './components/ui/dialog';
 import { Icon } from './components/icons/Icon';
-import { faPlay, faPowerOff, faPlus, faXmark, faList, faTableCellsLarge, faChevronDown, faChevronRight } from './components/icons';
+import { faPlus, faXmark } from './components/icons';
 import { useProfiles } from './hooks/useProfiles';
 import { useProcessStatus } from './hooks/useProcessStatus';
 import { startApp, stopApp, restartApp, openPath, stopAll, scanRunningApps } from './ipc/processes';
+import { useSequence } from './hooks/useSequence';
+import { useSessionSeconds } from './hooks/useSessionSeconds';
+import { applyAccent } from './lib/accent';
+import { keysFor } from './lib/shortcuts';
+import { useShortcuts } from './hooks/useShortcuts';
+import { t, tx, useLanguage } from './i18n';
+import { setActiveProfile } from './ipc/shortcuts';
+import { setBackendLanguage, getBoolSetting, checkForUpdate, type UpdateInfo } from './ipc/settings';
+import { openExternal } from './lib/links';
 import type { AppEntry } from './types';
 
-type Theme = 'purple' | 'grey';
+type Theme = 'dark' | 'grey' | 'light';
+const THEMES: Theme[] = ['dark', 'grey', 'light'];
 
 interface Toast {
   id: number;
   message: string;
+  kind: 'info' | 'warn' | 'error';
 }
 
 export default function App() {
+  const lang = useLanguage(); // re-render the whole tree when the language changes
+  useEffect(() => { setBackendLanguage(lang).catch(() => {}); }, [lang]);
   const {
     profiles,
     activeProfile,
@@ -42,7 +61,7 @@ export default function App() {
     reload,
   } = useProfiles();
 
-  const { getStatus, statuses, setErrorStatus, clearErrors } = useProcessStatus();
+  const { getStatus, setErrorStatus, clearErrors } = useProcessStatus();
 
   const [profileEditorOpen, setProfileEditorOpen] = useState(false);
   const [editingProfile, setEditingProfile] = useState<typeof profiles[0] | undefined>();
@@ -51,12 +70,14 @@ export default function App() {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [confirmRemoveApp, setConfirmRemoveApp] = useState<AppEntry | null>(null);
+  const [update, setUpdate] = useState<UpdateInfo | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [sortOrder, setSortOrder] = useState<'manual' | 'az' | 'za'>('manual');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [settingsTab, setSettingsTab] = useState<'appearance' | 'data'>('appearance');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('manual');
+  const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [designRefOpen, setDesignRefOpen] = useState(false);
+  const [paletteOpen, setPaletteOpen] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -67,8 +88,16 @@ export default function App() {
     return () => window.removeEventListener('keydown', handler);
   }, []);
 
+  useEffect(() => {
+    getBoolSetting('check_updates').then(on => { if (on) return checkForUpdate().then(setUpdate); }).catch(() => {});
+  }, []);
+
+  // Settings opens on top of whichever editor asked, so unsaved form input survives.
+  const openDataSettings = () => { setSettingsTab('data'); setSettingsOpen(true); };
+  const anyDialogOpen = profileEditorOpen || appEditorOpen || settingsOpen || confirmDeleteId !== null || confirmRemoveApp !== null;
+
   const [theme, setTheme] = useState<Theme>(() =>
-    (localStorage.getItem('theme') as Theme) ?? 'purple'
+    THEMES.find(t => t === localStorage.getItem('theme')) ?? 'dark'
   );
 
   useEffect(() => {
@@ -76,38 +105,40 @@ export default function App() {
     localStorage.setItem('theme', theme);
   }, [theme]);
 
+  useEffect(() => { applyAccent(activeProfile?.color_accent, theme); }, [activeProfile?.color_accent, theme]);
+
   useEffect(() => {
     if (activeProfileId) {
       scanRunningApps(activeProfileId).catch(() => {});
     }
   }, [activeProfileId]);
 
-  const pushError = useCallback((msg: string) => {
-    const id = Date.now();
-    setToasts(prev => [...prev, { id, message: msg }]);
-    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 6000);
+  const pushToast = useCallback((msg: string, kind: Toast['kind'] = 'error') => {
+    const id = Date.now() + Math.random();
+    setToasts(prev => [...prev, { id, message: msg, kind }]);
+    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), kind === 'error' ? 6000 : 3000);
   }, []);
+  const pushError = useCallback((msg: string) => pushToast(msg, 'error'), [pushToast]);
+
+  const sequence = useSequence(activeProfileId, (appId, message) => {
+    const name = activeProfile?.apps.find(a => a.id === appId)?.name ?? 'App';
+    pushError(t('Start failed — {name}: {error}', { name, error: message }));
+  });
+
+  const shortcuts = useShortcuts({
+    palette: () => { if (paletteOpen) setPaletteOpen(false); else if (!anyDialogOpen) setPaletteOpen(true); },
+    palette_global: () => { if (!anyDialogOpen) setPaletteOpen(true); },
+    run_sequence: () => { if (activeProfile) sequence.run().catch(e => pushError(t('Run sequence failed: {error}', { error: String(e) }))); },
+    end_session: () => { if (activeProfile) stopAll(activeProfile.id).catch(e => pushError(t('End session failed: {error}', { error: String(e) }))); },
+    add_app: () => { if (!anyDialogOpen && !paletteOpen && activeProfile) { setEditingApp(undefined); setAppEditorOpen(true); } },
+    new_profile: () => { if (!anyDialogOpen && !paletteOpen) { setEditingProfile(undefined); setProfileEditorOpen(true); } },
+    settings: () => { if (!anyDialogOpen && !paletteOpen) setSettingsOpen(true); },
+  }, pushToast);
+
+  useEffect(() => { setActiveProfile(activeProfileId).catch(() => {}); }, [activeProfileId]);
 
   const dismissToast = (id: number) =>
     setToasts(prev => prev.filter(t => t.id !== id));
-
-  const handleRunSequence = async () => {
-    if (!activeProfileId) return;
-    for (const app of sortedApps) {
-      if (!app.enabled) continue;
-      if (getStatus(app.id).status === 'running') continue;
-      try {
-        await startApp(activeProfileId, app.id);
-      } catch (e) {
-        const msg = String(e);
-        pushError(`Start failed — ${app.name}: ${msg}`);
-        setErrorStatus(app.id, msg);
-      }
-      if (app.launch_delay_ms > 0) {
-        await new Promise(resolve => setTimeout(resolve, app.launch_delay_ms));
-      }
-    }
-  };
 
   const handleSaveApp = async (entry: Omit<AppEntry, 'id' | 'order'>) => {
     if (!activeProfileId) return;
@@ -118,7 +149,7 @@ export default function App() {
         await addApp(activeProfileId, entry);
       }
     } catch (e) {
-      pushError(`Failed to save app: ${e}`);
+      pushError(t('Failed to save app: {error}', { error: String(e) }));
     }
     setAppEditorOpen(false);
     setEditingApp(undefined);
@@ -138,16 +169,17 @@ export default function App() {
     ? activeProfile.apps.filter(a => getStatus(a.id).status === 'running').length
     : 0;
 
-  const crashedCount = activeProfile
-    ? activeProfile.apps.filter(a => getStatus(a.id).status === 'crashed').length
-    : 0;
 
-  const sortLabel = sortOrder === 'az' ? 'Sort: A→Z' : sortOrder === 'za' ? 'Sort: Z→A' : 'Sort: Manual';
+  const crashedApps = (activeProfile?.apps ?? [])
+    .filter(a => getStatus(a.id).status === 'crashed')
+    .map(a => ({ id: a.id, name: a.name, error: getStatus(a.id).error_message }));
+
+  const sessionSeconds = useSessionSeconds(runningCount > 0);
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full text-sm" style={{ color: 'var(--color-text-disabled)', fontFamily: 'var(--font-display)' }}>
-        LOADING...
+        {t('Loading…')}
       </div>
     );
   }
@@ -169,27 +201,27 @@ export default function App() {
       try { await startApp(activeProfileId, app.id); }
       catch (e) {
         const msg = String(e);
-        pushError(`Start failed — ${app.name}: ${msg}`);
+        pushError(t('Start failed — {name}: {error}', { name: app.name, error: msg }));
         setErrorStatus(app.id, msg);
       }
     },
     onStop: async () => {
       try { await stopApp(app.id); }
-      catch (e) { pushError(`Stop failed — ${app.name}: ${e}`); }
+      catch (e) { pushError(t('Stop failed — {name}: {error}', { name: app.name, error: String(e) })); }
     },
     onRestart: async () => {
       if (!activeProfileId) return;
       try { await restartApp(activeProfileId, app.id); }
       catch (e) {
         const msg = String(e);
-        pushError(`Restart failed — ${app.name}: ${msg}`);
+        pushError(t('Restart failed — {name}: {error}', { name: app.name, error: msg }));
         setErrorStatus(app.id, msg);
       }
     },
     onOpenPath: async () => {
       if (!activeProfileId) return;
       try { await openPath(activeProfileId, app.id); }
-      catch (e) { pushError(`Open folder failed — ${app.name}: ${e}`); }
+      catch (e) { pushError(t('Open folder failed — {name}: {error}', { name: app.name, error: String(e) })); }
     },
     onEdit: (a: AppEntry) => { setEditingApp(a); setAppEditorOpen(true); },
     onRemove: (id: string) => {
@@ -198,244 +230,122 @@ export default function App() {
     },
   });
 
+  const paletteItems = paletteOpen
+    ? buildPaletteItems({
+        profiles,
+        activeProfile: activeProfile ?? undefined,
+        getStatus,
+        launching: sequence.launching,
+        anyRunning: runningCount > 0,
+        runSequence: () => sequence.run().catch(e => pushError(t('Run sequence failed: {error}', { error: String(e) }))),
+        cancelSequence: () => sequence.cancel().catch(e => pushError(t('Cancel failed: {error}', { error: String(e) }))),
+        endSession: async () => {
+          if (!activeProfile) return;
+          try { await stopAll(activeProfile.id); } catch (e) { pushError(t('End session failed: {error}', { error: String(e) })); }
+        },
+        addApp: () => { setEditingApp(undefined); setAppEditorOpen(true); },
+        newProfile: () => { setEditingProfile(undefined); setProfileEditorOpen(true); },
+        openSettings: () => setSettingsOpen(true),
+        switchProfile: setActiveProfileId,
+        appHandlers: makeHandlers,
+      })
+    : [];
+
   return (
-    <div
-      className="flex h-full p-2"
-      style={{ background: 'transparent', gap: sidebarOpen ? 8 : 0, transition: 'gap 0.2s ease' }}
-      onClick={() => setSortOpen(false)}
-    >
-      {/* ── Sidebar ── */}
-      <div
-        className="flex-shrink-0 flex flex-col overflow-hidden"
-        style={{
-          width: sidebarOpen ? 266 : 0,
-          transition: 'width 0.2s ease',
-          background: 'var(--color-bg-surface)',
-          backdropFilter: 'blur(24px)',
-          WebkitBackdropFilter: 'blur(24px)',
-          borderRadius: 16,
-        }}
-      >
-        <ProfileList
-          profiles={profiles}
-          activeProfileId={activeProfileId}
-          onSelect={setActiveProfileId}
-          onNew={() => { setEditingProfile(undefined); setProfileEditorOpen(true); }}
-          onEdit={id => {
-            const p = profiles.find(pr => pr.id === id);
-            if (p) { setEditingProfile(p); setProfileEditorOpen(true); }
-          }}
-          onDelete={id => setConfirmDeleteId(id)}
-          onSettings={() => setSettingsOpen(true)}
-          onCollapse={() => setSidebarOpen(false)}
-        />
-      </div>
+    <div className="flex flex-col h-full" onClick={() => setSortOpen(false)}>
+      <ProfileTabs
+        profiles={profiles}
+        activeProfileId={activeProfileId}
+        onSelect={setActiveProfileId}
+        onNew={() => { setEditingProfile(undefined); setProfileEditorOpen(true); }}
+        onSettings={() => setSettingsOpen(true)}
+        onPalette={() => { if (!anyDialogOpen) setPaletteOpen(true); }}
+        keys={{ palette: keysFor(shortcuts.state, 'palette'), newProfile: keysFor(shortcuts.state, 'new_profile'), settings: keysFor(shortcuts.state, 'settings') }}
+      />
 
-      {/* ── Main panel ── */}
-      <div
-        className="flex flex-col flex-1 overflow-hidden"
-        style={{
-          background: 'var(--color-bg-surface)',
-          backdropFilter: 'blur(24px)',
-          WebkitBackdropFilter: 'blur(24px)',
-          borderRadius: 16,
-          position: 'relative',
-        }}
-      >
-        {/* Top header */}
-        <div
-          className="flex items-center justify-between px-6 flex-shrink-0"
-          style={{ minHeight: 64 }}
-        >
-          <div className="flex items-center gap-3 min-w-0 mr-4">
-            {!sidebarOpen && (
-              <button
-                onClick={() => setSidebarOpen(true)}
-                title="Show sidebar"
-                className="tile-btn"
-                style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', lineHeight: 0, width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
-              >
-                <Icon icon={faChevronRight} size={10} />
-              </button>
-            )}
-          <div className="flex flex-col justify-center min-w-0">
-            <span
-              style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: 20,
-                fontWeight: 600,
-                color: 'var(--color-text-primary)',
-                lineHeight: '22px',
-                letterSpacing: '1.5px',
-              }}
-            >
-              {activeProfile?.name ?? 'No Profile'}
-            </span>
-          </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Button
-              variant="cta"
-              size="lg"
-              disabled={!activeProfile || sortedApps.length === 0 || runningCount > 0}
-              onClick={handleRunSequence}
-            >
-              <Icon icon={faPlay} size={12} active />
-              Run sequence
-            </Button>
-            <Button
-              variant="destructive"
-              size="lg"
-              disabled={!activeProfile || runningCount === 0}
-              onClick={async () => {
-                if (!activeProfileId) return;
-                try { await stopAll(activeProfileId); }
-                catch (e) { pushError(`End Session failed: ${e}`); }
-              }}
-            >
-              <Icon icon={faPowerOff} size={12} crit />
-              End session
-            </Button>
-          </div>
+      {update && (
+        <div role="status" className="mini-hide flex items-center flex-shrink-0" style={{ gap: 12, padding: '6px 24px', background: 'var(--color-bg-elevated)', borderBottom: '1px solid var(--color-border-divider)', fontFamily: 'var(--font-body)', fontSize: 14, color: 'var(--color-text-primary)' }}>
+          <span style={{ flex: 1 }}>{t('Version {version} is available', { version: update.version })}</span>
+          <Button variant="fill" size="sm" onClick={() => openExternal(update.url)}>{t('Download')}</Button>
+          <button className="tile-btn" title={t('Dismiss')} aria-label={t('Dismiss')} onClick={() => setUpdate(null)}><Icon icon={faXmark} size={14} /></button>
         </div>
+      )}
 
-        {/* Separator */}
-        <div style={{ height: 1, background: 'var(--color-border-divider)', margin: '0 24px', flexShrink: 0 }} />
+      {!activeProfile ? (
+        <div className="flex flex-col items-center justify-center flex-1 gap-4">
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-text-secondary)' }}>
+            {t('No profile selected')}
+          </span>
+          <Button variant="cta" size="lg" onClick={() => setProfileEditorOpen(true)}>
+            <Icon icon={faPlus} size={12} />
+            {t('New profile')}
+          </Button>
+        </div>
+      ) : (
+        <>
+          <Hero
+            profile={activeProfile}
+            appStates={[...activeProfile.apps].sort((a, b) => a.order - b.order).map(a => ({ id: a.id, order: a.order, status: getStatus(a.id).status }))}
+            launching={sequence.launching}
+            step={sequence.step}
+            total={sequence.total}
+            crashed={crashedApps}
+            sessionSeconds={sessionSeconds}
+            runDisabled={sortedApps.length === 0}
+            keys={{ run: keysFor(shortcuts.state, 'run_sequence'), end: keysFor(shortcuts.state, 'end_session'), addApp: keysFor(shortcuts.state, 'add_app') }}
+            onRun={() => sequence.run().catch(e => pushError(t('Run sequence failed: {error}', { error: String(e) })))}
+            onCancel={() => sequence.cancel().catch(e => pushError(t('Cancel failed: {error}', { error: String(e) })))}
+            onEnd={async () => {
+              try { await stopAll(activeProfile.id); }
+              catch (e) { pushError(t('End session failed: {error}', { error: String(e) })); }
+            }}
+            onAddApp={() => { setEditingApp(undefined); setAppEditorOpen(true); }}
+            onEditProfile={() => { setEditingProfile(activeProfile); setProfileEditorOpen(true); }}
+            onDeleteProfile={() => setConfirmDeleteId(activeProfile.id)}
+            onRestartApp={id => { const a = activeProfile.apps.find(x => x.id === id); if (a) makeHandlers(a).onRestart(); }}
+            onClearErrors={clearErrors}
+          />
 
-        {/* Table actions bar */}
-        {activeProfile && sortedApps.length > 0 && (
-          <div
-            className="flex items-center justify-between px-6 flex-shrink-0"
-            style={{ padding: '16px 24px 0', gap: 8 }}
-          >
-            {/* Left: Add app */}
-            <Button
-              variant="cta"
-              size="default"
-              onClick={() => { setEditingApp(undefined); setAppEditorOpen(true); }}
-            >
-              <Icon icon={faPlus} size={10} />
-              Add app
-            </Button>
-
-            {/* Right: Clear errors + Sort dropdown + view toggle */}
-            <div className="flex items-center gap-1.5" onClick={e => e.stopPropagation()}>
-              {crashedCount > 0 && (
-                <Button variant="destructive" size="default" onClick={clearErrors}>
-                  Clear errors
-                </Button>
-              )}
-              {/* Sort dropdown */}
-              <div style={{ position: 'relative' }}>
-                <Button
-                  variant="outline"
-                  size="default"
-                  onClick={() => setSortOpen(v => !v)}
-                  style={{ gap: 6 }}
-                >
-                  {sortLabel}
-                  <Icon icon={faChevronDown} size={8} />
-                </Button>
-                {sortOpen && (
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: 'calc(100% + 4px)',
-                      right: 0,
-                      background: 'var(--color-bg-base)',
-                      border: '1px solid var(--color-border-divider)',
-                      borderRadius: 8,
-                      overflow: 'hidden',
-                      zIndex: 100,
-                      minWidth: 120,
-                    }}
-                  >
-                    {(['manual', 'az', 'za'] as const).map(opt => (
-                      <button
-                        key={opt}
-                        onClick={() => { setSortOrder(opt); setSortOpen(false); }}
-                        style={{
-                          display: 'block',
-                          width: '100%',
-                          textAlign: 'left',
-                          padding: '8px 14px',
-                          background: sortOrder === opt ? 'var(--color-bg-elevated)' : 'transparent',
-                          color: sortOrder === opt ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
-                          fontFamily: 'var(--font-body)',
-                          fontSize: 11,
-                          fontWeight: 600,
-                          border: 'none',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        {opt === 'manual' ? 'Manual' : opt === 'az' ? 'A → Z' : 'Z → A'}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* View toggle */}
-              <Button
-                variant={viewMode === 'grid' ? 'fill' : 'outline'}
-                size="icon"
-                onClick={() => setViewMode('grid')}
-                title="Grid view"
-              >
-                <Icon icon={faTableCellsLarge} size={11} />
-              </Button>
-              <Button
-                variant={viewMode === 'list' ? 'fill' : 'outline'}
-                size="icon"
-                onClick={() => setViewMode('list')}
-                title="List view"
-              >
-                <Icon icon={faList} size={11} />
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* App grid / list */}
-        <div className="flex-1 overflow-auto px-6 pb-4 pt-4">
-          {!activeProfile ? (
-            <div className="flex flex-col items-center justify-center h-full gap-4" style={{ color: 'var(--color-text-muted)' }}>
-              <span style={{ fontFamily: 'var(--font-display)', fontSize: 10, fontWeight: 600, letterSpacing: '1.5px', lineHeight: '16px', textTransform: 'uppercase', color: 'var(--color-text-secondary)' }}>
-                No profile selected
+          <div className="mini-hide" style={{ display: 'contents' }}>
+          {sortedApps.length === 0 ? (
+            <div className="flex flex-col items-center justify-center flex-1 gap-4">
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-text-secondary)' }}>
+                {t('No apps in this profile')}
               </span>
-              <Button variant="cta" size="lg" onClick={() => setProfileEditorOpen(true)}>
-                <Icon icon={faPlus} size={12} />
-                New Profile
-              </Button>
-            </div>
-          ) : sortedApps.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full gap-4" style={{ color: 'var(--color-text-muted)' }}>
-              <span style={{ fontFamily: 'var(--font-display)', fontSize: 10, fontWeight: 600, letterSpacing: '1.5px', lineHeight: '16px', textTransform: 'uppercase', color: 'var(--color-text-secondary)' }}>
-                No apps in this profile
-              </span>
-              <Button variant="cta" size="lg" onClick={() => setAppEditorOpen(true)}>
-                <Icon icon={faPlus} size={12} />
-                Add App
-              </Button>
-            </div>
-          ) : viewMode === 'grid' ? (
-            <div className="flex flex-wrap gap-3" style={{ alignContent: 'flex-start' }}>
-              {sortedApps.map(app => (
-                <AppTile key={app.id} app={app} status={getStatus(app.id)} {...makeHandlers(app)} />
-              ))}
             </div>
           ) : (
-            <div className="flex flex-col gap-1.5">
-              {sortedApps.map(app => (
-                <AppListRow key={app.id} app={app} status={getStatus(app.id)} {...makeHandlers(app)} />
-              ))}
-            </div>
+            <>
+              <AppsToolbar sortOrder={sortOrder} onSort={setSortOrder} sortOpen={sortOpen} onSortOpen={setSortOpen} viewMode={viewMode} onView={setViewMode} />
+              {viewMode === 'grid' ? (
+                <>
+                  <AppCarousel
+                    apps={sortedApps}
+                    getStatus={getStatus}
+                    makeHandlers={makeHandlers}
+                    onAdd={() => { setEditingApp(undefined); setAppEditorOpen(true); }}
+                  />
+                  <KeyHints />
+                </>
+              ) : (
+                <>
+                  <AppList apps={sortedApps} getStatus={getStatus} makeHandlers={makeHandlers} />
+                  <KeyHints axis="vertical" />
+                </>
+              )}
+            </>
           )}
-        </div>
+          </div>
+        </>
+      )}
 
-        <StatusBar profile={activeProfile} statuses={statuses} />
-      </div>
+      <CommandPalette
+        open={paletteOpen}
+        onClose={() => setPaletteOpen(false)}
+        items={paletteItems}
+        onRestart={item => item.app && makeHandlers(item.app).onRestart()}
+        onEdit={item => item.app && makeHandlers(item.app).onEdit(item.app)}
+        onOpenFolder={item => item.app && makeHandlers(item.app).onOpenPath()}
+      />
 
       {/* ── Toast notifications ── */}
       {toasts.length > 0 && (
@@ -445,8 +355,8 @@ export default function App() {
               key={t.id}
               style={{
                 background: 'var(--color-bg-elevated)',
-                border: '1px solid var(--color-status-crit)',
-                borderRadius: 8,
+                border: `1px solid ${t.kind === 'error' ? 'var(--color-status-crit)' : t.kind === 'warn' ? 'var(--color-accent)' : 'var(--color-border-control)'}`,
+                borderRadius: 2,
                 padding: '10px 14px',
                 display: 'flex',
                 alignItems: 'flex-start',
@@ -466,75 +376,51 @@ export default function App() {
 
       {/* ── Confirm delete profile ── */}
       <Dialog open={confirmDeleteId !== null} onOpenChange={v => { if (!v) setConfirmDeleteId(null); }}>
-        <DialogContent
-          showCloseButton={false}
-          style={{
-            background: 'var(--color-bg-base)',
-            border: '1px solid rgba(251,80,96,0.6)',
-            borderRadius: 8,
-            boxShadow: 'none',
-            maxWidth: 295,
-            padding: 16,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 16,
-          }}
-        >
-          <p style={{ color: 'var(--color-text-primary)', fontSize: 12, fontFamily: 'var(--font-body)', fontWeight: 400, lineHeight: '16px', letterSpacing: '0.25px', margin: 0 }}>
-            This will permanently delete <strong style={{ fontWeight: 600 }}>{profileToDelete?.name}</strong> and all its apps. Are you sure?
+        <DialogContent width={420} tone="danger">
+          <ModalHeader title={t('Delete profile')} />
+          <p style={{ color: 'var(--color-text-secondary)', fontSize: 15, lineHeight: 1.4, margin: 0 }}>
+            {tx('This will permanently delete {name} and all its apps. Are you sure?', { name: <strong style={{ color: 'var(--color-text-primary)', fontWeight: 700 }}>{profileToDelete?.name}</strong> })}
           </p>
-          <div className="flex items-center" style={{ gap: 12 }}>
+          <ModalFooter>
+            <Button variant="ghost" size="default" onClick={() => setConfirmDeleteId(null)}>{t('Cancel')}</Button>
             <Button
               variant="destructive"
               size="default"
               onClick={async () => {
                 if (!confirmDeleteId) return;
                 try { await removeProfile(confirmDeleteId); }
-                catch (e) { pushError(`Failed to delete profile: ${e}`); }
+                catch (e) { pushError(t('Failed to delete profile: {error}', { error: String(e) })); }
                 setConfirmDeleteId(null);
               }}
             >
-              Yes, delete everything
+              {t('Yes, delete everything')}
             </Button>
-            <Button variant="default" size="default" onClick={() => setConfirmDeleteId(null)}>Cancel</Button>
-          </div>
+          </ModalFooter>
         </DialogContent>
       </Dialog>
 
       {/* ── Confirm remove app ── */}
       <Dialog open={confirmRemoveApp !== null} onOpenChange={v => { if (!v) setConfirmRemoveApp(null); }}>
-        <DialogContent
-          showCloseButton={false}
-          style={{
-            background: 'var(--color-bg-base)',
-            border: '1px solid rgba(251,80,96,0.6)',
-            borderRadius: 8,
-            boxShadow: 'none',
-            maxWidth: 295,
-            padding: 16,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 16,
-          }}
-        >
-          <p style={{ color: 'var(--color-text-primary)', fontSize: 12, fontFamily: 'var(--font-body)', fontWeight: 400, lineHeight: '16px', letterSpacing: '0.25px', margin: 0 }}>
-            This will permanently remove <strong style={{ fontWeight: 600 }}>{confirmRemoveApp?.name}</strong> from this profile. Are you sure?
+        <DialogContent width={420} tone="danger">
+          <ModalHeader title={t('Remove app')} />
+          <p style={{ color: 'var(--color-text-secondary)', fontSize: 15, lineHeight: 1.4, margin: 0 }}>
+            {tx('This will permanently remove {name} from this profile. Are you sure?', { name: <strong style={{ color: 'var(--color-text-primary)', fontWeight: 700 }}>{confirmRemoveApp?.name}</strong> })}
           </p>
-          <div className="flex items-center" style={{ gap: 12 }}>
+          <ModalFooter>
+            <Button variant="ghost" size="default" onClick={() => setConfirmRemoveApp(null)}>{t('Cancel')}</Button>
             <Button
               variant="destructive"
               size="default"
               onClick={async () => {
                 if (!confirmRemoveApp || !activeProfileId) return;
                 try { await removeApp(activeProfileId, confirmRemoveApp.id); }
-                catch (e) { pushError(`Remove failed: ${e}`); }
+                catch (e) { pushError(t('Remove failed: {error}', { error: String(e) })); }
                 setConfirmRemoveApp(null);
               }}
             >
-              Yes, remove it
+              {t('Yes, remove it')}
             </Button>
-            <Button variant="default" size="default" onClick={() => setConfirmRemoveApp(null)}>Cancel</Button>
-          </div>
+          </ModalFooter>
         </DialogContent>
       </Dialog>
 
@@ -542,6 +428,7 @@ export default function App() {
         open={profileEditorOpen}
         onClose={() => { setProfileEditorOpen(false); setEditingProfile(undefined); }}
         initial={editingProfile}
+        onOpenSettings={openDataSettings}
         onSave={async fields => {
           try {
             if (editingProfile) {
@@ -550,7 +437,7 @@ export default function App() {
               await createProfile(fields);
             }
           } catch (e) {
-            pushError(`Failed to save profile: ${e}`);
+            pushError(t('Failed to save profile: {error}', { error: String(e) }));
           }
           setProfileEditorOpen(false);
           setEditingProfile(undefined);
@@ -562,13 +449,16 @@ export default function App() {
         onClose={() => { setAppEditorOpen(false); setEditingApp(undefined); }}
         onSave={handleSaveApp}
         initial={editingApp}
+        onOpenSettings={openDataSettings}
       />
       <SettingsPanel
         open={settingsOpen}
-        onClose={() => setSettingsOpen(false)}
+        initialTab={settingsTab}
+        onClose={() => { setSettingsOpen(false); setSettingsTab('appearance'); }}
         theme={theme}
         onThemeChange={setTheme}
         onReset={() => reload()}
+        shortcuts={shortcuts}
       />
     </div>
   );
