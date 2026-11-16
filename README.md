@@ -1,6 +1,6 @@
 # Payload Board
 
-![Payload Board](docs/assets/screenshot.png)
+![Payload Board](docs/assets/github-social-preview.png)
 
 <sub>Also in [grey](docs/assets/screenshots/grey-1280x800-grid.png) and [light](docs/assets/screenshots/light-1280x800-grid.png) themes, with a [list view](docs/assets/screenshots/dark-1280x800-list.png) and [tabbed settings](docs/assets/screenshots/dark-1280x800-settings.png). Screenshots use sample data.</sub>
 
