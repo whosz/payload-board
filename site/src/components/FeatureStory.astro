@@ -9,7 +9,7 @@
     linear-gradient(180deg, transparent 0%, rgba(59,35,91,0.12) 40%, transparent 100%);
 ">
   <!-- Section header -->
-  <div class="container reveal" style="text-align:center;padding-top:clamp(4rem,8vw,6rem);padding-bottom:clamp(2rem,4vw,3rem);">
+  <div class="container reveal story-header" style="text-align:center;padding-top:clamp(4rem,8vw,6rem);padding-bottom:clamp(2rem,4vw,3rem);">
     <p style="font-size:0.8rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:0.75rem;">How it works</p>
     <h2 style="font-size:clamp(1.8rem,3.75vw,3rem);margin:0 0 3.75rem;">
       Everything you need to run<br/>
@@ -53,7 +53,7 @@
   ">
 
     <!-- Sticky text column -->
-    <div style="
+    <div class="story-text-col" style="
       flex: 0 0 clamp(300px, 42%, 480px);
       position: sticky;
       top: 0;
@@ -205,7 +205,7 @@
     </div>
 
     <!-- Right: scroll trigger panels, each 100vh -->
-    <div style="flex:1;display:flex;flex-direction:column;">
+    <div class="story-visual-col" style="flex:1;display:flex;flex-direction:column;">
 
       <!-- Trigger 1 -->
       <div class="story-trigger" data-trigger="0" style="height:100vh;display:flex;align-items:center;justify-content:center;">
@@ -274,6 +274,46 @@
 <style>
   .story-panel {
     transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+  }
+
+  /* ── Mobile: drop the screenshot column, stack the panels ──
+     The screenshots double as scroll triggers, so hiding them means the
+     panels can no longer be swapped — they all get shown at once instead.
+     !important is needed because the observer script writes inline styles. */
+  @media (max-width: 720px) {
+    .story-visual-col { display: none !important; }
+
+    /* Gap between the stats bar and the first story panel.
+       !important on both: the header and #feature-story carry inline padding. */
+    .story-header {
+      padding-bottom: 100px !important;
+    }
+
+    #feature-story {
+      flex-direction: column;
+      padding-bottom: clamp(3rem, 8vw, 5rem) !important;
+    }
+
+    .story-text-col {
+      position: static !important;
+      height: auto !important;
+      flex: 1 1 auto !important;
+      display: block !important;
+    }
+
+    .story-panel {
+      position: static !important;
+      opacity: 1 !important;
+      transform: none !important;
+      pointer-events: auto !important;
+      transition: none !important;
+    }
+
+    .story-panel + .story-panel {
+      margin-top: 3.5rem;
+      padding-top: 3.5rem;
+      border-top: 1px solid var(--border);
+    }
   }
 
   /* ── Shared app chrome ── */
