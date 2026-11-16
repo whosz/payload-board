@@ -1,223 +1,109 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
-
 @import "tailwindcss";
 
-/* ─── shadcn CSS variable bridge (HSL triplets for Tailwind utilities) ── */
+/* Tokens mirror the app (src/globals.css): graphite + one orange accent. */
 :root {
-  --background: 253 31% 6%;
-  --foreground: 248 20% 93%;
-  --card: 250 35% 10%;
-  --card-foreground: 248 20% 93%;
-  --popover: 250 35% 10%;
-  --popover-foreground: 248 20% 93%;
-  --primary: 40 98% 55%;
-  --primary-foreground: 253 31% 6%;
-  --secondary: 252 28% 15%;
-  --secondary-foreground: 248 20% 93%;
-  --destructive: 0 100% 65%;
-  --destructive-foreground: 248 20% 93%;
-  --input: 252 28% 15%;
-  --ring: 40 98% 55%;
-  --radius: 0.75rem;
+  --bg: #121211;
+  --surface: #171716;
+  --surface-2: #1d1d1b;
+  --border: rgba(236, 235, 230, 0.09);
+  --border-2: rgba(236, 235, 230, 0.18);
+  --text: #ecebe6;
+  --text-2: #b0aea5;
+  --muted: #8b897f;
+  --accent: #ff6a13;
+  --accent-fg: #121211;
+  --accent-glow: rgba(255, 106, 19, 0.35);
+
+  --font-display: 'Big Shoulders Display', 'Barlow Semi Condensed', sans-serif;
+  --font-body: 'Barlow Semi Condensed', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  --ease: cubic-bezier(0.19, 1, 0.22, 1);
 }
 
-/* ─── Design Tokens (defined after shadcn bridge so they win the cascade) ── */
-:root {
-  --bg:         #0d0b14;
-  --surface:    #151228;
-  --surface-2:  #1c1832;
-  --surface-3:  #231e3a;
-  --border:     rgba(180,140,255,0.09);
-  --border-2:   rgba(180,140,255,0.16);
-  --text:       #eeeef2;
-  --text-2:     #a09ab8;
-  --muted:      #635d7a;
-  --accent:     #fdb31e;
-  --accent-dim: rgba(253, 179, 30, 0.15);
-  --accent-glow:rgba(253, 179, 30, 0.35);
-  --accent-2:   #ff9854;
-  --danger:     #ff4d4d;
-  --danger-dim: rgba(255, 77, 77, 0.15);
-
-  --ease-snap:   cubic-bezier(0.19, 1, 0.22, 1);
-  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-quick:  cubic-bezier(0.07, 0.3, 0.1, 0.9);
-}
-
-/* ─── Base ──────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; }
 
-html {
-  scroll-behavior: smooth;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
   background: var(--bg);
   color: var(--text);
   line-height: 1.6;
   overflow-x: hidden;
 }
 
-/* ─── Typography ────────────────────────────────────────────────── */
-h1, h2, h3, h4 {
-  line-height: 1.15;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  line-height: 0.98;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  margin: 0;
 }
 
-/* ─── Gradient text utility ─────────────────────────────────────── */
-.gradient-text {
-  background: linear-gradient(135deg, #ffffff 0%, #a0a0b0 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
+img { max-width: 100%; height: auto; }
 
-.gradient-text-accent {
-  background: linear-gradient(135deg, #fdb31e 0%, #ff9854 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
-/* ─── Scroll reveal ─────────────────────────────────────────────── */
-.reveal {
-  opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.8s var(--ease-snap), transform 0.8s var(--ease-snap);
-}
-.reveal.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-.reveal-delay-1 { transition-delay: 0.1s; }
-.reveal-delay-2 { transition-delay: 0.2s; }
-.reveal-delay-3 { transition-delay: 0.3s; }
-.reveal-delay-4 { transition-delay: 0.4s; }
+.container { width: min(1180px, calc(100% - clamp(2rem, 6vw, 6rem))); margin: 0 auto; }
+.section { padding: clamp(4.5rem, 9vw, 7.5rem) 0; }
 
-/* ─── Word-by-word hero animation ───────────────────────────────── */
-@keyframes wordIn {
-  from { opacity: 0; transform: translateY(110%); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.hero-word {
-  display: inline-block;
-  overflow: hidden;
-  opacity: 0;
-  animation: wordIn 0.7s var(--ease-snap) forwards;
-}
-
-/* ─── Nav ────────────────────────────────────────────────────────── */
-.nav-blur {
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  background: rgba(13, 11, 20, 0.85);
-  border-bottom: 1px solid var(--border);
-}
-
-/* ─── App mockup ─────────────────────────────────────────────────── */
-@keyframes tileGlow {
-  0%   { box-shadow: none; border-color: rgba(255,255,255,0.07); }
-  50%  { box-shadow: 0 0 20px var(--accent-glow), inset 0 0 20px rgba(253,179,30,0.05); border-color: rgba(253,179,30,0.4); }
-  100% { box-shadow: 0 0 12px var(--accent-dim), inset 0 0 10px rgba(253,179,30,0.03); border-color: rgba(253,179,30,0.25); }
-}
-
-@keyframes statusCount {
-  from { opacity: 0; transform: scale(0.7); }
-  to   { opacity: 1; transform: scale(1); }
-}
-
-@keyframes pulseRed {
-  0%, 100% { box-shadow: 0 0 6px rgba(255,77,77,0.6); }
-  50%       { box-shadow: 0 0 16px rgba(255,77,77,0.9); }
-}
-
-.tile-launch {
-  animation: tileGlow 1.2s var(--ease-spring) forwards;
-}
-
-/* ─── Feature cards ─────────────────────────────────────────────── */
-.feature-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 1.75rem;
-  transition: border-color 0.2s ease, transform 0.2s var(--ease-spring), box-shadow 0.2s ease;
-}
-.feature-card:hover {
-  border-color: var(--border-2);
-  transform: translateY(-3px);
-  box-shadow: 0 12px 40px rgba(0,0,0,0.4);
-}
-
-/* ─── Pill button ────────────────────────────────────────────────── */
-.btn-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.6rem 1.5rem;
-  border-radius: 999px;
+/* Small mono label above headings */
+.kicker {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
   font-weight: 600;
-  font-size: 0.9rem;
-  transition: all 0.2s var(--ease-spring);
-  cursor: pointer;
-  border: none;
-  text-decoration: none;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 1rem;
 }
-.btn-pill-accent {
-  background: var(--accent);
-  color: #000;
+.lede { color: var(--text-2); font-size: clamp(1.05rem, 1.6vw, 1.25rem); max-width: 34rem; margin: 0; }
+
+/* Buttons — rectangular like the app */
+.btn {
+  display: inline-flex; align-items: center; gap: 0.6rem;
+  min-height: 48px; padding: 0 1.6rem;
+  font-family: var(--font-mono); font-size: 0.8rem; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none;
+  border: 1px solid var(--border-2); border-radius: 2px; color: var(--text);
+  transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s;
 }
-.btn-pill-accent:hover {
-  background: #ffbf2e;
-  box-shadow: 0 0 24px var(--accent-glow);
-  transform: translateY(-1px);
+.btn:hover { border-color: var(--text-2); background: rgba(236, 235, 230, 0.05); }
+.btn-accent { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+.btn-accent:hover { background: #ff7d33; border-color: #ff7d33; box-shadow: 0 0 28px var(--accent-glow); }
+
+/* Window frame around screenshots */
+.shot {
+  border-radius: 6px; overflow: hidden; background: var(--surface);
+  box-shadow: 0 0 0 1px var(--border-2), 0 40px 90px rgba(0, 0, 0, 0.65);
 }
-.btn-pill-ghost {
-  background: transparent;
-  color: var(--text-2);
-  border: 1px solid var(--border-2);
+.shot img { display: block; width: 100%; }
+
+/* Feature cards */
+.card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 4px;
+  padding: 1.6rem; transition: border-color 0.2s, transform 0.2s var(--ease);
 }
-.btn-pill-ghost:hover {
-  border-color: rgba(255,255,255,0.3);
-  color: var(--text);
-  background: rgba(255,255,255,0.05);
+.card:hover { border-color: var(--border-2); transform: translateY(-2px); }
+.card h3 { font-size: 1.5rem; margin: 0.6rem 0 0.5rem; }
+.card p { margin: 0; color: var(--text-2); font-size: 1rem; }
+
+/* Key caps */
+kbd {
+  font-family: var(--font-mono); font-size: 0.78em; font-weight: 600;
+  padding: 0.15em 0.55em; border: 1px solid var(--border-2); border-bottom-width: 2px;
+  border-radius: 3px; background: var(--surface-2); color: var(--text);
 }
 
-/* ─── Section spacing ────────────────────────────────────────────── */
-.section {
-  padding: clamp(5rem, 10vw, 8rem) 0;
-}
+/* Scroll reveal */
+.reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.8s var(--ease), transform 0.8s var(--ease); }
+.reveal.visible { opacity: 1; transform: none; }
 
-.container {
-  width: min(1200px, calc(100% - clamp(2rem, 5vw, 6rem)));
-  margin: 0 auto;
-}
-
-/* ─── Glow ring ─────────────────────────────────────────────────── */
-.glow-ring {
-  position: relative;
-}
-.glow-ring::before {
-  content: '';
-  position: absolute;
-  inset: -1px;
-  border-radius: inherit;
-  background: linear-gradient(135deg, var(--accent), var(--accent-2));
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  z-index: -1;
-}
-.glow-ring:hover::before { opacity: 0.5; }
-
-/* ─── Mockup window shadow ──────────────────────────────────────── */
-.window-shadow {
-  box-shadow:
-    0 0 0 1px rgba(255,255,255,0.06),
-    0 40px 80px rgba(0,0,0,0.7),
-    0 20px 40px rgba(0,0,0,0.5);
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .reveal { opacity: 1; transform: none; transition: none; }
+  * { animation: none !important; }
 }

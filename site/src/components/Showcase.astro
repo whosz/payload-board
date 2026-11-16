@@ -1,0 +1,58 @@
+---
+const base = import.meta.env.BASE_URL
+const rows = [
+  {
+    n: '01', title: 'One click, right order', img: 'app-grid-grey', w: 2000, h: 1250,
+    alt: 'Payload Board in the grey theme with the launch-order strip and app tiles',
+    body: 'Each profile is a set of apps with a launch order and delays. Press Run sequence and the backend starts them one by one — it keeps going even with the window hidden, shows its progress and can be cancelled. End session closes everything gracefully.',
+    points: ['Launch order, delays and CLI arguments per app', 'Already-running apps are adopted, not started twice', 'Dark, grey and light themes'],
+  },
+  {
+    n: '02', title: 'Everything from the keyboard', img: 'app-palette', w: 1700, h: 973,
+    alt: 'The command palette searching for "rac" with a details panel for iRacing',
+    body: 'Press Ctrl+K for a command palette: start or stop an app, switch profile, run the sequence, open a folder. Tiles have roving focus, so the whole app works without a mouse.',
+    points: ['Actions, apps and profiles in one searchable list', 'Details panel with path, arguments and delay', 'Full ARIA combobox pattern for screen readers'],
+  },
+  {
+    n: '03', title: 'Shortcuts that work in-game', img: 'app-shortcuts', w: 1700, h: 1240,
+    alt: 'Settings, Shortcuts tab: every action with its key combination and a Global badge',
+    body: 'Start your session or open the palette from anywhere — while a game has focus or the window sits in the tray. Every shortcut can be changed, reset or turned off, and conflicts are reported right away.',
+    points: ['Global (OS-level) and in-window shortcuts', 'End session needs a second press, so no accidents', 'Hints appear in the tooltips'],
+  },
+]
+---
+<section class="section" id="features">
+  <div class="container">
+    <div class="reveal head">
+      <p class="kicker">What it does</p>
+      <h2>Built for the moment<br />before the session</h2>
+    </div>
+
+    {rows.map((r, i) => (
+      <div class={`row reveal ${i % 2 ? 'flip' : ''}`}>
+        <div class="text">
+          <p class="num">{r.n}</p>
+          <h3>{r.title}</h3>
+          <p class="body">{r.body}</p>
+          <ul>{r.points.map((p) => <li>{p}</li>)}</ul>
+        </div>
+        <div class="shot"><img src={`${base}img/${r.img}.webp`} alt={r.alt} width={r.w} height={r.h} loading="lazy" /></div>
+      </div>
+    ))}
+  </div>
+</section>
+
+<style>
+  .head { margin-bottom: clamp(3rem, 6vw, 5rem); }
+  h2 { font-size: clamp(2.4rem, 5.5vw, 4.4rem); }
+  .row { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(2rem, 5vw, 5rem);
+    align-items: center; margin-bottom: clamp(4rem, 8vw, 7rem); }
+  .row.flip .text { order: 2; }
+  .num { font-family: var(--font-mono); font-size: 0.8rem; font-weight: 600; letter-spacing: 0.14em; color: var(--accent); margin: 0 0 0.8rem; }
+  h3 { font-size: clamp(2rem, 3.6vw, 3rem); margin-bottom: 1rem; }
+  .body { color: var(--text-2); margin: 0 0 1.2rem; }
+  ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.55rem; }
+  li { position: relative; padding-left: 1.5rem; color: var(--text); font-size: 0.98rem; }
+  li::before { content: ''; position: absolute; left: 0; top: 0.62em; width: 0.7rem; height: 2px; background: var(--accent); }
+  @media (max-width: 860px) { .row { grid-template-columns: 1fr; } .row.flip .text { order: 0; } }
+</style>

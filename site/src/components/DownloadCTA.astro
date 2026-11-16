@@ -1,97 +1,31 @@
 ---
+const base = import.meta.env.BASE_URL
+const dl = 'https://github.com/whosz/payload-board/releases/latest'
 ---
-<section class="section" style="position:relative;overflow:hidden;">
-  <!-- Background gradient -->
-  <div style="
-    position:absolute;inset:0;
-    background: radial-gradient(ellipse 80% 60% at 50% 100%, rgba(253,179,30,0.08) 0%, transparent 70%);
-    pointer-events:none;
-  "></div>
-  <div style="
-    position:absolute;inset:0;
-    background: linear-gradient(180deg, transparent 0%, rgba(253,179,30,0.03) 100%);
-    pointer-events:none;
-  "></div>
-
-  <div class="container" style="position:relative;z-index:1;text-align:center;">
-    <!-- Icon -->
-    <div
-      class="reveal"
-      style="
-        display:inline-flex;align-items:center;justify-content:center;
-        width:88px;height:88px;border-radius:24px;
-        background:linear-gradient(135deg, #1e1810 0%, #12100a 100%);
-        border:1px solid rgba(253,179,30,0.2);
-        margin-bottom:1.5rem;
-        box-shadow:0 0 60px rgba(253,179,30,0.1), 0 0 120px rgba(255,152,84,0.06);
-      "
-    >
-      <img src={`${import.meta.env.BASE_URL}logo.svg`} alt="Payload Board" width="54" height="54" style="display:block;" />
+<section class="section cta" id="download">
+  <img class="bg" src={`${base}img/bg-cta.webp`} alt="" width="1920" height="1080" loading="lazy" />
+  <div class="shade"></div>
+  <div class="container inner">
+    <img class="reveal" src={`${base}logo.svg`} alt="" width="56" height="56" />
+    <h2 class="reveal">Your setup,<br /><span class="accent">on command.</span></h2>
+    <p class="lede reveal">Free and open source, no account, no telemetry — the only network call is an update check against GitHub that you can switch off.</p>
+    <div class="actions reveal">
+      <a href={dl} target="_blank" rel="noopener" class="btn btn-accent">Download for Windows</a>
+      <a href={dl} target="_blank" rel="noopener" class="btn">Linux · .deb / .AppImage</a>
     </div>
-
-    <h2
-      class="reveal reveal-delay-1"
-      style="font-size:clamp(2rem,4vw,3.5rem);margin-bottom:1rem;letter-spacing:-0.03em;"
-    >
-      Your setup,<br/><span class="gradient-text-accent">on command.</span>
-    </h2>
-
-    <p
-      class="reveal reveal-delay-2"
-      style="
-        font-size:clamp(1rem,1.8vw,1.15rem);
-        color:var(--text-2);
-        max-width:480px;
-        margin:0 auto 2.5rem;
-        line-height:1.7;
-      "
-    >
-      Free and open source. No account required. No telemetry.
-      Just a fast, native desktop app that gets out of your way.
-    </p>
-
-    <!-- Primary download -->
-    <div class="reveal reveal-delay-3" style="display:flex;flex-direction:column;align-items:center;gap:1rem;">
-      <a
-        href="https://github.com/whosz/payload-board/releases/latest"
-        target="_blank"
-        rel="noopener"
-        class="btn-pill btn-pill-accent"
-        style="font-size:1rem;padding:0.85rem 2rem;"
-      >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-        </svg>
-        Download for Windows
-      </a>
-
-      <!-- Other platforms -->
-      <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;justify-content:center;">
-        <a
-          href="https://github.com/whosz/payload-board"
-          target="_blank"
-          rel="noopener"
-          style="font-size:0.8rem;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:5px;transition:color 0.2s;"
-          onmouseover="this.style.color='var(--text-2)'"
-          onmouseout="this.style.color='var(--muted)'"
-        >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/>
-          </svg>
-          macOS — build from source
-        </a>
-        <span style="color:var(--border-2);">·</span>
-        <a
-          href="https://github.com/whosz/payload-board"
-          target="_blank"
-          rel="noopener"
-          style="font-size:0.8rem;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:5px;transition:color 0.2s;"
-          onmouseover="this.style.color='var(--text-2)'"
-          onmouseout="this.style.color='var(--muted)'"
-        >
-          Linux — build from source
-        </a>
-      </div>
-    </div>
+    <p class="small">Windows 10/11 (64-bit) · Windows may show a SmartScreen warning on first run: “More info → Run anyway”.</p>
   </div>
 </section>
+
+<style>
+  .cta { position: relative; overflow: hidden; text-align: center; }
+  .bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.65; }
+  .shade { position: absolute; inset: 0;
+    background: radial-gradient(ellipse 60% 60% at 50% 50%, rgba(18, 18, 17, 0.55), var(--bg) 100%), linear-gradient(180deg, var(--bg) 0%, transparent 30%, transparent 70%, var(--bg) 100%); }
+  .inner { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; }
+  h2 { font-size: clamp(3rem, 8vw, 6.5rem); margin: 1.4rem 0 1.2rem; }
+  .accent { color: var(--accent); }
+  .lede { margin: 0 auto 2.2rem; }
+  .actions { display: flex; flex-wrap: wrap; gap: 0.9rem; justify-content: center; }
+  .small { margin: 1.4rem 0 0; font-size: 0.88rem; color: var(--muted); max-width: 34rem; }
+</style>
