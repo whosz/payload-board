@@ -1,21 +1,96 @@
 ---
 import Layout from '../layouts/Layout.astro'
-import Nav from '../components/Nav.astro'
-import Hero from '../components/Hero.astro'
-import Showcase from '../components/Showcase.astro'
-import Themes from '../components/Themes.astro'
-import FeaturesGrid from '../components/FeaturesGrid.astro'
-import DownloadCTA from '../components/DownloadCTA.astro'
-import Footer from '../components/Footer.astro'
+
+const b = import.meta.env.BASE_URL
+const dl = 'https://github.com/whosz/payload-board/releases/latest'
+// The app's own per-app colours, as in its launch-order strip.
+const stripe = ['#19e3ff', '#ff4fa3', '#ffc21a', '#9b75ff', '#b6ff1a']
+
+const steps = [
+  ['Profile', 'A profile is a named set of apps: a racing rig, a stream, a work session.'],
+  ['Order', 'Each app has a place in the launch order, an optional delay and command-line arguments.'],
+  ['Run', 'Run sequence starts the apps one at a time. The button shows the current step and cancels the rest when you press it again.'],
+  ['Watch', 'Every app is running, stopped or crashed. A crash can raise a notification, and an app can restart itself up to a limit you set.'],
+  ['End', 'End session asks each app to close. Anything still open after five seconds is killed.'],
+]
+
+const details = [
+  ['Runs in the backend', 'The launch sequence lives in the Rust backend, so it keeps going when the window is hidden.'],
+  ['Crash alerts', 'A system notification appears when an app crashes and the window is not in front.'],
+  ['Auto-restart', 'Off until you turn it on for an app. You choose how many attempts it gets.'],
+  ['Steam games', 'Installed Steam games resolve to the game\'s own executable, found through Steam\'s app manifests.'],
+  ['Tile artwork', 'Art comes from SteamGridDB (you need a free API key) or from an image on disk.'],
+  ['Five languages', 'English, Polish, German, Spanish and French. The German, Spanish and French texts are machine translated, and corrections are welcome.'],
+  ['Tray and autostart', 'Start minimised, hide to the tray on close, launch at login.'],
+  ['Update check', 'At startup the app asks GitHub whether a newer release exists and links to the download page. You can turn it off.'],
+]
+
+const specs = [['~5 MB', 'Rust backend memory'], ['3', 'Themes'], ['5', 'Languages'], ['0', 'Accounts needed']]
 ---
 <Layout>
-  <Nav />
+  <header class="nav">
+    <div class="wrap">
+      <a class="brand" href={b}><img src={`${b}logo.svg`} alt="" width="24" height="24" />Payload Board</a>
+      <nav aria-label="Main"><a href="#how">How it works</a><a href="#app">The app</a><a href="#download">Download</a></nav>
+      <a class="btn sm" href={dl}>Download</a>
+    </div>
+  </header>
+  <div class="stripe" aria-hidden="true">{stripe.map((c) => <i style={`background:${c}`}></i>)}</div>
+
   <main>
-    <Hero />
-    <Showcase />
-    <Themes />
-    <FeaturesGrid />
-    <DownloadCTA />
+    <section class="hero">
+      <img class="bg" src={`${b}img/photo-track.webp`} alt="" width="2000" height="1125" fetchpriority="high" />
+      <div class="shade"></div>
+      <div class="wrap">
+        <p class="label">v0.6.0 &nbsp;/&nbsp; Windows and Linux &nbsp;/&nbsp; Open source</p>
+        <h1>Launch your stack.<br />In the right order.</h1>
+        <p class="lead">Payload Board starts the apps you need for a session, one after another, and shows which of them are running. It began as a way to bring up the dozen programs a sim racing rig needs.</p>
+        <div class="row"><a class="btn" href={dl}>Download for Windows</a><a class="btn out" href="#how">How it works</a></div>
+      </div>
+    </section>
+
+    <section class="wrap sec" id="how">
+      <p class="label">Five steps</p>
+      <h2>From profile to running rig</h2>
+      <ol class="steps">
+        {steps.map(([t, d], i) => (
+          <li><i style={`background:${stripe[i]}`}></i><span class="num">{String(i + 1).padStart(2, '0')}</span><h3>{t}</h3><p>{d}</p></li>
+        ))}
+      </ol>
+    </section>
+
+    <section class="wrap" id="app" style="padding-bottom:clamp(4rem,9vw,7rem)">
+      <div class="shot"><img src={`${b}img/app-hero.webp`} alt="Payload Board showing the Sim Racing profile: five apps, three running, one crashed" width="2200" height="1375" loading="lazy" /></div>
+      <div class="cols">
+        <div><p class="label">Command palette</p><h3>Ctrl+K and type</h3><p>The palette lists apps, profiles and actions. A side panel shows the selected app's path, arguments and delay.</p></div>
+        <div><p class="label">Shortcuts</p><h3>Work in a game, too</h3><p>Run, end session and the palette respond from anywhere, even with a game in focus. Every shortcut can be changed or turned off in Settings.</p></div>
+        <div><p class="label">Looks</p><h3>Dark, grey, light</h3><p>Poster or list view. Below 560 px the window shrinks to a status line and one button.</p></div>
+      </div>
+      <div class="cols" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr));margin-top:40px;align-items:start">
+        <div class="shot"><img src={`${b}img/app-palette.webp`} alt="The command palette with a search for rac" width="1700" height="973" loading="lazy" /></div>
+        <div class="shot"><img src={`${b}img/app-shortcuts.webp`} alt="Settings, Shortcuts tab, with global and window shortcuts" width="1700" height="1240" loading="lazy" /></div>
+      </div>
+    </section>
+
+    <section class="wrap" style="padding-bottom:clamp(4rem,9vw,7rem)">
+      <p class="label">Details</p>
+      <h2>What else it does</h2>
+      <div class="details">{details.map(([t, d]) => <div><h3>{t}</h3><p>{d}</p></div>)}</div>
+    </section>
+
+    <section class="wrap"><div class="specs">{specs.map(([v, l]) => <div><b>{v}</b><span>{l}</span></div>)}</div></section>
+
+    <section class="band" id="download">
+      <img class="bg" src={`${b}img/photo-cockpit.webp`} alt="" width="2000" height="1125" loading="lazy" />
+      <div class="shade"></div>
+      <div class="wrap">
+        <h2>Download Payload Board</h2>
+        <div class="row"><a class="btn" href={dl}>Windows installer</a><a class="btn out" href={dl}>Linux: .deb, .AppImage</a></div>
+        <p class="fine">Free and open source under the MIT license. Needs Windows 10 or 11 (64-bit), or Linux. Windows may show a SmartScreen warning on first run: choose More info, then Run anyway.</p>
+      </div>
+    </section>
   </main>
-  <Footer />
+
+  <div class="stripe" aria-hidden="true">{stripe.map((c) => <i style={`background:${c}`}></i>)}</div>
+  <footer><span>Payload Board, built with Tauri and React</span><a href="https://github.com/whosz/payload-board">github.com/whosz/payload-board</a></footer>
 </Layout>
