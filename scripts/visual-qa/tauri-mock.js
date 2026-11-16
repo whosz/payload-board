@@ -19,6 +19,7 @@ export function installTauriMock({ profiles, theme, lang }) {
       if (cmd === 'set_global_shortcuts_enabled') { window.__shortcuts.enabled = args.enabled; return window.__shortcuts.snapshot(); }
       if (cmd === 'set_active_profile' || cmd === 'suspend_global_shortcuts') return null;
       if (cmd === 'list_installed_apps') return ['Discord', 'SimHub', 'Steam', 'Trading Paints', 'Visual Studio Code'].map(n => ({ name: n, exe_path: 'C:/' + n + '.exe' }));
+      if (cmd === 'sgdb_search') throw 'SteamGridDB API key not configured';
       if (cmd === 'run_sequence') { window.__simulateSequence(profiles, args.profileId); return null; }
       if (cmd === 'cancel_sequence') { window.__cancelled = true; return null; }
       if (cmd === 'plugin:event|listen') {

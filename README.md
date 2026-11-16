@@ -41,7 +41,7 @@ Inspired by the pain of managing a dozen simracing apps that all had to be start
 - Tray icon always present with Show / Quit menu; left-click to restore
 - **Start minimised to tray** — hide main window on launch (toggle in Settings)
 - **Minimise on close** — close button hides to tray instead of quitting (toggle in Settings)
-- **Launch on startup** — register as a Windows / macOS / Linux autostart entry (toggle in Settings)
+- **Launch on startup** — register as a Windows / Linux autostart entry (toggle in Settings)
 
 **Artwork & appearance**
 - SteamGridDB integration — search and assign game artwork as tile backgrounds; API key in Settings
@@ -53,7 +53,7 @@ Inspired by the pain of managing a dozen simracing apps that all had to be start
 - Collapsible sidebar — chevron toggle in the Profiles header
 
 **App discovery**
-- Browse installed apps: Windows (registry), macOS (`/Applications`), Linux (`.desktop` files)
+- Browse installed apps: Windows (registry), Linux (`.desktop` files)
 
 **Storage**
 - Persistent profiles (JSON, stored in platform app data dir)
@@ -75,9 +75,9 @@ Download the latest release from [GitHub Releases](https://github.com/whosz/payl
 **Requirements:** Windows 10 or 11 (64-bit).  
 Windows may show a SmartScreen warning on first run — click "More info → Run anyway".
 
-### macOS / Linux
+### Linux
 
-Pre-built `.dmg` (macOS) and `.deb` / `.AppImage` (Linux) are available on the [Releases](https://github.com/whosz/payload-board/releases) page.
+Pre-built `.deb` / `.AppImage` (Linux) are available on the [Releases](https://github.com/whosz/payload-board/releases) page.
 
 Or build from source:
 
@@ -89,8 +89,6 @@ Or build from source:
 ```bash
 sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev pkg-config build-essential
 ```
-
-**macOS:** Xcode Command Line Tools (`xcode-select --install`)
 
 **Build:**
 ```bash
@@ -116,13 +114,12 @@ First Rust compile takes 5–10 minutes. Subsequent builds are fast.
 **Why not Electron?**
 Payload Board monitors and controls other processes. Using Electron would add ~150 MB RAM and meaningful CPU overhead to the very app that manages resource usage. Tauri's Rust backend uses ~5 MB RAM.
 
-**Does it work on Linux / macOS?**
-Yes — pre-built binaries are available on the Releases page. The "Browse installed apps" feature works on all three platforms (registry on Windows, `/Applications` on macOS, `.desktop` files on Linux).
+**Does it work on Linux?**
+Yes — pre-built binaries are available on the Releases page. The "Browse installed apps" feature works on Windows (registry) and Linux (`.desktop` files). There is no macOS build.
 
 **Can I import / export profiles?**
 Not yet. Profiles are stored as plain JSON in your app data directory:
 - Windows: `%APPDATA%\com.payload-board\`
-- macOS: `~/Library/Application Support/com.payload-board/`
 - Linux: `~/.config/com.payload-board/`
 
 You can also change the storage location in Settings → Storage.

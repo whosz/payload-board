@@ -9,15 +9,17 @@ import { Input } from '../ui/input';
 import { sgdbSearch, sgdbGrids } from '../../ipc/steamgriddb';
 import type { SgdbGame, SgdbGrid } from '../../ipc/steamgriddb';
 import { t } from '../../i18n';
+import { SGDB_API_URL, openExternal } from '../../lib/links';
 
 interface SteamGridPickerProps {
   open: boolean;
   onClose: () => void;
   initialQuery: string;
   onSelect: (url: string) => void;
+  onOpenSettings?: () => void;
 }
 
-export function SteamGridPicker({ open, onClose, initialQuery, onSelect }: SteamGridPickerProps) {
+export function SteamGridPicker({ open, onClose, initialQuery, onSelect, onOpenSettings }: SteamGridPickerProps) {
   const [query, setQuery] = useState('');
   const [games, setGames] = useState<SgdbGame[]>([]);
   const [grids, setGrids] = useState<SgdbGrid[]>([]);
@@ -69,6 +71,8 @@ export function SteamGridPicker({ open, onClose, initialQuery, onSelect }: Steam
     }
   };
 
+  const missingKey = error.includes('API key not configured');
+
   const labelStyle: React.CSSProperties = {
     color: 'var(--color-text-muted)',
     fontSize: 11,
@@ -109,11 +113,16 @@ export function SteamGridPicker({ open, onClose, initialQuery, onSelect }: Steam
         </div>
 
         {error && (
-          <div
-            className="font-mono text-xs"
-            style={{ color: 'var(--color-status-crit)', padding: '4px 0' }}
-          >
-            {error}
+          <div style={{ padding: '4px 0' }}>
+            <div className="font-mono text-xs" style={{ color: 'var(--color-status-crit)' }}>
+              {missingKey ? t('SteamGridDB API key not configured') : error}
+            </div>
+            {missingKey && (
+              <div className="flex gap-2" style={{ marginTop: 8 }}>
+                {onOpenSettings && <Button variant="fill" size="sm" onClick={onOpenSettings}>{t('Open Settings')}</Button>}
+                <Button variant="default" size="sm" onClick={() => openExternal(SGDB_API_URL)}>{t('Get an API key')}</Button>
+              </div>
+            )}
           </div>
         )}
 

@@ -1,6 +1,6 @@
 # Payload Board
 
-Tauri 2 (Rust) + React 19 + Tailwind 4 + shadcn/base-ui. Windows-first desktop app; macOS/Linux supported.
+Tauri 2 (Rust) + React 19 + Tailwind 4 + shadcn/base-ui. Windows-first desktop app; Linux supported (no macOS).
 
 ## Commands
 

@@ -82,6 +82,22 @@ try {
   const sw = page.getByRole('switch', { name: 'Enable global shortcuts' });
   await sw.click();
   ok('shortcuts: master switch has an accessible name and toggles', (await sw.getAttribute('aria-checked')) === 'false');
+
+  // ── tooltips show shortcuts; missing SteamGridDB key leads to Settings ──
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(200);
+  ok('tooltip: tile button shows its key', (await count('.tile-btn[title="Restart (R)"]')) > 0);
+  ok('tooltip: toolbar button shows the configured shortcut', (await count('header .tile-btn[title^="New profile ("]')) === 1);
+  await page.getByRole('button', { name: 'Add app' }).first().click();
+  await page.getByRole('button', { name: 'SteamGridDB…' }).click();
+  await page.getByPlaceholder('Search game name…').fill('Test');
+  await page.getByRole('button', { name: 'Search', exact: true }).click();
+  await page.waitForTimeout(300);
+  ok('sgdb: missing key shows a friendly message', (await page.getByText('SteamGridDB API key not configured').count()) === 1);
+  ok('sgdb: link to the API page is offered', (await page.getByRole('button', { name: 'Get an API key' }).count()) === 1);
+  await page.getByRole('button', { name: 'Open Settings' }).click();
+  await page.waitForTimeout(300);
+  ok('sgdb: Open Settings lands on the Data tab', (await page.getByRole('tab', { name: 'Data' }).getAttribute('aria-selected')) === 'true');
 } finally {
   await browser.close();
   server?.stop();

@@ -2,6 +2,7 @@ import { Icon } from './icons/Icon';
 import { faPlus, faGear } from './icons';
 import type { Profile } from '../types';
 import { t } from '../i18n';
+import { withKey } from '../lib/shortcuts';
 
 interface Props {
   profiles: Profile[];
@@ -10,9 +11,11 @@ interface Props {
   onNew: () => void;
   onSettings: () => void;
   onPalette: () => void;
+  /** formatted shortcut per button, when one is configured */
+  keys?: { palette?: string; newProfile?: string; settings?: string };
 }
 
-export function ProfileTabs({ profiles, activeProfileId, onSelect, onNew, onSettings, onPalette }: Props) {
+export function ProfileTabs({ profiles, activeProfileId, onSelect, onNew, onSettings, onPalette, keys = {} }: Props) {
   return (
     <header className="flex items-center flex-shrink-0" style={{ height: 56, gap: 24, padding: '0 24px', borderBottom: '1px solid var(--color-border-divider)' }}>
       <div className="flex items-center flex-shrink-0" style={{ gap: 10 }}>
@@ -55,13 +58,13 @@ export function ProfileTabs({ profiles, activeProfileId, onSelect, onNew, onSett
       </nav>
 
       <div className="flex items-center flex-shrink-0" style={{ gap: 4 }}>
-        <button onClick={onPalette} title={t('Command palette')} aria-label={t('Open command palette')} className="tile-btn">
+        <button onClick={onPalette} title={withKey(t('Command palette'), keys.palette)} aria-label={t('Open command palette')} className="tile-btn">
           <svg width="14" height="14" viewBox="0 0 20 20" aria-hidden="true" style={{ color: 'var(--color-text-secondary)' }}>
             <circle cx="8" cy="8" r="5.5" fill="none" stroke="currentColor" strokeWidth="2.2" /><path d="M12 12l6 6" stroke="currentColor" strokeWidth="2.2" />
           </svg>
         </button>
-        <button onClick={onNew} title={t('New profile')} aria-label={t('New profile')} className="tile-btn"><Icon icon={faPlus} size={14} /></button>
-        <button onClick={onSettings} title={t('Settings')} aria-label={t('Settings')} className="tile-btn"><Icon icon={faGear} size={14} /></button>
+        <button onClick={onNew} title={withKey(t('New profile'), keys.newProfile)} aria-label={t('New profile')} className="tile-btn"><Icon icon={faPlus} size={14} /></button>
+        <button onClick={onSettings} title={withKey(t('Settings'), keys.settings)} aria-label={t('Settings')} className="tile-btn"><Icon icon={faGear} size={14} /></button>
       </div>
     </header>
   );

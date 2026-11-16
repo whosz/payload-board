@@ -23,6 +23,7 @@ import {
   getMinimiseOnClose,
   setMinimiseOnClose,
 } from '../../ipc/settings';
+import { SGDB_API_URL, openExternal } from '../../lib/links';
 import { t, getLanguage, setLanguage, LANGUAGES } from '../../i18n';
 
 type Theme = 'dark' | 'grey' | 'light';
@@ -34,6 +35,8 @@ interface SettingsPanelProps {
   onThemeChange: (t: Theme) => void;
   onReset: () => void;
   shortcuts: ShortcutsApi;
+  /** tab shown when the dialog opens */
+  initialTab?: 'appearance' | 'general' | 'shortcuts' | 'data' | 'about';
 }
 
 function SectionLabel({ children, crit }: { children: React.ReactNode; crit?: boolean }) {
@@ -91,7 +94,7 @@ const THEMES: { value: Theme; label: () => string }[] = [
   { value: 'light', label: () => t('Light') },
 ];
 
-export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset, shortcuts }: SettingsPanelProps) {
+export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset, shortcuts, initialTab = 'appearance' }: SettingsPanelProps) {
   const [version, setVersion] = useState('...');
   const [profilesDir, setProfilesDirState] = useState('');
   const [confirmReset, setConfirmReset] = useState(false);
@@ -165,7 +168,7 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset, sh
       <DialogContent width={600}>
         <ModalHeader title={t('Settings')} />
 
-        <TabsPrimitive.Root defaultValue="appearance">
+        <TabsPrimitive.Root defaultValue={initialTab}>
           <TabsPrimitive.List className="stabs" aria-label={t('Settings')}>
             <TabsPrimitive.Tab value="appearance" className="stab">{t('Appearance')}</TabsPrimitive.Tab>
             <TabsPrimitive.Tab value="general" className="stab">{t('General')}</TabsPrimitive.Tab>
@@ -261,6 +264,9 @@ export function SettingsPanel({ open, onClose, theme, onThemeChange, onReset, sh
               />
               <Button variant="default" size="default" onClick={handleSaveSgdbKey} disabled={sgdbSaving}>
                 {t('Save')}
+              </Button>
+              <Button variant="default" size="default" onClick={() => openExternal(SGDB_API_URL)}>
+                {t('Get an API key')}
               </Button>
             </div>
             {sgdbStatus && (

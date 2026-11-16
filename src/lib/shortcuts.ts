@@ -54,6 +54,15 @@ export function matches(accelerator: string, e: KeyboardEvent): boolean {
     && e.shiftKey === mods.has('Shift');
 }
 
+/** Tooltip text with the key in brackets, e.g. "Settings (Ctrl+,)". */
+export const withKey = (label: string, keys?: string | null) => (keys ? `${label} (${keys})` : label);
+
+/** Human-readable accelerator of a configured action, e.g. "Ctrl+Alt+R", or undefined. */
+export function keysFor(state: ShortcutsState | null | undefined, action: ShortcutAction): string | undefined {
+  const acc = state?.entries.find(e => e.action === action)?.accelerator;
+  return acc ? formatAccelerator(acc).join('+') : undefined;
+}
+
 /** Human-readable key caps, e.g. ["Ctrl", "Alt", "R"]. */
 export function formatAccelerator(accelerator: string): string[] {
   const isMac = typeof navigator !== 'undefined' && /Mac/i.test(navigator.platform);

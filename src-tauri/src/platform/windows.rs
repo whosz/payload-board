@@ -32,9 +32,13 @@ impl PlatformAdapter for WindowsAdapter {
 
     fn open_path(&self, exe_path: &std::path::Path) -> Result<(), String> {
         let path_str = exe_path.to_string_lossy();
-        std::process::Command::new("explorer")
-            .arg(format!("/select,{}", path_str))
-            .spawn()
+        let mut cmd = std::process::Command::new("explorer");
+        if exe_path.is_dir() {
+            cmd.arg(exe_path);
+        } else {
+            cmd.arg(format!("/select,{}", path_str));
+        }
+        cmd.spawn()
             .map_err(|e| e.to_string())?;
         Ok(())
     }
@@ -77,7 +81,7 @@ fn list_registry_apps() -> Vec<InstalledApp> {
             };
             if name.trim().is_empty() { continue; }
 
-            let exe_path = subkey
+            let icon_path: Option<String> = subkey
                 .get_value::<String, _>("DisplayIcon")
                 .ok()
                 .map(|icon| {
@@ -89,18 +93,71 @@ fn list_registry_apps() -> Vec<InstalledApp> {
                         }
                     }
                     s.trim_matches('"').to_string()
-                })
+                });
+
+            let mut exe_path = icon_path
+                .clone()
                 .filter(|p| {
                     let lower = p.to_lowercase();
                     (lower.ends_with(".exe") || lower.ends_with(".bat"))
                         && std::path::Path::new(p).exists()
                 });
 
+            // Steam games (and others) point DisplayIcon at an .ico: look for the game's
+            // exe in InstallLocation, or next to the icon.
+            if exe_path.is_none() {
+                let install_dir = subkey
+                    .get_value::<String, _>("InstallLocation")
+                    .ok()
+                    .map(|d| PathBuf::from(d.trim().trim_matches('"')))
+                    .filter(|d| d.is_dir())
+                    .or_else(|| {
+                        icon_path
+                            .as_ref()
+                            .and_then(|p| std::path::Path::new(p).parent().map(|d| d.to_path_buf()))
+                            .filter(|d| d.is_dir())
+                    });
+                exe_path = install_dir
+                    .and_then(|d| find_game_exe(&d, &name))
+                    .map(|p| p.to_string_lossy().to_string());
+            }
+
             apps.push(InstalledApp { name, exe_path });
         }
     }
 
     apps
+}
+
+/// Best-guess game executable in `dir` (top level + one sub-folder deep): skips installers,
+/// crash reporters and redistributables, prefers a name matching the app, else the largest exe.
+fn find_game_exe(dir: &std::path::Path, app_name: &str) -> Option<PathBuf> {
+    const SKIP: [&str; 9] = ["unins", "crash", "redist", "setup", "install", "dxsetup", "helper", "report", "update"];
+    let norm = |s: &str| s.chars().filter(|c| c.is_alphanumeric()).collect::<String>().to_lowercase();
+    let want = norm(app_name);
+
+    let mut exes: Vec<(PathBuf, u64)> = Vec::new();
+    let mut dirs = vec![dir.to_path_buf()];
+    if let Ok(rd) = std::fs::read_dir(dir) {
+        dirs.extend(rd.flatten().map(|e| e.path()).filter(|p| p.is_dir()));
+    }
+    for d in dirs {
+        let Ok(rd) = std::fs::read_dir(&d) else { continue };
+        for e in rd.flatten() {
+            let p = e.path();
+            let stem = p.file_stem().and_then(|s| s.to_str()).unwrap_or("").to_lowercase();
+            let is_exe = p.extension().map_or(false, |x| x.eq_ignore_ascii_case("exe"));
+            if is_exe && !SKIP.iter().any(|s| stem.contains(s)) {
+                exes.push((p, e.metadata().map(|m| m.len()).unwrap_or(0)));
+            }
+        }
+    }
+    let named = |p: &PathBuf| {
+        let n = norm(p.file_stem().and_then(|s| s.to_str()).unwrap_or(""));
+        !n.is_empty() && (want.contains(&n) || n.contains(&want))
+    };
+    exes.sort_by_key(|(p, size)| (!named(p), std::cmp::Reverse(*size)));
+    exes.into_iter().next().map(|(p, _)| p)
 }
 
 fn titlecase(s: &str) -> String {

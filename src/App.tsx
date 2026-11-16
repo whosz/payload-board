@@ -26,6 +26,7 @@ import { startApp, stopApp, restartApp, openPath, stopAll, scanRunningApps } fro
 import { useSequence } from './hooks/useSequence';
 import { useSessionSeconds } from './hooks/useSessionSeconds';
 import { applyAccent } from './lib/accent';
+import { keysFor } from './lib/shortcuts';
 import { useShortcuts } from './hooks/useShortcuts';
 import { t, tx, useLanguage } from './i18n';
 import { setActiveProfile } from './ipc/shortcuts';
@@ -69,6 +70,7 @@ export default function App() {
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [confirmRemoveApp, setConfirmRemoveApp] = useState<AppEntry | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [settingsTab, setSettingsTab] = useState<'appearance' | 'data'>('appearance');
   const [sortOrder, setSortOrder] = useState<SortOrder>('manual');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [designRefOpen, setDesignRefOpen] = useState(false);
@@ -84,6 +86,8 @@ export default function App() {
     return () => window.removeEventListener('keydown', handler);
   }, []);
 
+  // Settings opens on top of whichever editor asked, so unsaved form input survives.
+  const openDataSettings = () => { setSettingsTab('data'); setSettingsOpen(true); };
   const anyDialogOpen = profileEditorOpen || appEditorOpen || settingsOpen || confirmDeleteId !== null || confirmRemoveApp !== null;
 
   const [theme, setTheme] = useState<Theme>(() =>
@@ -250,6 +254,7 @@ export default function App() {
         onNew={() => { setEditingProfile(undefined); setProfileEditorOpen(true); }}
         onSettings={() => setSettingsOpen(true)}
         onPalette={() => { if (!anyDialogOpen) setPaletteOpen(true); }}
+        keys={{ palette: keysFor(shortcuts.state, 'palette'), newProfile: keysFor(shortcuts.state, 'new_profile'), settings: keysFor(shortcuts.state, 'settings') }}
       />
 
       {!activeProfile ? (
@@ -273,6 +278,7 @@ export default function App() {
             crashed={crashedApps}
             sessionSeconds={sessionSeconds}
             runDisabled={sortedApps.length === 0}
+            keys={{ run: keysFor(shortcuts.state, 'run_sequence'), end: keysFor(shortcuts.state, 'end_session'), addApp: keysFor(shortcuts.state, 'add_app') }}
             onRun={() => sequence.run().catch(e => pushError(t('Run sequence failed: {error}', { error: String(e) })))}
             onCancel={() => sequence.cancel().catch(e => pushError(t('Cancel failed: {error}', { error: String(e) })))}
             onEnd={async () => {
@@ -408,6 +414,7 @@ export default function App() {
         open={profileEditorOpen}
         onClose={() => { setProfileEditorOpen(false); setEditingProfile(undefined); }}
         initial={editingProfile}
+        onOpenSettings={openDataSettings}
         onSave={async fields => {
           try {
             if (editingProfile) {
@@ -428,10 +435,12 @@ export default function App() {
         onClose={() => { setAppEditorOpen(false); setEditingApp(undefined); }}
         onSave={handleSaveApp}
         initial={editingApp}
+        onOpenSettings={openDataSettings}
       />
       <SettingsPanel
         open={settingsOpen}
-        onClose={() => setSettingsOpen(false)}
+        initialTab={settingsTab}
+        onClose={() => { setSettingsOpen(false); setSettingsTab('appearance'); }}
         theme={theme}
         onThemeChange={setTheme}
         onReset={() => reload()}

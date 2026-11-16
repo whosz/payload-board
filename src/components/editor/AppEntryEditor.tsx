@@ -20,6 +20,7 @@ interface AppEntryEditorProps {
   onClose: () => void;
   onSave: (entry: Omit<AppEntry, 'id' | 'order'>) => void;
   initial?: Partial<AppEntry>;
+  onOpenSettings?: () => void;
 }
 
 const defaults: Omit<AppEntry, 'id' | 'order'> = {
@@ -31,7 +32,7 @@ const defaults: Omit<AppEntry, 'id' | 'order'> = {
   enabled: true,
 };
 
-export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEditorProps) {
+export function AppEntryEditor({ open, onClose, onSave, initial, onOpenSettings }: AppEntryEditorProps) {
   const [isEditing, setIsEditing] = useState(Boolean(initial?.id));
   const [form, setForm] = useState<Omit<AppEntry, 'id' | 'order'>>({ ...defaults, ...initial });
   const [argsStr, setArgsStr] = useState((initial?.args ?? []).join(' '));
@@ -292,6 +293,7 @@ export function AppEntryEditor({ open, onClose, onSave, initial }: AppEntryEdito
         onClose={() => setSgdbPickerOpen(false)}
         initialQuery={form.name}
         onSelect={url => setForm(f => ({ ...f, background_url: url }))}
+        onOpenSettings={onOpenSettings}
       />
     </>
   );

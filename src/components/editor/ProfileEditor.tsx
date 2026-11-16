@@ -24,6 +24,7 @@ interface ProfileEditorProps {
   onClose: () => void;
   onSave: (fields: { name: string; emoji?: string; color_accent?: string; cover_url?: string }) => void;
   initial?: Partial<Pick<Profile, 'name' | 'emoji' | 'color_accent' | 'cover_url'>>;
+  onOpenSettings?: () => void;
 }
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
@@ -42,7 +43,7 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function ProfileEditor({ open, onClose, onSave, initial }: ProfileEditorProps) {
+export function ProfileEditor({ open, onClose, onSave, initial, onOpenSettings }: ProfileEditorProps) {
   const [isEditing, setIsEditing] = useState(Boolean(initial?.name));
   const [name, setName] = useState(initial?.name ?? '');
   const [emoji, setEmoji] = useState(initial?.emoji ?? '');
@@ -206,7 +207,7 @@ export function ProfileEditor({ open, onClose, onSave, initial }: ProfileEditorP
           </Button>
         </ModalFooter>
       </DialogContent>
-      <SteamGridPicker open={pickerOpen} onClose={() => setPickerOpen(false)} initialQuery={name} onSelect={url => { setCover(url); setPickerOpen(false); }} />
+      <SteamGridPicker open={pickerOpen} onClose={() => setPickerOpen(false)} initialQuery={name} onSelect={url => { setCover(url); setPickerOpen(false); }} onOpenSettings={onOpenSettings} />
     </Dialog>
   );
 }

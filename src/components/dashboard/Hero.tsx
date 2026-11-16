@@ -7,6 +7,7 @@ import { formatClock } from '../../hooks/useSessionSeconds';
 import type { Profile } from '../../types';
 import type { ProcessStatus } from '../../hooks/useProcessStatus';
 import { t } from '../../i18n';
+import { withKey } from '../../lib/shortcuts';
 
 export interface CrashedApp { id: string; name: string; error?: string }
 
@@ -27,6 +28,7 @@ interface Props {
   onDeleteProfile: () => void;
   onRestartApp: (id: string) => void;
   onClearErrors: () => void;
+  keys?: { run?: string; end?: string; addApp?: string };
 }
 
 const mono = { fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase' } as const;
@@ -97,15 +99,15 @@ export function Hero(p: Props) {
             <Icon icon={faXmark} size={14} /> {t('Cancel {step}/{total}', { step: p.step, total: p.total })}
           </Button>
         ) : live > 0 ? (
-          <Button variant="destructive" size="lg" className="h-12 px-7 text-base" onClick={p.onEnd}>
+          <Button variant="destructive" size="lg" className="h-12 px-7 text-base" title={withKey(t('End session'), p.keys?.end)} onClick={p.onEnd}>
             <Icon icon={faPowerOff} size={14} crit /> {t('End session')}
           </Button>
         ) : (
-          <Button variant="fill" size="lg" className="h-12 px-7 text-base" disabled={p.runDisabled} onClick={p.onRun}>
+          <Button variant="fill" size="lg" className="h-12 px-7 text-base" disabled={p.runDisabled} title={withKey(t('Run sequence'), p.keys?.run)} onClick={p.onRun}>
             <Icon icon={faPlay} size={14} color="var(--color-accent-fg)" /> {t('Run sequence')}
           </Button>
         )}
-        <Button variant="default" size="lg" className="hero__add h-12 px-6 text-base" onClick={p.onAddApp}>
+        <Button variant="default" size="lg" className="hero__add h-12 px-6 text-base" title={withKey(t('Add app'), p.keys?.addApp)} onClick={p.onAddApp}>
           <Icon icon={faPlus} size={12} /> {t('Add app')}
         </Button>
       </div>
